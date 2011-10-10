@@ -1,0 +1,239 @@
+.aw-forum .mlist table {
+	table-layout: fixed;
+	border-collapse: collapse;
+	width: 100%;
+}
+.aw-forum .mlist table th {
+	background-color: #F4F4EE;
+	font-weight: normal;
+	padding: 0;
+	white-space: nowrap;
+	text-align: left;
+}
+
+.aw-forum .mlist th a {
+	color: #000;
+	text-decoration: none;
+}
+.aw-forum .mlist th a:hover {
+	text-decoration: underline;
+}
+
+.aw-forum .mlist th ul {
+	height: 2.1em;
+}
+.aw-forum .mlist th li {
+	margin-top: 0.4em;
+	float: left;
+}
+.aw-forum .mlist th .sort-asc,
+.aw-forum .mlist th .sort-desc,
+.aw-forum .mlist th .sortstr-asc,
+.aw-forum .mlist th .sortstr-desc,
+.aw-forum .mlist th .sortdate-asc,
+.aw-forum .mlist th .sortdate-desc {
+	display: none;
+	margin-top: 2px;
+	margin-left: 2px;
+	height: 13px;
+	background: url("/modules/forum/images/icons.png") no-repeat 0 0 transparent;
+}
+.aw-forum .mlist th .sort-asc ,
+.aw-forum .mlist th .sort-desc {
+	width: 3px;
+	background-position: 0 -11px;
+}
+.aw-forum .mlist th .sort-desc {
+	background-position: -4px -11px;
+}
+.aw-forum .mlist th .sortstr-asc {
+	width: 9px;
+	background-position: -7px -11px;
+}
+.aw-forum .mlist th .sortstr-desc {
+	width: 9px;
+	background-position: -16px -11px;
+}
+.aw-forum .mlist th .sortdate-asc {
+	width: 22px;
+	background-position: -25px -11px;
+}
+.aw-forum .mlist th .sortdate-desc {
+	width: 22px;
+	background-position: -47px -11px;
+}
+.aw-forum .mlist th ul.sa .sort-asc,
+.aw-forum .mlist th ul.sa .sortstr-asc, 
+.aw-forum .mlist th ul.sa .sortdate-asc {
+	display: inherit;
+}
+.aw-forum .mlist th ul.sb .sort-desc,
+.aw-forum .mlist th ul.sb .sortstr-desc, 
+.aw-forum .mlist th ul.sb .sortdate-desc {
+	display: inherit;
+}
+
+.aw-forum .mlist table td a {
+	text-decoration: none;
+}
+
+.aw-forum .mlist tr.row td {
+	padding: 0.5em 0.3em 0.6em 0.3em;
+}
+
+.aw-forum .mlist table th.tname {
+	width: 70%;
+}
+.aw-forum .mlist table th.tname .tl {
+    margin-left: 30px;
+}
+
+.aw-forum .mlist .tname .ch-ico {
+	float: left;
+	height: 15px;
+}
+.aw-forum .mlist div.ch-btn {
+	background: url("/modules/forum/images/icons.png") no-repeat scroll -1000px -1000px transparent;
+	margin-top: 2px;
+    margin-left: 4px;
+    width: 11px;
+    height: 11px;
+}
+.aw-forum .mlist .closed div.ch-btn {
+	background-position: -69px -11px;
+}
+
+.aw-forum .mlist .tname .ch-tl {
+	margin-left: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+}
+.aw-forum .mlist .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow.png") repeat-y scroll 0 0 transparent;
+    height: 1.3em;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+}
+
+.aw-forum .mlist tr.row:hover .tname .ch-tl .shadow,
+.aw-forum .mlist tr.row-hover .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow-row.png") repeat-y scroll 0 0 transparent;
+}
+
+/* колонка кол-ва комментарий */
+.aw-forum .mlist table th.tcmtcount {
+	width: 10em;
+}
+
+.aw-forum .mlist table td.tcmtcount {
+	vertical-align: middle;
+	text-align: center;
+}
+.aw-forum .mlist table th.tcmtcount .tl {
+    margin-left: 1em;
+}
+
+/* колонка последний комментарий */
+.aw-forum .mlist tr.row td.tlastcmt {
+	padding: 0.1em 0.3em 0.1em 0.3em;
+	font-size: .8em;
+}
+.aw-forum .mlist tr.row td.tlastcmt .cmtdate {
+	color: #839097;
+}
+
+
+/*
+
+.aw-forum .mlist table th.tautor, 
+.aw-forum .mlist table th.texec {
+	width: 25%;
+}
+.aw-forum .mlist table th.tfav {
+	width: 26px;
+}
+.aw-forum .mlist table th.tfav ul {
+	margin-left: 4px;
+}
+
+.aw-forum .mlist table th.tvot {
+	width: 60px;
+}
+.aw-forum .mlist table th.tvot ul {
+	margin-left: 15px;
+}
+
+.aw-forum .mlist table th.tprt {
+	width: 8em;
+	text-align: center;	
+}
+.aw-forum .mlist table th.tprt ul {
+	margin-left: 10px;
+}
+.aw-forum .mlist table td.tprt .prtclr {
+	text-align: center;
+}
+
+.aw-forum .mlist table th.twork {
+	width: 7em;
+}
+.aw-forum .mlist table td.twork {
+	vertical-align: middle;
+}
+/**/
+
+/*
+.aw-forum .mlist table .expired td, 
+.aw-forum .mlist table .expired td a,
+.aw-forum .mlist table .expired td.tprt .tl {
+	color: #C82100; 
+}
+
+.aw-forum .mlist table .closed td,
+.aw-forum .mlist table .closed td .prtclr,  
+.aw-forum .mlist table .closed td a,
+.aw-forum .mlist table .closed td.tprt .tl {
+	color: #839097; 
+}
+
+/**/
+
+.aw-forum .mlist table .removed td,
+.aw-forum .mlist table .removed td .prtclr,  
+.aw-forum .mlist table .removed td a,
+.aw-forum .mlist table .removed td.tprt .tl {
+	color: #839097; 
+	text-decoration: line-through;
+}
+
+
+.aw-forum .mlist tr.row:hover, 
+.aw-forum .mlist tr.row-hover {
+	background: none repeat scroll 0 0 #FFF0C6;
+}
+
+.aw-forum .mlist .tlmenu {
+	margin-left: 10px;
+}
+.aw-forum .mlist .tlitem {
+	cursor: pointer;
+	float: left;
+	background-color: #E3E3D7;
+	margin: 0 1px;
+	padding: 5px 15px; 
+}
+.aw-forum .mlist .tlitem:hover {
+	text-decoration: underline;
+	
+}
+.aw-forum .mlist .current {
+	background-color: #F4F4EE;
+}
+.aw-forum .mlist .ttable {
+	clear: both;
+}
+
+

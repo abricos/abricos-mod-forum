@@ -1,0 +1,50 @@
+.aw-forum .messageedit dl.sel {
+	background-color: #F8EEC0;
+}
+.aw-forum .messageedit dl {
+	border-bottom: 1px solid #F8EEC0;
+}
+
+.aw-forum .messageedit input.btn { 
+	padding: 0 6px;
+	margin-right: 7px;
+}
+
+.aw-forum .messageedit dl.pimg ul.m li {
+	float: left;
+}
+.aw-forum .messageedit a.abtn {
+	text-decoration: none;
+	color: #006699;
+	font-size: 1.2em;
+    border-bottom: 1px dotted;
+    margin-right: 1em;
+}
+.aw-forum .messageedit a.addtab {
+	color: #73A110;
+	font-weight: bold;
+}
+.aw-forum .messageedit .dfiles ul.file {
+	/* float: left; /**/
+}
+.aw-forum .messageedit .dfiles ul.file li {
+	float: left;
+}
+.aw-forum .messageedit .dfiles ul.file a.src {
+	font-size: 1.1em;
+	text-decoration: none;
+}
+
+.aw-forum .messageedit .dfiles .fileremove {
+	margin: 4px 25px 0 3px;
+}
+
+.aw-forum .messageedit .fileremove {
+	cursor: pointer;
+	width: 10px;
+	height: 10px;
+	background: url('/modules/forum/images/remove.gif') left top no-repeat;
+} 
+.aw-forum .messageedit dl.pimg .imgremove {
+	margin-top: 7px;
+}

@@ -1,0 +1,155 @@
+.aw-forum .messageview a {
+	text-decoration: none;
+}
+
+.aw-forum .messageview .messagebody {
+	background-color: #F9F5DF;
+	padding: 0.5em 1em;
+}
+.aw-forum .messageview .imgcanvas {
+	margin: 10px 0;
+	position: relative;
+}
+.aw-forum .messageview .imgsave {
+	margin-top: 1em;
+	height: 1em;
+	text-align: center;
+}
+
+.aw-forum .messageview .bimgsave {
+	color: #D6583F;
+	font-weight: bold;
+}
+
+.aw-forum .messageview .bimgsaveload {
+	position: absolute;
+	right: 15px;
+	top: 12px;
+}
+
+.aw-forum .messageview .manbuttons {
+	height: 22px;
+}
+
+.aw-forum .messageview .manbuttons,
+.aw-forum .messageview .ptbuttons {
+	margin: 1em 0;
+}
+.aw-forum .messageview .btkbt {
+	border-bottom: 1px dotted;
+	margin-right: 1em;
+}
+.aw-forum .messageview .beditor {
+	color: #006699;
+}
+.aw-forum .messageview .bsetexec {
+	color: #73A110;
+	font-size: 1.5em;
+}
+.aw-forum .messageview .bremove {
+	color: #D6583F;
+}
+
+.aw-forum .messageview .ptlistsh {
+	color: #006699;
+	font-size: 1.2em;
+}
+.aw-forum .messageview .ptappend {
+	color: #006699;
+}
+.aw-forum .messageview .ptlist {
+	clear: both;
+	margin-top: 0.5em;
+	margin-bottom: 1.3em;
+	display: block;
+}
+.aw-forum .messageview .author {
+	width: 220px;
+}
+
+.aw-forum .colinfo .cirow  {
+	margin: 5px 0;
+	clear: both;
+	padding-bottom: 3px;
+	border-bottom: #73A110 1px dotted;
+}
+.aw-forum .colinfo .nobline {
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+	border-bottom: none !important;
+}
+
+.aw-forum .colinfo .tl {
+	font-weight: bold; 
+	clear: both;
+}
+.aw-forum .colinfo .tl {
+	float: left;
+}
+.aw-forum .colinfo .vl {
+	width: 100%;
+}
+.aw-forum .colinfo .vi {
+	width: 100%;
+	text-align: right;
+}
+.aw-forum .colinfo .status {
+	text-align: center;
+	font-size: 1.4em;
+}
+
+.aw-forum .colinfo .priority .vi {
+	font-weight: bold;
+}
+.aw-forum .colinfo ._dl .dt,
+.aw-forum .colinfo .ddl .dt {
+	font-size: 1.37em;
+}
+.aw-forum .colinfo ._dl .tm, 
+.aw-forum .colinfo .ddl .tm {
+	font-size: 1.2em;
+}
+.aw-forum .colinfo .user {
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.aw-forum .messageview .dialog {
+	padding: 7px;
+	width: 500px;
+	margin: 10px auto;
+	line-height: 1.4em;
+}
+.aw-forum .messageview .dialog h4 {
+	font-size: 1.1em;
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+
+.aw-forum .messageview .dialog div.dbtns{
+	text-align: right;
+}
+.aw-forum .messageview .dialog a.yes,
+.aw-forum .messageview .dialog a.no {
+	color: #000;
+	text-decoration: underline;
+}
+.aw-forum .messageview .dialog a.no {
+	margin-left: 10px;
+}
+.aw-forum .messageview .alarm  {
+	background-color: #FFF2F2;
+}
+
+.aw-forum .messageview ul.dfiles {
+	margin-top: 10px;
+}
+.aw-forum .messageview ul.dfiles li.tl {
+	margin-right: 10px;
+}
+.aw-forum .messageview ul.dfiles li {
+	float: left;
+}
+.aw-forum .messageview ul.dfiles div.file {
+	margin-bottom: 5px;
+}

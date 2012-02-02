@@ -11,26 +11,25 @@ Component.requires = {
 		{name: 'sys', files: ['container.js']},
         {name: 'filemanager', files: ['lib.js']},
         {name: 'uprofile', files: ['users.js']},
-        {name: 'forum', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		NS = this.namespace, 
 		TMG = this.template,
 		API = NS.API,
 		R = NS.roles;
 	
-	var LNG = Brick.util.Language.getc('mod.forum'),
+	var LNG = Brick.util.Language.getc('mod.{C#MODNAME}'),
 		MST = NS.MessageStatus;
 
 	var initCSS = false, buildTemplate = function(w, ts){
 		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['forum']['msgview']);
-			delete Brick.util.CSS['forum']['msgview'];
+			Brick.util.CSS.update(Brick.util.CSS['{C#MODNAME}']['msgview']);
+			delete Brick.util.CSS['{C#MODNAME}']['msgview'];
 			initCSS = true;
 		}
 		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
@@ -50,9 +49,7 @@ Component.entryPoint = function(){
 	};
 	
 	var MessageViewPanel = function(messageid){
-		this.message = NS.forumManager.list.find(messageid);
-
-// TODO: если this.message=null необходимо показать "либо нет прав, либо проект удален"
+		this.messageid = messageid;
 		
 		MessageViewPanel.superclass.constructor.call(this, {
 			fixedcenter: true, width: '790px', height: '400px',
@@ -62,21 +59,33 @@ Component.entryPoint = function(){
 	};
 	YAHOO.extend(MessageViewPanel, Brick.widget.Panel, {
 		initTemplate: function(){
-			buildTemplate(this, 'panel,user,frow');
+			buildTemplate(this, 'panel,user,frow,empttitle');
 			
 			var message = this.message;
 
 			return this._TM.replace('panel', {
-				'id': message.id,
-				'tl': message.title
+				'id': this.messageid
 			});
 		},
 		onLoad: function(){
+			var __self = this, TM = this._TM;
+			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
+			
+			NS.buildManager(function(){
+				__self.onBuildManager();
+			});
+		},
+		onBuildManager: function(){
+
+			this.message = NS.forumManager.list.find(this.messageid);
+			// TODO: если this.message=null необходимо показать "либо нет прав, либо проект удален"
+
 			var message = this.message,
 				TM = this._TM,
 				__self = this;
 			
-			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
+			TM.getEl('panel.title').innerHTML = message.title.length > 0 ? message.title : this._TM.replace('empttitle')
+
 			
 			this.firstLoad = true;
 			
@@ -84,15 +93,21 @@ Component.entryPoint = function(){
 			NS.forumManager.messageLoad(message.id, function(){
 				__self.renderMessage();
 			});
+			
+			NS.forumManager.messagesChangedEvent.subscribe(this.onMessagesChanged, this, true);
 		},
 		destroy: function(){
 			MessageViewPanel.superclass.destroy.call(this);
+		},
+		onMessagesChanged: function(){
+			this.renderMessage();
 		},
 		renderMessage: function(){
 			var TM = this._TM, message = this.message, 
 				__self = this, 
 				gel = function(nm){ return TM.getEl('panel.'+nm); };
 			
+			gel('title').innerHTML = message.title.length > 0 ? message.title : TM.replace('empttitle');
 			gel('messagebody').innerHTML = message.body;
 			
 			if (this.firstLoad){ // первичная рендер
@@ -185,23 +200,6 @@ Component.entryPoint = function(){
 			case tp['bremove']: this.messageRemove(); return true;
 			case tp['bremoveno']: this.messageRemoveCancel(); return true;
 			case tp['bremoveyes']: this.messageRemoveMethod(); return true;
-
-			
-			/*
-			
-			case tp['bsetexec']: this.setExecMessage(); return true;
-			case tp['bunsetexec']: this.unsetExecMessage(); return true;
-			
-
-
-			case tp['brestore']: 
-				this.messageRestore(); return true;
-
-			case tp['barhive']: 
-				this.messageArhive(); return true;
-
-			case tp['bopen']:  this.messageOpen(); return true;
-			/**/
 			}
 			return false;
 		},
@@ -250,51 +248,18 @@ Component.entryPoint = function(){
 				__self._shLoading(false);
 			});
 		}
-
-		
-		
-		/*
-		,
-
-		
-		
-		messageRestore: function(){
-			var __self = this;
-			this._shLoading(true);
-			NS.forumManager.messageRestore(this.message.id, function(){
-				__self._shLoading(false);
-			});
-		},
-		messageArhive: function(){
-			var __self = this;
-			this._shLoading(true);
-			NS.forumManager.messageArhive(this.message.id, function(){
-				__self._shLoading(false);
-			});
-		},
-		
-		messageOpen: function(){ // открыть проект повторно
-			var __self = this;
-			this._shLoading(true);
-			NS.forumManager.messageOpen(this.message.id, function(){
-				__self._shLoading(false);
-			});
-		},
-		messageEditorShow: function(){
-			var messageid = this.message.id;
-			Brick.ff('forum', 'messageeditor', function(){
-				API.showMessageEditorPanel(messageid);
-			});
-		}
-		
-		/**/
 	});
 	NS.MessageViewPanel = MessageViewPanel;
 	
-	API.showMessageViewPanel = function(messageid){
-		NS.buildManager(function(){
-			new MessageViewPanel(messageid);
-		});
+	var activePanel = null;
+	NS.API.showMessageViewPanel = function(messageid, pmessageid){
+		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
+			activePanel.close();
+		}
+		if (L.isNull(activePanel) || activePanel.isDestroy()){
+			activePanel = new MessageViewPanel(messageid, pmessageid);
+		}
+		return activePanel;
 	};
 
 };

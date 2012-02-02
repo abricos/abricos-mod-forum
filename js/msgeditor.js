@@ -25,8 +25,8 @@ Component.entryPoint = function(){
 
 	var initCSS = false, buildTemplate = function(w, ts){
 		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['forum']['msgeditor']);
-			delete Brick.util.CSS['forum']['msgeditor'];
+			Brick.util.CSS.update(Brick.util.CSS['{C#MODNAME}']['msgeditor']);
+			delete Brick.util.CSS['{C#MODNAME}']['msgeditor'];
 			initCSS = true;
 		}
 		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
@@ -129,9 +129,7 @@ Component.entryPoint = function(){
 				this.uploadWindow.focus();
 				return;
 			}
-			var element = this.row;
-			
-			var url = '/forum/upload/';
+			var url = '/{C#MODNAME}/upload/';
 			this.uploadWindow = window.open(
 				url, 'catalogimage',	
 				'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=480,height=270' 
@@ -144,9 +142,10 @@ Component.entryPoint = function(){
 			});
 		}
 	};
-
-	var MessageEditorPanel = function(message){
-		this.message = message;
+	
+	var MessageEditorPanel = function(messageid){
+		
+		this.messageid = messageid || 0;
 		
 		MessageEditorPanel.active = this;
 
@@ -156,15 +155,21 @@ Component.entryPoint = function(){
 		initTemplate: function(){
 			buildTemplate(this, 'panel,frow');
 
-			var message = this.message;
 			return this._TM.replace('panel');
 		},
 		onLoad: function(){
+			var __self = this, TM = this._TM;
+			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
+			NS.buildManager(function(man){
+				__self.onBuildManager();
+			});
+		},
+		onBuildManager: function(){
 			var TM = this._TM,
-				message = this.message, 
+				message = this.messageid == 0 ? new NS.Message() : NS.forumManager.list.find(this.messageid);
 				__self = this;
 			
-			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
+			this.message = message;
 			
 			Dom.setStyle(TM.getEl('panel.tl'+(message.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
 			
@@ -176,11 +181,11 @@ Component.entryPoint = function(){
 				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
 			});
 			
-			
 			this.filesWidget = new FilesWidget(TM.getEl('panel.files'), this);
 		},
 		destroy: function(){
-			MessageEditorPanel.active = this;
+			this.editor.destroy();
+			MessageEditorPanel.active = null;
 			MessageEditorPanel.superclass.destroy.call(this);
 		},
 		onClick: function(el){
@@ -219,19 +224,17 @@ Component.entryPoint = function(){
 
 	// создать сообщение
 	API.showCreateMessagePanel = function(){
-		var message = new NS.Message();
-		
-		NS.buildManager(function(man){
-			new MessageEditorPanel(message);	
-		});
+		return NS.API.showMessageEditorPanel(0);
 	};
 
-	API.showMessageEditorPanel = function(messageid){
-		NS.buildManager(function(mgr){
-			var message = mgr.list.find(messageid);
-			mgr.messageLoad(messageid, function(){
-				new MessageEditorPanel(message);
-			});
-		});
+	var activePanel = null;
+	NS.API.showMessageEditorPanel = function(messageid, pmessageid){
+		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
+			activePanel.close();
+		}
+		if (L.isNull(activePanel) || activePanel.isDestroy()){
+			activePanel = new MessageEditorPanel(messageid, pmessageid);
+		}
+		return activePanel;
 	};
 };

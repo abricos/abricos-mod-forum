@@ -10,7 +10,7 @@
 
 require_once 'dbquery.php';
 
-class ForumManager extends ModuleManager {
+class ForumManager extends Ab_ModuleManager {
 	
 	/**
 	 * @var ForumModule
@@ -18,42 +18,32 @@ class ForumManager extends ModuleManager {
 	public $module = null;
 	
 	/**
-	 * User
-	 * @var User
-	 */
-	public $user = null;
-	public $userid = 0;
-	
-	/**
 	 * @var ForumManager
 	 */
 	public static $instance = null; 
 	
-	public function ForumManager(ForumModule $module){
-		parent::ModuleManager($module);
-		
-		$this->user = CMSRegistry::$instance->modules->GetModule('user');
-		$this->userid = $this->user->info['userid'];
+	public function __construct(ForumModule $module){
+		parent::__construct($module);
 		ForumManager::$instance = $this;
 	}
 	
 	public function IsAdminRole(){
-		return $this->module->permission->CheckAction(ForumAction::ADMIN) > 0;
+		return $this->IsRoleEnable(ForumAction::ADMIN);
 	}
 	
 	public function IsModerRole(){
 		if ($this->IsAdminRole()){ return true; }
-		return $this->module->permission->CheckAction(ForumAction::MODER) > 0;
+		return $this->IsRoleEnable(ForumAction::MODER);
 	}
 	
 	public function IsWriteRole(){
 		if ($this->IsModerRole()){ return true; }
-		return $this->module->permission->CheckAction(ForumAction::WRITE) > 0;
+		return $this->IsRoleEnable(ForumAction::WRITE);
 	}
 	
 	public function IsViewRole(){
 		if ($this->IsWriteRole()){ return true; }
-		return $this->module->permission->CheckAction(ForumAction::VIEW) > 0;
+		return $this->IsRoleEnable(ForumAction::VIEW);
 	}
 	
 	private function _AJAX($d){
@@ -133,7 +123,7 @@ class ForumManager extends ModuleManager {
 		
 		$msg->id = intval($msg->id);
 		
-		$utmanager = CMSRegistry::$instance->GetUserTextManager();
+		$utmanager = Abricos::TextParser();
 		$msg->tl = $utmanager->Parser($msg->tl);
 		if (!$this->IsAdminRole()){
 			// порезать теги у описания
@@ -219,7 +209,7 @@ class ForumManager extends ModuleManager {
 					"prj" => $message['bd'],
 					"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 				));
-				CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+				Abricos::Notify()->SendMail($email, $subject, $body);
 			}
 		}
 		
@@ -335,7 +325,7 @@ class ForumManager extends ModuleManager {
 						"cmt2" => $data->bd." ",
 						"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 					));
-					CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+					Abricos::Notify()->SendMail($email, $subject, $body);
 				}
 			}
 		}
@@ -356,7 +346,7 @@ class ForumManager extends ModuleManager {
 					"cmt" => $data->bd." ",
 					"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 				));
-				CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+				Abricos::Notify()->SendMail($email, $subject, $body);
 			}
 		}
 				
@@ -379,7 +369,7 @@ class ForumManager extends ModuleManager {
 				"cmt" => $data->bd." ",
 				"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 			));
-			CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+			Abricos::Notify()->SendMail($email, $subject, $body);
 		}
 	}		
 	

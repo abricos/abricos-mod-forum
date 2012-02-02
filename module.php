@@ -7,10 +7,10 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-class ForumModule extends CMSModule {
+class ForumModule extends Ab_Module {
 	
 	public function __construct(){
-		$this->version = "0.1";
+		$this->version = "0.1.1";
 		$this->name = "forum";
 		$this->takelink = "forum";
 		$this->permission = new ForumPermission($this);
@@ -84,22 +84,22 @@ class ForumStatus {
 }
 
 
-class ForumPermission extends AbricosPermission {
+class ForumPermission extends Ab_UserPermission {
 	
 	public function ForumPermission(ForumModule $module){
 		
 		$defRoles = array(
-			new AbricosRole(ForumAction::VIEW, UserGroup::GUEST),
-			new AbricosRole(ForumAction::VIEW, UserGroup::REGISTERED),
-			new AbricosRole(ForumAction::VIEW, UserGroup::ADMIN),
+			new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::GUEST),
+			new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::REGISTERED),
+			new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::ADMIN),
 			
-			new AbricosRole(ForumAction::WRITE, UserGroup::REGISTERED),
-			new AbricosRole(ForumAction::WRITE, UserGroup::ADMIN),
+			new Ab_UserRole(ForumAction::WRITE, Ab_UserGroup::REGISTERED),
+			new Ab_UserRole(ForumAction::WRITE, Ab_UserGroup::ADMIN),
 			
-			new AbricosRole(ForumAction::MODER, ForumGroup::MODERATOR),
-			new AbricosRole(ForumAction::MODER, UserGroup::ADMIN),
+			new Ab_UserRole(ForumAction::MODER, ForumGroup::MODERATOR),
+			new Ab_UserRole(ForumAction::MODER, Ab_UserGroup::ADMIN),
 			
-			new AbricosRole(ForumAction::ADMIN, UserGroup::ADMIN)
+			new Ab_UserRole(ForumAction::ADMIN, Ab_UserGroup::ADMIN)
 		);
 		parent::__construct($module, $defRoles);
 	}
@@ -114,7 +114,6 @@ class ForumPermission extends AbricosPermission {
 	}
 }
 
-$mod = new ForumModule();
-CMSRegistry::$instance->modules->Register($mod);
+Abricos::ModuleRegister(new ForumModule());
 
 ?>

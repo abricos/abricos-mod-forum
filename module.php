@@ -30,7 +30,7 @@ class ForumModule extends Ab_Module {
 	}
 	
 	public function GetContentName(){
-		$cname = '';
+		$cname = 'index';
 		$adress = $this->registry->adress;
 		
 		if ($adress->level >= 2 && $adress->dir[1] == 'upload'){

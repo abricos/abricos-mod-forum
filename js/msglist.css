@@ -137,6 +137,10 @@
 }
 
 /* колонка последний комментарий */
+.aw-forum .mlist table th.tlastcmt {
+	width: 14em;
+}
+
 .aw-forum .mlist tr.row td.tlastcmt {
 	padding: 0.1em 0.3em 0.1em 0.3em;
 	font-size: .8em;

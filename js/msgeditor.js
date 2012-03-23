@@ -166,6 +166,7 @@ Component.entryPoint = function(){
 		},
 		onBuildManager: function(){
 			var TM = this._TM,
+				gel = function(n){ return TM.getEl('panel.'+n); },
 				message = this.messageid == 0 ? new NS.Message() : NS.forumManager.list.find(this.messageid);
 				__self = this;
 			
@@ -173,15 +174,20 @@ Component.entryPoint = function(){
 			
 			Dom.setStyle(TM.getEl('panel.tl'+(message.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
 			
-			TM.getEl('panel.tl').value = message.title;
-			TM.getEl('panel.editor').innerHTML = message.body; 
+			gel('tl').value = message.title;
+			gel('editor').innerHTML = message.body; 
 			
 			var Editor = Brick.widget.Editor;
 			this.editor = new Editor(this._TId['panel']['editor'], {
 				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
 			});
 			
-			this.filesWidget = new FilesWidget(TM.getEl('panel.files'), this);
+			if (Brick.Permission.check('filemanager', '30') == 1){
+				this.filesWidget = new FilesWidget(TM.getEl('panel.files'), this);
+			}else{
+				this.filesWidget = null;
+				Dom.setStyle(gel('rfiles'), 'display', 'none');
+			}
 		},
 		destroy: function(){
 			this.editor.destroy();
@@ -189,7 +195,7 @@ Component.entryPoint = function(){
 			MessageEditorPanel.superclass.destroy.call(this);
 		},
 		onClick: function(el){
-			if (this.filesWidget.onClick(el)){ return true; }
+			if (!L.isNull(this.filesWidget) && this.filesWidget.onClick(el)){ return true; }
 			var TId = this._TId, tp = TId['panel'];
 			switch(el.id){
 			case tp['bsave']: this.saveMessage(); return true;
@@ -208,7 +214,7 @@ Component.entryPoint = function(){
 			var newdata = {
 				'title': TM.getEl('panel.tl').value,
 				'body': this.editor.getContent(),
-				'files': this.filesWidget.files
+				'files':  L.isNull(this.filesWidget) ? message.files : this.filesWidget.files
 			};
 
 			var __self = this;
@@ -217,6 +223,13 @@ Component.entryPoint = function(){
 				var messageid = (d['id'] || 0)*1;
 
 				__self.close();
+				setTimeout(function(){
+					if (messageid > 0){
+						Brick.Page.reload('#app=forum/msgview/showMessageViewPanel/'+messageid+'/');
+					}else{
+						Brick.Page.reload('#app=forum/board/showBoardPanel');
+					}
+				},100);
 			});
 		}
 	});

@@ -11,6 +11,7 @@
 }
 .aw-forum table.maintable td.rightcol {
 	background-color: #F2F2F1;
+	vertical-align: top;
 }
 .aw-forum table.maintable td.rightcol .colbody {
 	padding: 0 0.6em;

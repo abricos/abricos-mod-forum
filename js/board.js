@@ -52,8 +52,8 @@ Component.entryPoint = function(){
 			var TM = this._TM;
 			this.list = new NS.MessageListWidget(TM.getEl('panel.list'));
 			
-			if (!R['isWrite']){
-				TM.elHide('panel.baddproj');
+			if (R['isWrite']){
+				TM.elShow('panel.baddmsg');
 			}
 		},
 		destroy: function(){

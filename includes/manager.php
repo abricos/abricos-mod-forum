@@ -91,7 +91,7 @@ class ForumManager extends Ab_ModuleManager {
 	public function Bos_OnlineData(){
 		if (!$this->IsViewRole()){ return null; }
 		
-		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), 0, 3);
+		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
 		return $this->ToArray($rows);
 	}
 	

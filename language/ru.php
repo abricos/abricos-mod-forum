@@ -9,6 +9,7 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 return array (
+	'modtitle' => 'Форум',
 	'groups' => array(
 		'forum_moderator' => 'Модератор форума'
 	)

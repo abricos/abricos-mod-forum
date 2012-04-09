@@ -88,7 +88,7 @@ class ForumQuery {
 		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
 	}
 	
-	public static function MessageList(Ab_Database $db, $userid, $isModer, $lastupdate = 0, $limit = 15){
+	public static function MessageList(Ab_Database $db, $userid, $isModer, $lastupdate = 0, $limit = 15, $orderByDateLine = false){
 		$lastupdate = bkint($lastupdate);
 		$where = "WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.") ";
 		if (!$isModer){
@@ -99,7 +99,8 @@ class ForumQuery {
 			SELECT ".ForumQuery::MessageFields($db)."
 			FROM ".$db->prefix."frm_message m
 			".$where."
-			ORDER BY m.upddate DESC
+			ORDER BY m.".($orderByDateLine ? "dateline" : "upddate")." DESC
+			LIMIT ".bkint($limit)."
 		";
 		return $db->query_read($sql);
 	}

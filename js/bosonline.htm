@@ -1,6 +1,6 @@
 <!--{widget}-->
 <div id="{i#id}" class='aw-forum-bosonline'>
-	<div class="onlhd">Активные сообщения на форуме</div>
+	<div class="onlhd">Активные сообщения на форуме {v#rss}</div>
 	<div class="onlbd" id="{i#list}">{v#lst}</div>
 	<div class="onlft" id="{i#more}">
 		<a href="#app=forum/board/showBoardPanel">Открыть форум</a>
@@ -14,3 +14,8 @@
 		<span class="tl">{v#tl}</span>
 	</a>
 </div>
+
+<!--{rss}-->
+<a class="onlrss" target="_blank" title="Сообщения форума в формате RSS" href="/rss/bos/forum/">
+	<img src="/modules/rss/images/rss-icon-16px-op50.gif">
+</a>

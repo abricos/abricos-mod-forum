@@ -10,7 +10,7 @@
 class ForumModule extends Ab_Module {
 	
 	public function __construct(){
-		$this->version = "0.1.1";
+		$this->version = "0.1.2";
 		$this->name = "forum";
 		$this->takelink = "forum";
 		$this->permission = new ForumPermission($this);
@@ -37,7 +37,29 @@ class ForumModule extends Ab_Module {
 			$cname = $adress->dir[1];
 		}
 		return $cname;
-	}	
+	}
+	
+	public function RSS_GetItemList($inBosUI = false){
+		$ret = array();
+		
+		$manager = $this->GetManager();
+		
+		$url = $this->registry->adress->host;
+		$url .= $inBosUI ? "/bos/" : "/forum/";
+		$url .= "#app=forum/msgview/showMessageViewPanel/";
+		
+		$rows = $manager->MessageList(0, true);
+		while (($row = $this->registry->db->fetch_array($rows))){
+			
+			$title = $row['tl'];
+			$link = $url.$row['id']."/";
+				
+			$item = new RSSItem($title, $link, "", $row['dl']);
+			$item->modTitle = $this->lang['modtitle'];
+			array_push($ret, $item);
+		}
+		return $ret;
+	}
 	
 }
 

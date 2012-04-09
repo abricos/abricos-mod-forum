@@ -95,7 +95,7 @@ class ForumManager extends Ab_ModuleManager {
 		return $this->ToArray($rows);
 	}
 	
-	public function BoardData($lastupdate = 0){
+	public function BoardData($lastupdate = 0, $orderByDateLine = false){
 		if (!$this->IsViewRole()){ return null; }
 		$ret = new stdClass();
 		$ret->board = array();
@@ -103,7 +103,7 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$uids = array();
 		
-		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate);
+		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
 		while (($row = $this->db->fetch_array($rows))){
 			$ret->hlid = max($ret->hlid, intval($row['udl']));
 			
@@ -125,7 +125,14 @@ class ForumManager extends Ab_ModuleManager {
 		}
 		
 		return $ret;
-	}	
+	}
+	
+	public function MessageList($lastupdate = 0, $orderByDateLine = false){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
+		return $rows;
+	}
 	
 	/**
 	 * Сохранить сообщение

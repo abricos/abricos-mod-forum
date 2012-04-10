@@ -1,10 +1,12 @@
 <!--{widget}-->
 <div id="{i#id}" class='aw-forum-bosonline'>
-	<div class="onlhd">Активные сообщения на форуме {v#rss}</div>
-	<div class="onlbd" id="{i#list}">{v#lst}</div>
-	<div class="onlft" id="{i#more}">
-		<a href="#app=forum/board/showBoardPanel">Открыть форум</a>
+	<div class="onlhd">
+		<a href="#app=forum/board/showBoardPanel" title="Открыть приложение">
+			Активные сообщения на форуме
+		</a>
+		{v#rss}
 	</div>
+	<div class="onlbd" id="{i#list}">{v#lst}</div>
 </div>
 
 <!--{item}-->

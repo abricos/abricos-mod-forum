@@ -1,15 +1,15 @@
-<!--{panel}-->
-<div class='hd'>Форум</div>
+<!--{panel}--><div class='hd'>{#mod.forum.board.panel.1}</div>
 <div class='bd aw-forum'>
 
 	<div id="{i#gmenu}"></div>
 	
 	<div class="board" id="{i#id}">
 	
-		<a id="{i#baddmsg}" class="baddmsg" href="#app=forum/msgeditor/showCreateMessagePanel/" style="display: none;">Новое сообщение</a>
+		<a id="{i#baddfrm}" class="baddmsg" href="#app=forum/frmeditor/showCreateForumPanel/" style="display: none;">Создать форум</a>
+		<a id="{i#baddmsg}" class="baddmsg" href="#app=forum/msgeditor/showCreateMessagePanel/" style="display: none;">{#mod.forum.board.panel.2}</a>
 		
 		<div id="{i#list}" class="list">
-			Идет загрузка задач. Пожалуйста, подождите...
+			{#mod.forum.board.panel.3}
 		</div>
 		
 	</div>

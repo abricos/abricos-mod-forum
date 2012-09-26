@@ -14,7 +14,7 @@ class ForumQuery {
 		
 		$sql = "
 			INSERT INTO ".$db->prefix."frm_message (
-				userid, title, pubkey, contentid, isprivate, status, dateline, upddate) VALUES (
+				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
 				".bkint($msg->uid).",
 				'".bkstr($msg->tl)."',
 				'".bkstr($pubkey)."',
@@ -22,7 +22,8 @@ class ForumQuery {
 				".bkint($msg->prt).",
 				".ForumStatus::OPENED.",
 				".TIMENOW.",
-				".TIMENOW."
+				".TIMENOW.",
+				'".bkstr(Abricos::$LNG)."'
 			)
 		";
 		$db->query_write($sql);
@@ -90,7 +91,7 @@ class ForumQuery {
 	
 	public static function MessageList(Ab_Database $db, $userid, $isModer, $lastupdate = 0, $limit = 15, $orderByDateLine = false){
 		$lastupdate = bkint($lastupdate);
-		$where = "WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.") ";
+		$where = "WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.") AND language='".bkstr(Abricos::$LNG)."'";
 		if (!$isModer){
 			$where .= " AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid).")) AND m.status != ".ForumStatus::REMOVED;
 		}
@@ -108,6 +109,7 @@ class ForumQuery {
 	
 	public static function Users(Ab_Database $db, $uids){
 		$ids = array();
+			array_push($ids, "u.userid=0");
 		foreach ($uids as $uid => $v){
 			array_push($ids, "u.userid=".bkint($uid));
 		}
@@ -189,7 +191,7 @@ class ForumQuery {
 					m.messageid, 
 					m.contentid
 				FROM ".$db->prefix."frm_message m 
-				WHERE (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid)."))
+				WHERE (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid).")) AND m.language='".bkstr(Abricos::$LNG)."'
 			) t1 ON t1.contentid=a.contentid
 			LEFT JOIN ".$db->prefix."user u ON u.userid = a.userid
 			ORDER BY a.commentid DESC  

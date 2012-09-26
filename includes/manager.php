@@ -70,22 +70,25 @@ class ForumManager extends Ab_ModuleManager {
 		return $ret;
 	}
 	
-	private function ToArrayById($rows){
+	public function ToArrayId($rows, $field = "id"){
 		$ret = array();
 		while (($row = $this->db->fetch_array($rows))){
-			$ret[$row['id']] = $row;
+			$ret[$row[$field]] = $row;
 		}
 		return $ret;
 	}
-	
-	private function ToArray($rows){
+		
+	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
 		$ret = array();
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($ret, $row);
+			if (is_array($ids1)){ $ids1[$row[$fnids1]] = $row[$fnids1]; }
+			if (is_array($ids2)){ $ids2[$row[$fnids2]] = $row[$fnids2]; }
+			if (is_array($ids3)){ $ids3[$row[$fnids3]] = $row[$fnids3]; }
 		}
 		return $ret;
 	}
-	
+		
 	public function Sync(){ return TIMENOW; }
 	
 	public function Bos_OnlineData(){
@@ -118,12 +121,9 @@ class ForumManager extends Ab_ModuleManager {
 		if ($lastupdate == 0 || ($lastupdate > 0 && count($uids) > 0)){
 			$uids[$this->userid] = true;
 		}
-		$ret->users = array();
-		if (count($uids) > 0){
-			$rows = ForumQuery::Users($this->db, $uids);
-			$ret->users = $this->ToArrayById($rows);
-		}
 		
+		$ret->users = $this->ToArray(ForumQuery::Users($this->db, $uids));
+
 		return $ret;
 	}
 	
@@ -267,7 +267,7 @@ class ForumManager extends Ab_ModuleManager {
 		if (!$this->IsViewRole()){ return null; }
 		$rows = ForumQuery::MessageFiles($this->db, $messageid);
 		if (!$retarray){ return $rows; }
-		return $this->ToArrayById($rows);
+		return $this->ToArrayId($rows);
 	}
 	
 	////////////////////////////// комментарии /////////////////////////////
@@ -275,7 +275,7 @@ class ForumManager extends Ab_ModuleManager {
 		if (!$this->IsViewRole()){ return null; }
 		
 		$rows = ForumQuery::CommentList($this->db, $this->userid);
-		return $this->ToArrayById($rows);
+		return $this->ToArrayId($rows);
 	}
 	
 	public function IsCommentList($contentid){

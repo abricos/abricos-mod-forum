@@ -3,14 +3,14 @@
  * @version $Id$
  * @package Abricos
  * @subpackage Forum
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @copyright Copyright (C) 2012 Abricos. All rights reserved.
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 class ForumModule extends Ab_Module {
 	
 	public function __construct(){
-		$this->version = "0.1.2";
+		$this->version = "0.1.4";
 		$this->name = "forum";
 		$this->takelink = "forum";
 		$this->permission = new ForumPermission($this);

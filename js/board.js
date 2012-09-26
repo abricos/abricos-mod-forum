@@ -12,20 +12,14 @@ Component.requires = {
         {name: 'forum', files: ['msglist.js', 'lib.js']}
 	]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
 	
-	var NS = this.namespace, 
-		TMG = this.template,
-		API = NS.API,
-		R = NS.roles;
-
-	Brick.util.CSS.update(Brick.util.CSS['forum']['board']);
-	
-	var buildTemplate = function(w, ts){w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;};
+	var R = NS.roles;
+	var buildTemplate = this.buildTemplate;
 	
 	var BoardPanel = function(){
 		BoardPanel.superclass.constructor.call(this, {
@@ -36,8 +30,7 @@ Component.entryPoint = function(){
 	};
 	YAHOO.extend(BoardPanel, Brick.widget.Panel, {
 		initTemplate: function(){
-			buildTemplate(this, 'panel');
-			return this._TM.replace('panel');
+			return buildTemplate(this, 'panel').replace('panel');
 		},
 		onLoad: function(){
 			var TM = this._TM, __self = this;
@@ -52,6 +45,9 @@ Component.entryPoint = function(){
 			var TM = this._TM;
 			this.list = new NS.MessageListWidget(TM.getEl('panel.list'));
 			
+			if (R['isAdmin']){
+				// TM.elShow('panel.baddfrm');
+			}
 			if (R['isWrite']){
 				TM.elShow('panel.baddmsg');
 			}
@@ -72,7 +68,7 @@ Component.entryPoint = function(){
 		return activePanel;
 	};
 	
-	API.showBoardPanelWebos = function(){
+	NS.API.showBoardPanelWebos = function(){
 		Brick.Page.reload('/bos/#app=forum/board/showBoardPanel');
 	};
 };

@@ -1,5 +1,4 @@
-<!--{panel}-->
-<div class='hd'>Редактор сообщения</div>
+<!--{panel}--><div class='hd'>{#mod.forum.msgeditor.panel.1}</div>
 <div class='bd aw-forum'>
 
 	<div id="{i#gmenu}"></div>
@@ -8,20 +7,18 @@
 		
 		<div class="navigate">
 			<span class="item {v#first}">
-				<a href="#app=forum/board/showBoardPanel">Список сообщений</a>
+				<a href="#app=forum/board/showBoardPanel">{#mod.forum.msgeditor.panel.2}</a>
 			</span>
 			<span class="item {v#current}">
 				<span class="arrow"> → </span>
-				<span id="{i#tlnew}">Создание нового сообщения</span>
-				<span id="{i#tledit}">Редактировать сообщение</span>
+				<span id="{i#tlnew}">{#mod.forum.msgeditor.panel.3}</span>
+				<span id="{i#tledit}">{#mod.forum.msgeditor.panel.4}</span>
 			</span>
 		</div>
 
-	
-		
 		<dl class="sel">
 			<dt>
-				<label for="{i#tl}">Заголовок</label>
+				<label for="{i#tl}">{#mod.forum.msgeditor.panel.5}</label>
 			</dt>
 			<dd>
 				<input id="{i#tl}" type="text" class="input-text font-large" style="width: 90%;" />
@@ -30,7 +27,7 @@
 		
 		<dl>
 			<dt>
-				<label>Текст сообщения</label>
+				<label>{#mod.forum.msgeditor.panel.6}</label>
 			</dt>
 			<dd>
 				<textarea id="{i#editor}" style="width: 560px; height: 300px"></textarea>
@@ -39,7 +36,7 @@
 
 		<dl id="{i#rfiles}">
 			<dt>
-				<label>Файлы</label>
+				<label>{#mod.forum.msgeditor.panel.7}</label>
 			</dt>
 			<dd>
 				<div id="{i#files}"></div>
@@ -51,8 +48,8 @@
 			<dd>
 				<div class="field">
 					<div class="buttons">
-						<input type="button" value="Сохранить" id="{i#bsave}" class="btn" />
-						<input type="button" value="Отмена" id="{i#bcancel}" class="btn" />
+						<input type="button" value="{#mod.forum.msgeditor.panel.8}" id="{i#bsave}" class="btn" />
+						<input type="button" value="{#mod.forum.msgeditor.panel.9}" id="{i#bcancel}" class="btn" />
 						<img src="/images/loading.gif" id="{i#loading}" style="display: none;" />
 					</div>
 				</div>
@@ -63,25 +60,3 @@
 	
 	<div class="clear: both;"></div>
 </div>
-
-<!--{files}-->
-<div id="{i#id}" class="dfiles">
-	<div id="{i#table}"></div>
-	<a href="#" id="{i#bshowbtns}" class="abtn" title="Прикрепить файлы к проекту">Прикрепить файл</a>
-	<a href="#" id="{i#bshowbtnsex}" class="abtn" style="display: none;" title="Прикрепить файлы к проекту">Прикрепить еще файл</a>
-	<div id="{i#fm}" style="display: none;">
-		<input id="{i#bupload}" class="btn" type="button" value="Загрузить с компьютера" title="Загрузить файл со своего компьютера" />
-		<input id="{i#bshowfm}" class="btn" type="button" value="Выбрать в менеджере файлов" title="Выбрать файл через менеджер" />
-		<a href="#" id="{i#bcancel}" class="abtn" title="Отмена">Отмена</a>
-	</div>
-</div>
-
-<!--{ftable}-->
-{v#rows}
-<div class="clear"></div>
-
-<!--{frow}-->
-<ul class="file">
-	<li><a href="{v#src}" target="_blank" class="src">{v#nm}</a></li>
-	<li><div id="{i#remove}-{v#fid}" class="fileremove"></div></li>
-</ul>

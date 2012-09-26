@@ -1,26 +1,26 @@
-.aw-forum .messageedit dl.sel {
+.aw-forum .forumedit dl.sel {
 	background-color: #F8EEC0;
 }
-.aw-forum .messageedit dl {
+.aw-forum .forumedit dl {
 	border-bottom: 1px solid #F8EEC0;
 }
 
-.aw-forum .messageedit input.btn { 
+.aw-forum .forumedit input.btn { 
 	padding: 0 6px;
 	margin-right: 7px;
 }
 
-.aw-forum .messageedit dl.pimg ul.m li {
+.aw-forum .forumedit dl.pimg ul.m li {
 	float: left;
 }
-.aw-forum .messageedit a.abtn {
+.aw-forum .forumedit a.abtn {
 	text-decoration: none;
 	color: #006699;
 	font-size: 1.2em;
     border-bottom: 1px dotted;
     margin-right: 1em;
 }
-.aw-forum .messageedit a.addtab {
+.aw-forum .forumedit a.addtab {
 	color: #73A110;
 	font-weight: bold;
 }

@@ -9,26 +9,25 @@ var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
         {name: 'uprofile', files: ['users.js']},
-        {name: 'social', files: ['lib.js']},
+        {name: 'sys', files: ['item.js','date.js']},
         {name: 'forum', files: ['roles.js']}
 	]		
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		TMG = this.template,
-		NS = this.namespace,
-		API = NS.API,
 		R = NS.roles; 
 
-	var SC = Brick.mod.social;
+	var NSys = Brick.mod.sys;
+	NS.Item = NSys.Item;
+	NS.ItemList = NSys.ItemList;
 
-	Brick.util.CSS.update(Brick.util.CSS['forum']['lib']);
-	delete Brick.util.CSS['forum']['lib'];
+	var UP = Brick.mod.uprofile;
 
-	var buildTemplate = function(w, ts){w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;};
+	var buildTemplate = this.buildTemplate;
+	buildTemplate({});
 	
 	// дополнить эксперементальными функциями менеджер шаблонов
 	var TMP = Brick.Template.Manager.prototype;
@@ -54,6 +53,27 @@ Component.entryPoint = function(){
 		}
 	};
 	
+	var Forum = function(d){
+		d = L.merge({
+			'tl': '',
+			'dsc': ''
+		}, d || {});
+		Forum.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(Forum, NSys.Item, {
+		update: function(d){ 
+			this.title = d['tl'];
+			this.descript = d['dsc'];
+		}
+	});
+	NS.Forum = Forum;
+
+	var ForumList = function(d){
+		ForumList.superclass.constructor.call(this, d, Forum);
+	};
+	YAHOO.extend(ForumList, NSys.ItemList, {});
+	NS.ForumList = ForumList;
+	
 	var MessageStatus = {
 		'OPENED'		: 0,	// открыта
 		'CLOSED'		: 1,	// закрыта
@@ -61,20 +81,26 @@ Component.entryPoint = function(){
 	};
 	NS.MessageStatus = MessageStatus;
 	
-	var Message = function(data){
-		this.init(data);
+	var Message = function(d){
+		d = L.merge({
+			'fmid': 0,
+			'tl': '',
+			'dl': 0,
+			'udl': 0,
+			'cmt': null,
+			'cmtdl': 0,
+			'cmtuid': null,
+			'st': 0,
+			'stuid': 0,
+			'stdl': 0,
+			'dl': 0,
+			'uid': Brick.env.user.id
+		}, d || {});
+		Message.superclass.constructor.call(this, d);
 	};
-	Message.prototype = {
+	YAHOO.extend(Message, NSys.Item, {
 		init: function(d){
-		
-			d = L.merge({
-				'id': 0,
-				'tl': '',
-				'dl': 0,
-				'uid': Brick.env.user.id
-			}, d || {});
-			
-			this.update(d);
+			Message.superclass.init.call(this, d);
 			
 			// была ли загрузка оставшихся данных?
 			this.isLoad = false;
@@ -83,21 +109,21 @@ Component.entryPoint = function(){
 			this.body = '';
 			this.files = [];
 		},
-		update: function(d){
-			this.id = d['id']*1;								// идентификатор
+		update: function(d){ 
 			this.title = d['tl'];								// заголовок
 			this.userid = d['uid'];								// идентификатор автора
-			this.date = SC.dateToClient(d['dl']); 				// дата создания 
+			this.forumid = d['fmid'];
+			this.date = NSys.dateToClient(d['dl']); 				// дата создания 
 
-			this.updDate = SC.dateToClient(d['udl']); 			// дата создания 
+			this.updDate = NSys.dateToClient(d['udl']); 			// дата создания 
 			
 			this.cmt = (L.isNull(d['cmt']) ? 0 : d['cmt'])*1;	// кол-во сообщений
-			this.cmtDate = SC.dateToClient(d['cmtdl']);			// дата последнего сообщения
+			this.cmtDate = NSys.dateToClient(d['cmtdl']);			// дата последнего сообщения
 			this.cmtUserId = L.isNull(d['cmtuid']) ? 0 : d['cmtuid'];	// дата последнего сообщения
 			
 			this.status = d['st']*1;
 			this.stUserId = d['stuid'];
-			this.stDate = SC.dateToClient(d['stdl']);
+			this.stDate = NSys.dateToClient(d['stdl']);
 		},
 		setData: function(d){
 			this.isLoad = true;
@@ -106,21 +132,19 @@ Component.entryPoint = function(){
 			this.files = d['files'];
 			this.update(d);
 		},
-		
 		isRemoved: function(){
 			return this.status*1 == MessageStatus.REMOVED;
 		},
-		
 		isClosed: function(){
 			return this.status*1 == MessageStatus.CLOSED;
 		}
-	};
+	});
 	NS.Message = Message;
 	
-	var MessageList = function(data){
-		MessageList.superclass.constructor.call(this, data);
+	var MessageList = function(d){
+		MessageList.superclass.constructor.call(this, d, Message);
 	};
-	YAHOO.extend(MessageList, SC.List, {});
+	YAHOO.extend(MessageList, NSys.ItemList, {});
 	NS.MessageList = MessageList;
 	
 	var Manager = function(inda){
@@ -132,10 +156,12 @@ Component.entryPoint = function(){
 			this._hlid = 0;
 			this.messagesChangedEvent = new YAHOO.util.CustomEvent("messagesChangedEvent");
 
+			this.forums = new ForumList(); 
 			this.list = new MessageList();
 			this.listUpdate(inda['board']);
-			
-			this.users = new SC.UserList(inda['users']);
+
+			this.users = UP.viewer.users;
+			this.users.update(inda['users']);
 
 			this.lastUpdateTime = new Date();
 			
@@ -167,7 +193,7 @@ Component.entryPoint = function(){
 			for (var id in data){
 				var di = data[id];
 				hlid = Math.max(di['udl']*1, hlid);
-				var message = this.list.find(id); 
+				var message = this.list.get(id); 
 				if (L.isNull(message)){ // новая задача
 					message = new Message(di);
 					this.list.add(message);
@@ -240,14 +266,14 @@ Component.entryPoint = function(){
 		},
 		_setLoadedMessageData: function(d){
 			if (L.isNull(d)){ return; }
-			var message = this.list.find(d['id']);
+			var message = this.list.get(d['id']);
 			if (L.isNull(message)){ return; }
 			
 			message.setData(d);
 		},
 		messageLoad: function(messageid, callback){
 			callback = callback || function(){};
-			var message = this.list.find(messageid);
+			var message = this.list.get(messageid);
 	
 			if (L.isNull(message) || message.isLoad){
 				callback();
@@ -287,20 +313,19 @@ Component.entryPoint = function(){
 		}
 		
 	};
-	NS.forumManager = null;
-	
+	NS.forumManager = NS.manager = null;
 	
 	NS.buildManager = function(callback){
-		if (!L.isNull(NS.forumManager)){
-			callback(NS.forumManager);
+		if (!L.isNull(NS.manager)){
+			callback(NS.manager);
 			return;
 		}
 		R.load(function(){
 			Brick.ajax('forum', {
 				'data': {'do': 'init'},
 				'event': function(request){
-					NS.forumManager = new Manager(request.data);
-					callback(NS.forumManager);
+					NS.forumManager = NS.manager = new Manager(request.data);
+					callback(NS.manager);
 				}
 			});
 		});

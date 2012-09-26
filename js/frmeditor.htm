@@ -1,0 +1,53 @@
+<!--{panel}--><div class='hd'>{#mod.forum.msgeditor.panel.1}</div>
+<div class='bd aw-forum'>
+
+	<div id="{i#gmenu}"></div>
+
+	<div class="forumedit ui-form">
+		
+		<div class="navigate">
+			<span class="item {v#first}">
+				<a href="#app=forum/board/showBoardPanel">Список форумов</a>
+			</span>
+			<span class="item {v#current}">
+				<span class="arrow"> → </span>
+				<span id="{i#tlnew}">Создание форума</span>
+				<span id="{i#tledit}">Редактирование форума</span>
+			</span>
+		</div>
+
+		<dl class="sel">
+			<dt>
+				<label for="{i#tl}">Название</label>
+			</dt>
+			<dd>
+				<input id="{i#tl}" type="text" class="input-text font-large" style="width: 90%;" />
+			</dd>
+		</dl>
+		
+		<dl>
+			<dt>
+				<label>Описание</label>
+			</dt>
+			<dd>
+				<textarea id="{i#dsc}" style="width: 560px; height: 80px"></textarea>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt></dt>
+			<dd>
+				<div class="field">
+					<div class="buttons">
+						<input type="button" value="Сохранить" id="{i#bsave}" class="btn" />
+						<input type="button" value="Отмена" id="{i#bcancel}" class="btn" />
+						<img src="/images/loading.gif" id="{i#loading}" style="display: none;" />
+					</div>
+				</div>
+			</dd>
+		</dl>
+		
+	</div>
+	
+	<div class="clear: both;"></div>
+</div>

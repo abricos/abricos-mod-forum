@@ -1,5 +1,4 @@
-<!--{panel}-->
-<div class='hd'>Форум - просмотр сообщения</div>
+<!--{panel}--><div class='hd'>{#mod.forum.msgview.panel.1}</div>
 <div class='bd aw-forum'>
 	<div class="messageview">
 		
@@ -14,7 +13,7 @@
 							<a href="#app=forum/board/showBoardPanel">Сообщения</a>
 						</span>
 						<span class="item {v#current}">
-							<span class="arrow"> → </span><span id="{i#title}">{v#tl}</span>
+							<span class="arrow"> → </span><span id="{i#title}"></span>
 						</span>
 					</div>
 					
@@ -23,43 +22,41 @@
 					</div>
 				
 					<ul id="{i#files}" class="dfiles" style="display: none">
-						<li class="tl">Прикрепленные файлы:</li>
+						<li class="tl">{#mod.forum.msgview.panel.2}:</li>
 						<li id="{i#ftable}"></li>
 					</ul>
 					<div class="clear"></div>
 					
 					<div class="manbuttons" id="{i#manbuttons}">
 						<div id="{i#buttons}">
-							<a id="{i#bopen}" style="display: none;" class="bsetexec btkbt" href="#" title="Открыть">Открыть</a>
-							<a id="{i#bclose}" style="display: none;" class="bsetexec btkbt" href="#" title="Закрыть">Закрыть</a>
+							<a id="{i#bopen}" style="display: none;" class="bsetexec btkbt" href="#" title="{#mod.forum.msgview.panel.3}">{#mod.forum.msgview.panel.3}</a>
+							<a id="{i#bclose}" style="display: none;" class="bsetexec btkbt" href="#" title="{#mod.forum.msgview.panel.4}">{#mod.forum.msgview.panel.4}</a>
 							
-							<a id="{i#beditor}" class="beditor btkbt" href="#app=forum/msgeditor/showMessageEditorPanel/{v#id}/">Редактировать</a>
+							<a id="{i#beditor}" class="beditor btkbt" href="#app=forum/msgeditor/showMessageEditorPanel/{v#id}/">{#mod.forum.msgview.panel.5}</a>
 							<a id="{i#bremove}" class="bremove btkbt" href="#">Удалить</a>
 						</div>
 						<img id="{i#bloading}" src="/images/loading.gif" style="display: none;"/>
 					</div>
 					
 					<div id="{i#dialogclose}" class="dialog alarm" style="display: none;">
-						<h4>Закрыть сообщение</h4>
+						<h4>{#mod.forum.msgview.panel.6}</h4>
 						<p>
-							Внимание! <br />
-							Вы действительно хотите закрыть это сообщение?<br />
-							Закрытое сообщение: можно - просмотреть, удалить; нельзя - редактировать, комментировать.
+							{#mod.forum.msgview.panel.7}
 						</p>
 						<div class="dbtns">
-							<a id="{i#bcloseyes}" class="yes" href="#">Подтверждаю</a>
-							<a id="{i#bcloseno}" class="no" href="#">Отменить</a>
+							<a id="{i#bcloseyes}" class="yes" href="#">{#mod.forum.msgview.panel.10}</a>
+							<a id="{i#bcloseno}" class="no" href="#">{#mod.forum.msgview.panel.8}</a>
 						</div>
 					</div>
 
 					<div id="{i#dialogremove}" class="dialog alarm" style="display: none;">
-						<h4>Удалить сообщение</h4>
+						<h4>{#mod.forum.msgview.panel.9}</h4>
 						<p>
-							Внимание! Вы действительно хотите удалить сообщение?
+							{#mod.forum.msgview.panel.11}
 						</p>
 						<div class="dbtns">
-							<a id="{i#bremoveyes}" class="yes" href="#">Подтверждаю</a>
-							<a id="{i#bremoveno}" class="no" href="#">Отменить</a>
+							<a id="{i#bremoveyes}" class="yes" href="#">{#mod.forum.msgview.panel.12}</a>
+							<a id="{i#bremoveno}" class="no" href="#">{#mod.forum.msgview.panel.13}</a>
 						</div>
 					</div>
 
@@ -95,11 +92,7 @@
 		
 	</div>
 </div>
-
-<!--{user}-->
-<div class="user vi">
+<!--{user}--><div class="user vi">
 	<a href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
 </div>
-
-<!--{frow}-->
-<div class="file"><a href="{v#src}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#src}" target="_blank">скачать</a>)</div>
+<!--{frow}--><div class="file"><a href="{v#src}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#src}" target="_blank">{#mod.forum.msgview.frow.1}</a>)</div>

@@ -1,23 +1,18 @@
-<!--{widget}-->
-<div id="{i#id}" class='aw-forum-bosonline'>
+<!--{widget}--><div id="{i#id}" class='aw-forum-bosonline'>
 	<div class="onlhd">
-		<a href="#app=forum/board/showBoardPanel" title="Открыть приложение">
-			Активные сообщения на форуме
+		<a href="#app=forum/board/showBoardPanel" title="{#mod.forum.bosonline.widget.1}">
+			{#mod.forum.bosonline.widget.2}
 		</a>
 		{v#rss}
 	</div>
 	<div class="onlbd" id="{i#list}">{v#lst}</div>
 </div>
-
-<!--{item}-->
-<div id="{i#id}" class='item'>
+<!--{item}--><div id="{i#id}" class='item'>
 	<a href="#app=forum/msgview/showMessageViewPanel/{v#id}/">
 		<span class="dt">{v#dt}</span>
 		<span class="tl">{v#tl}</span>
 	</a>
 </div>
-
-<!--{rss}-->
-<a class="onlrss" target="_blank" title="Сообщения форума в формате RSS" href="/rss/bos/forum/">
+<!--{rss}--><a class="onlrss" target="_blank" title="{#mod.forum.bosonline.rss.1}" href="/rss/bos/forum/">
 	<img src="/modules/rss/images/rss-icon-16px-op50.gif">
 </a>

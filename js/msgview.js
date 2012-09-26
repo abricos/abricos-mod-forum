@@ -19,21 +19,12 @@ Component.entryPoint = function(NS){
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		TMG = this.template,
-		API = NS.API,
 		R = NS.roles;
 	
-	var LNG = Brick.util.Language.getc('mod.{C#MODNAME}'),
+	var LNG = this.language,
 		MST = NS.MessageStatus;
 
-	var initCSS = false, buildTemplate = function(w, ts){
-		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['{C#MODNAME}']['msgview']);
-			delete Brick.util.CSS['{C#MODNAME}']['msgview'];
-			initCSS = true;
-		}
-		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
-	};
+	var buildTemplate = this.buildTemplate;
 	
 	var aTargetBlank = function(el){
 		if (el.tagName == 'A'){
@@ -77,7 +68,8 @@ Component.entryPoint = function(NS){
 		},
 		onBuildManager: function(){
 
-			this.message = NS.forumManager.list.find(this.messageid);
+			this.message = NS.forumManager.list.get(this.messageid);
+			if (L.isNull(this.message)){ return; }
 			// TODO: если this.message=null необходимо показать "либо нет прав, либо проект удален"
 
 			var message = this.message,

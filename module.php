@@ -10,7 +10,7 @@
 class ForumModule extends Ab_Module {
 	
 	public function __construct(){
-		$this->version = "0.1.4";
+		$this->version = "0.1.5";
 		$this->name = "forum";
 		$this->takelink = "forum";
 		$this->permission = new ForumPermission($this);

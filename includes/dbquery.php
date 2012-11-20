@@ -9,6 +9,21 @@
 
 class ForumQuery {
 	
+	public static function ForumAppend(Ab_Database $db, $d){
+		$sql = "
+			INSERT INTO ".$db->prefix."frm_forum 
+				(title, descript, dateline, upddate, language) VALUES (
+				'".bkstr($d->tl)."',
+				'".bkstr($d->tl)."',
+				".TIMENOW.",
+				".TIMENOW.",
+				'".bkstr(Abricos::$LNG)."'
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
 	public static function MessageAppend(Ab_Database $db, $msg, $pubkey){
 		$contentid = Ab_CoreQuery::ContentAppend($db, $msg->bd, 'forum');
 		

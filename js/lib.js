@@ -310,7 +310,28 @@ Component.entryPoint = function(NS){
 		},
 		messageRemove: function(messageid, callback){ // удалить сообщение
 			this._messageAJAX(messageid, 'messageremove', callback);
-		}
+		},
+		
+		forumSave: function(forum, d, callback){
+			callback = callback || function(){};
+			var __self = this;
+			
+			d = L.merge({'id': 0, 'title': '', 'body': ''}, d || {});
+			
+			var dforum = {
+				'id': forum.id,
+				'tl': d['title'],
+				'bd': d['body']
+			};
+			this.ajax({
+				'do': 'forumsave',
+				'forum': dforum
+			}, function(r){
+				__self._setLoadedMessageData(r);
+				callback(r);
+			});
+		},
+		
 		
 	};
 	NS.forumManager = NS.manager = null;

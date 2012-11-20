@@ -8,7 +8,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: 'sys', files: ['container.js']},
+		{name: 'sys', files: ['container.js', 'editor.js']},
         {name: 'forum', files: ['lib.js', 'roles.js']}
 	]
 };
@@ -53,6 +53,11 @@ Component.entryPoint = function(NS){
 			
 			gel('tl').value = forum.title;
 			gel('dsc').innerHTML = forum.descript; 
+
+			var Editor = Brick.widget.Editor;
+			this.editor = new Editor(gel('dsc'), {
+				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
+			});
 		},
 		destroy: function(){
 			ForumEditorPanel.superclass.destroy.call(this);
@@ -75,8 +80,7 @@ Component.entryPoint = function(NS){
 			
 			var newdata = {
 				'title': TM.getEl('panel.tl').value,
-				'body': this.editor.getContent(),
-				'files':  L.isNull(this.filesWidget) ? forum.files : this.filesWidget.files
+				'body': this.editor.getContent()
 			};
 
 			var __self = this;

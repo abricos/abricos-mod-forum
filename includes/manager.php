@@ -94,8 +94,8 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function Bos_OnlineData(){
 		if (!$this->IsViewRole()){ return null; }
-		
-		return ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
+		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
+		return $this->ToArray($rows);
 	}
 	
 	public function BoardData($lastupdate = 0, $orderByDateLine = false){
@@ -144,41 +144,7 @@ class ForumManager extends Ab_ModuleManager {
 			ForumQuery::ForumUpdate($this->db, $sd);
 		}
 	
-		$message = $this->ForumL($messageid);
-	
-		if ($sendNewNotify){
-			// Отправить уведомление всем модераторам
-				
-			$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
-			$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-			$plnk = "http://".$host."/bos/#app=forum/msgview/showMessageViewPanel/".$message['id']."/";
-				
-			$rows = ForumQuery::ModeratorList($this->db);
-			while (($user = $this->db->fetch_array($rows))){
-				if ($user['id'] == $this->userid){
-					continue;
-				}
-	
-				$email = $user['eml'];
-				if (empty($email)){
-					continue;
-				}
-	
-				$subject = Brick::ReplaceVarByData($brick->param->var['newprojectsubject'], array(
-						"tl" => $message['tl']
-				));
-				$body = Brick::ReplaceVarByData($brick->param->var['newprojectbody'], array(
-						"tl" => $message['tl'],
-						"plnk" => $plnk,
-						"unm" => $this->UserNameBuild($this->user->info),
-						"prj" => $message['bd'],
-						"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
-				));
-				Abricos::Notify()->SendMail($email, $subject, $body);
-			}
-		}
-	
-		return $message;
+		return $this->ForumList();
 	}
 	
 	public function ForumList(){

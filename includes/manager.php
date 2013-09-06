@@ -1,11 +1,9 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @subpackage Forum
- * @copyright Copyright (C) 2011 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 require_once 'dbquery.php';
@@ -334,7 +332,7 @@ class ForumManager extends Ab_ModuleManager {
 	 */
 	public function CommentSendNotify($data){
 		if (!$this->IsViewRole()){ return; }
-		
+
 		// данные по комментарию:
 		// $data->id	- идентификатор комментария
 		// $data->pid	- идентификатор родительского комментария

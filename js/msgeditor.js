@@ -63,7 +63,6 @@ Component.entryPoint = function(NS){
 				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
 			});
 			
-			
 			if (Brick.Permission.check('filemanager', '30') == 1){
 				this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(gel('files'), message.files);
 			}else{
@@ -77,7 +76,6 @@ Component.entryPoint = function(NS){
 			MessageEditorPanel.superclass.destroy.call(this);
 		},
 		onClick: function(el){
-			if (!L.isNull(this.filesWidget) && this.filesWidget.onClick(el)){ return true; }
 			var TId = this._TId, tp = TId['panel'];
 			switch(el.id){
 			case tp['bsave']: this.saveMessage(); return true;

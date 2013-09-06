@@ -1,12 +1,8 @@
 <?php
 /**
- * Схема таблиц данного модуля.
- * 
- * @version $Id$
  * @package Abricos
  * @subpackage Forum
- * @copyright Copyright (C) 2011 Abricos. All rights reserved.
- * @author  Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";

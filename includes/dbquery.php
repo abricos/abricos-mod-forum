@@ -1,10 +1,8 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @subpackage Forum
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 class ForumQuery {

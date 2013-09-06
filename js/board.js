@@ -46,7 +46,7 @@ Component.entryPoint = function(NS){
 			this.list = new NS.MessageListWidget(TM.getEl('panel.list'));
 			
 			if (R['isAdmin']){
-				TM.elShow('panel.baddfrm');
+				// TM.elShow('panel.baddfrm');
 			}
 			if (R['isWrite']){
 				TM.elShow('panel.baddmsg');

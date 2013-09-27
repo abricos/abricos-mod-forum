@@ -33,7 +33,7 @@ class ForumQuery {
 				'".bkstr($pubkey)."',
 				".$contentid.",
 				".bkint($msg->prt).",
-				".ForumStatus::OPENED.",
+				".ForumMessage::ST_OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'
@@ -74,7 +74,7 @@ class ForumQuery {
 		";
 	}
 	
-	public static function Message(Ab_Database $db, $messageid, $retarray = false){
+	public static function Message(Ab_Database $db, $messageid){
 		$sql = "
 			SELECT
 				".ForumQuery::MessageFields($db).",
@@ -85,7 +85,7 @@ class ForumQuery {
 			WHERE m.messageid=".bkint($messageid)." 
 			LIMIT 1
 		";
-		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
+		return $db->query_first($sql);
 	}
 
 	public static function MessageByContentId(Ab_Database $db, $contentid, $retarray = false){
@@ -102,18 +102,26 @@ class ForumQuery {
 		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
 	}
 	
-	public static function MessageList(Ab_Database $db, $userid, $isModer, $lastupdate = 0, $limit = 15, $orderByDateLine = false){
-		$lastupdate = bkint($lastupdate);
-		$where = "WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.") AND language='".bkstr(Abricos::$LNG)."'";
-		if (!$isModer){
-			$where .= " AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid).")) AND m.status != ".ForumStatus::REMOVED;
-		}
+	public static function MessageList(Ab_Database $db, ForumMessageListConfig $cfg){
+		
+		$lastupdate = bkint($cfg->lastUpdate);
 		
 		$sql = "
 			SELECT ".ForumQuery::MessageFields($db)."
 			FROM ".$db->prefix."frm_message m
-			".$where."
-			ORDER BY m.".($orderByDateLine ? "dateline" : "upddate")." DESC
+			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
+				AND language='".bkstr(Abricos::$LNG)."'
+		";
+		if (ForumManager::$instance->IsModerRole()){
+			// приватные темы доступны только авторам и модераторам
+			$sql .= " 
+				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id).")) 
+				AND m.status != ".ForumMessage::ST_REMOVED."
+			";
+		}
+		
+		$sql .="
+			ORDER BY m.upddate DESC
 			LIMIT ".bkint($limit)."
 		";
 		return $db->query_read($sql);
@@ -326,15 +334,16 @@ class ForumQuery {
 		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
 	}
 	
-
+/*
 	public static function MessageUnsetStatus(Ab_Database $db, $messageid){
 		$sql = "
 			UPDATE ".$db->prefix."frm_message
-			SET status=".ForumStatus::DRAW_OPEN.", statuserid=0, statdate=0
+			SET status=".ForumMessage::ST_DRAW_OPEN.", statuserid=0, statdate=0
 			WHERE messageid=".bkint($messageid)."
 		";
 		$db->query_write($sql);
 	}
+	/**/
 	
 	/**
 	 * Список участников проекта

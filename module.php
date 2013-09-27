@@ -36,13 +36,32 @@ class ForumModule extends Ab_Module {
 		return $this->_manager;
 	}
 	
+	/**
+	 * @var ForumMessage
+	 */
+	public $currentMessage;
+	
 	public function GetContentName(){
 		$cname = 'index';
 		$adress = $this->registry->adress;
 		
-		if ($adress->level >= 2 && $adress->dir[1] == 'upload'){
-			$cname = $adress->dir[1];
+		if ($adress->level >= 2 ){
+			$d2 = $adress->dir[1];
+			if ($d2 == 'upload'){ return 'upload'; }
+			
+			$a = explode("_", $d2);
+
+			if ($a[0] == 'message'){
+				
+				$this->currentMessage = $this->GetManager()->Message(intval($a[1]));
+				if (empty($this->currentMessage)){
+					return '';
+				}
+				
+				return 'message';
+			}
 		}
+		
 		return $cname;
 	}
 	
@@ -51,17 +70,17 @@ class ForumModule extends Ab_Module {
 		
 		$manager = $this->GetManager();
 		
-		$url = $this->registry->adress->host;
-		$url .= $inBosUI ? "/bos/" : "/forum/";
-		$url .= "#app=forum/msgview/showMessageViewPanel/";
+		$host = $this->registry->adress->host;
 		
-		$rows = $manager->MessageList(0, true);
-		while (($row = $this->registry->db->fetch_array($rows))){
+		$cfg = new ForumMessageListConfig();
+		$cfg->limit = 30;
+		$cfg->orderByDateLine = true;
+		
+		$mList = $manager->MessageList($cfg);
+		for ($i=0;$i<$mList->Count();$i++){
+			$msg = $mList->GetByIndex($i);
 			
-			$title = $row['tl'];
-			$link = $url.$row['id']."/";
-				
-			$item = new RSSItem($title, $link, "", $row['dl']);
+			$item = new RSSItem($msg->title, $msg->URI(), "", $msg->dateline);
 			$item->modTitle = $this->lang['modtitle'];
 			array_push($ret, $item);
 		}
@@ -86,32 +105,6 @@ class ForumGroup {
 	 */
 	const MODERATOR = 'forum_moderator';
 }
-
-
-/**
- * Статус задачи
- */
-class ForumStatus {
-	
-	/**
-	 * Открыто
-	 * @var integer
-	 */
-	const OPENED = 0;
-
-	/**
-	 * Закрыто
-	 * @var integer
-	 */
-	const CLOSED = 1;
-	
-	/**
-	 * Удалено
-	 * @var integer
-	 */
-	const REMOVED = 2;
-}
-
 
 class ForumPermission extends Ab_UserPermission {
 	

@@ -36,9 +36,9 @@ class ForumList extends AbricosList {
 
 class ForumMessage extends AbricosItem {
 	
-	const OPENED = 0;
-	const CLOSED = 1;
-	const REMOVED = 2;
+	const ST_OPENED = 0;
+	const ST_CLOSED = 1;
+	const ST_REMOVED = 2;
 	
 	public $userid;
 	public $title;
@@ -48,6 +48,13 @@ class ForumMessage extends AbricosItem {
 	public $lastCommentDate;
 	public $lastUserId;
 	public $status;
+	
+	private $_isPrivate;
+	
+	/**
+	 * @var ForumMessageDetail
+	 */
+	public $detail = null;
 	
 	public function __construct($d){
 		parent::__construct($d);
@@ -60,18 +67,33 @@ class ForumMessage extends AbricosItem {
 		$this->lastCommentDate = intval($d['cmtdl']);
 		$this->lastUserId = intval($d['cmtuid']);
 		$this->status = intval($d['st']);
+		
+		$this->_isPrivate = intval($d['prt']) > 0;
+	}
+	
+	public function IsPrivate(){
+		return $this->_isPrivate;
 	}
 	
 	public function IsClosed(){
-		return $this->status == ForumMessage::CLOSED;
+		return $this->status == ForumMessage::ST_CLOSED;
 	}
 	
 	public function IsRemoved(){
-		return $this->status == ForumMessage::REMOVED;
+		return $this->status == ForumMessage::ST_REMOVED;
 	}
 	
 	public function URI(){
 		return "/forum/message_".$this->id."/";
+	}
+}
+
+class ForumMessageDetail {
+	public $body;
+	public $contentid;
+	
+	public function __construct($d){
+		
 	}
 }
 
@@ -133,6 +155,34 @@ class ForumMessageList extends AbricosList {
 		$this->AddUserId($item->lastUserId);
 		
 		$this->hlid = max(max($this->hlid, $item->upddate), $item->lastCommentDate);
+	}
+}
+
+/**
+ * Настройки списка сообщений форума
+ */
+class ForumMessageListConfig {
+
+	/**
+	 * Лимит записей
+	 * @var integer
+	 */
+	public $limit = 50;
+	
+	/**
+	 * Все записи с последней даты обновления
+	 * @var integer
+	 */
+	public $lastUpdate = 0;
+	
+	/**
+	 * Сортировать список по дате создания
+	 * @var boolean
+	 */
+	public $orderByDateLine = false;
+	
+	public function __construct(){
+		
 	}
 }
 

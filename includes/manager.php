@@ -88,6 +88,19 @@ class ForumManager extends Ab_ModuleManager {
 		return $ret;
 	}
 		
+	public function ParamToObject($o){
+		if (is_array($o)){
+			$ret = new stdClass();
+			foreach($o as $key => $value){
+				$ret->$key = $value;
+			}
+			return $ret;
+		}else if (!is_object($o)){
+			return new stdClass();
+		}
+		return $o;
+	}
+	
 	public function Sync(){ return TIMENOW; }
 	
 	public function Bos_OnlineData(){
@@ -170,18 +183,59 @@ class ForumManager extends Ab_ModuleManager {
 	}
 	
 	/**
+	 * Если текущий пользователь модератор и выше или этот пользователь автор сообщения, то вернет истину
+	 * @param array $msg
+	 */
+	public function MessageAccess($msg){
+		if (!$this->IsViewRole() || empty($msg)){
+			return false;
+		}
+		if ($this->IsModerRole()){
+			return true;
+		}
+	
+		if ($msg['prt'] == 1 && $this->userid != $msg['uid']){
+			return false;
+		}
+	
+		return true;
+	}
+	
+	public function Message($messageid){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$d = ForumQuery::Message($this->db, $messageid, true);
+		if (empty($d)){ return null; 
+		}
+	
+		$msg['files'] = array();
+		$files = $this->MessageFiles($messageid, true);
+		foreach ($files as $file){
+			array_push($msg['files'], $file);
+		}
+		return $msg;
+	}
+	
+	
+	
+	/**
 	 * Список сообщений
 	 * 
-	 * @param unknown_type $lastupdate
-	 * @param unknown_type $orderByDateLine
+	 * @param ForumMessageListConfig|array|object $cfg
 	 * @return ForumMessageList
 	 */
-	public function MessageList($lastupdate = 0, $orderByDateLine = false){
+	public function MessageList($cfg = null){
 		if (!$this->IsViewRole()){ return null; }
+		
+		if ($cfg instanceof ForumMessageListConfig){
+			
+		}else{
+			$cfg = new ForumMessageListConfig($this->ParamToObject($cfg));
+		}
 		
 		$list = new ForumMessageList();
 		
-		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
+		$rows = ForumQuery::MessageList($this->db, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
 			$list->Add(new ForumMessage($d));
 		}
@@ -239,8 +293,8 @@ class ForumManager extends Ab_ModuleManager {
 				return null;
 			}
 			
-			if ($info['st'] == ForumStatus::CLOSED ||
-				$info['st'] == ForumStatus::REMOVED ){ 
+			if ($info['st'] == ForumMessage::ST_CLOSED ||
+				$info['st'] == ForumMessage::ST_REMOVED ){ 
 				return null; 
 			}
 			
@@ -311,31 +365,6 @@ class ForumManager extends Ab_ModuleManager {
 		return $message;
 	}
 	
-	/**
-	 * Если текущий пользователь модератор и выше или этот пользователь автор сообщения, то вернет истину
-	 * @param array $msg
-	 */
-	public function MessageAccess($msg){
-		if (!$this->IsViewRole() || empty($msg)){ return false; }
-		if ($this->IsModerRole()){ return true; }
-		
-		if ($msg['prt'] == 1 && $this->userid != $msg['uid']){ return false; }
-		
-		return true;
-	}
-	
-	public function Message($messageid){
-		$msg = ForumQuery::Message($this->db, $messageid, true);
-		if (!$this->MessageAccess($msg)){ return null; }
-		
-		$msg['files'] = array();
-		$files = $this->MessageFiles($messageid, true);
-		foreach ($files as $file){
-			array_push($msg['files'], $file);
-		}
-		return $msg;
-	}
-		
 	public function MessageFiles($messageid, $retarray = false){
 		if (!$this->IsViewRole()){ return null; }
 		$rows = ForumQuery::MessageFiles($this->db, $messageid);
@@ -360,7 +389,7 @@ class ForumManager extends Ab_ModuleManager {
 	public function IsCommentAppend($contentid){
 		$message = ForumQuery::MessageByContentId($this->db, $contentid, true);
 		if (!$this->MessageAccess($message)){ return false; }
-		if ($message['st'] == ForumStatus::CLOSED || $message['st'] == ForumStatus::REMOVED){ return false; }
+		if ($message['st'] == ForumMessage::ST_CLOSED || $message['st'] == ForumMessage::ST_REMOVED){ return false; }
 		
 		return true;
 	}
@@ -477,9 +506,9 @@ class ForumManager extends Ab_ModuleManager {
 		if (!$this->IsModerRole()){ return null; }
 		
 		$msg = $this->Message($messageid);
-		if ($msg['st'] != ForumStatus::OPENED){ return null; } // закрыть можно только открытое сообщение
+		if ($msg['st'] != ForumMessage::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
 		
-		ForumQuery::MessageSetStatus($this->db, $messageid, ForumStatus::CLOSED, $this->userid);
+		ForumQuery::MessageSetStatus($this->db, $messageid, ForumMessage::ST_CLOSED, $this->userid);
 		
 		return $this->Message($messageid);
 	}
@@ -493,9 +522,9 @@ class ForumManager extends Ab_ModuleManager {
 		if (!$this->IsModerRole()){ return null; }
 		
 		$msg = $this->Message($messageid);
-		if ($msg['st'] != ForumStatus::OPENED){ return null; } // закрыть можно только открытое сообщение
+		if ($msg['st'] != ForumMessage::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
 		
-		ForumQuery::MessageSetStatus($this->db, $messageid, ForumStatus::REMOVED, $this->userid);
+		ForumQuery::MessageSetStatus($this->db, $messageid, ForumMessage::ST_REMOVED, $this->userid);
 		
 		return $this->Message($messageid);
 	}

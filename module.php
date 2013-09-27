@@ -8,8 +8,16 @@
 
 class ForumModule extends Ab_Module {
 	
+	/**
+	 * @var ForumModule
+	 */
+	public static $instance;
+	
+	private $_manager = null;
+	
 	public function __construct(){
-		$this->version = "0.1.5";
+		ForumModule::$instance = $this;
+		$this->version = "0.1.6";
 		$this->name = "forum";
 		$this->takelink = "forum";
 		$this->permission = new ForumPermission($this);
@@ -21,7 +29,7 @@ class ForumModule extends Ab_Module {
 	 * @return ForumManager
 	 */
 	public function GetManager(){
-		if (is_null($this->_manager)){
+		if (empty($this->_manager)){
 			require_once 'includes/manager.php';
 			$this->_manager = new ForumManager($this);
 		}

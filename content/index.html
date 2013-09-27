@@ -1,22 +1,10 @@
 <!--[*]
 [tt=main][/tt]
+
+[mod=forum]message_list[/mod]
 [*]-->
 
-<div id="bos" class="mod-forum">
-	<div class="static">
-		<div id="mod-forum-container" style="min-height: 220px;">
-			<div style="width: 300px; margin: 150px auto; text-align: center">
-				{#content.index.1}<br />
-				<img src="/images/loading.gif" />  {#content.index.2}
-			</div>
-		</div>
-	</div>
+<div class="mod-forum">
+	<h2>Форум</h2>
+	[mod]forum:message_list[/mod]
 </div>
-<script type="text/javascript">
-
-	Brick.ff('bos', 'os', function(){
-		var el = document.getElementById('mod-forum-container');
-		new Brick.mod.bos.PageManagerWidget(el, 'forum/board/showBoardPanel');
-	});
-
-</script>

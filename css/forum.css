@@ -1,0 +1,117 @@
+.mod-forum .messagelist table {
+	table-layout: fixed;
+	border-collapse: collapse;
+	width: 100%;
+}
+.mod-forum .messagelist table th {
+	font-size: 11px;
+	background-color: #E7E8EE;
+	font-weight: normal;
+	padding: 0;
+	white-space: nowrap;
+	text-align: left;
+}
+
+.mod-forum .messagelist th span {
+	display: block;
+	margin: 5px 0 5px 5px;
+	text-align: center;
+}
+.mod-forum .messagelist table th.tname {
+	width: 70%;
+}
+.mod-forum .messagelist table th.tname span {
+    margin-left: 20px;
+    text-align: left;
+}
+
+.mod-forum .messagelist table td a {
+	text-decoration: none;
+}
+
+.mod-forum .messagelist tr.row td {
+	padding: 5px 3px 6px 3px;
+}
+
+.mod-forum .messagelist .tname .ch-tl {
+	margin-left: 5px;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+}
+.mod-forum .messagelist .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow.png") repeat-y scroll 0 0 transparent;
+    height: 1.3em;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+}
+
+.mod-forum .messagelist tr.row:hover .tname .ch-tl .shadow,
+.mod-forum .messagelist tr.row-hover .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow-row.png") repeat-y scroll 0 0 transparent;
+}
+
+/* колонка кол-ва комментарий */
+.mod-forum .messagelist table th.tcmtcount {
+	width: 10em;
+}
+
+.mod-forum .messagelist table td.tcmtcount {
+	vertical-align: middle;
+	text-align: center;
+}
+.mod-forum .messagelist table th.tcmtcount .tl {
+    margin-left: 1em;
+}
+
+/* колонка последний комментарий */
+.mod-forum .messagelist table th.tlastcmt {
+	width: 150px; 
+}
+
+.mod-forum .messagelist tr.row td.tlastcmt {
+	padding: 0.1em 0.3em 0.1em 0.3em;
+	font-size: 10px;
+}
+.mod-forum .messagelist tr.row td.tlastcmt .cmtdate {
+	color: #839097;
+}
+
+.mod-forum .messagelist table .removed td,
+.mod-forum .messagelist table .removed td .prtclr,  
+.mod-forum .messagelist table .removed td a,
+.mod-forum .messagelist table .removed td.tprt .tl {
+	color: #839097; 
+	text-decoration: line-through;
+}
+
+
+.mod-forum .messagelist tr.row:hover, 
+.mod-forum .messagelist tr.row-hover {
+	background: none repeat scroll 0 0 #FFF0C6;
+}
+
+.mod-forum .messagelist .tlmenu {
+	margin-left: 10px;
+}
+.mod-forum .messagelist .tlitem {
+	cursor: pointer;
+	float: left;
+	background-color: #E3E3D7;
+	margin: 0 1px;
+	padding: 5px 15px; 
+}
+.mod-forum .messagelist .tlitem:hover {
+	text-decoration: underline;
+	
+}
+.mod-forum .messagelist .current {
+	background-color: #F4F4EE;
+}
+.mod-forum .messagelist .ttable {
+	clear: both;
+}
+
+

@@ -120,11 +120,11 @@ class ForumQuery {
 	}
 	
 	
-	public static function Users(Ab_Database $db, $uids){
-		$ids = array();
-			array_push($ids, "u.userid=0");
-		foreach ($uids as $uid => $v){
-			array_push($ids, "u.userid=".bkint($uid));
+	public static function UserList(Ab_Database $db, $uids){
+		$aWh = array();
+		array_push($aWh, "u.userid=0");
+		foreach ($uids as $uid){
+			array_push($aWh, "u.userid=".bkint($uid));
 		}
 		
 		$sql = "
@@ -136,7 +136,7 @@ class ForumQuery {
 				u.lastname as lnm,
 				u.avatar as avt
 			FROM ".$db->prefix."user u
-			WHERE ".implode(" OR ", $ids)."
+			WHERE ".implode(" OR ", $aWh)."
 		";
 		return $db->query_read($sql);
 	}

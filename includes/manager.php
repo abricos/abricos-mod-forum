@@ -5,6 +5,7 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+require_once 'classes.php';
 require_once 'dbquery.php';
 
 class ForumManager extends Ab_ModuleManager {
@@ -97,9 +98,7 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function BoardData($lastupdate = 0, $orderByDateLine = false){
 		if (!$this->IsViewRole()){ return null; }
-		$ret = new stdClass();
-		$ret->board = array();
-		$ret->hlid = $lastupdate;
+		$ret = $this->MessageListToAJAX($lastupdate, $orderByDateLine);
 		
 		$uids = array();
 		
@@ -119,7 +118,7 @@ class ForumManager extends Ab_ModuleManager {
 			$uids[$this->userid] = true;
 		}
 		
-		$ret->users = $this->ToArray(ForumQuery::Users($this->db, $uids));
+		// $ret->users = $this->ToArray(ForumQuery::Users($this->db, $uids));
 
 		return $ret;
 	}
@@ -151,11 +150,60 @@ class ForumManager extends Ab_ModuleManager {
 		return $this->ToArray($rows);
 	}
 	
+	/**
+	 * Получить список пользователей
+	 * @param integer|array $uids 
+	 */
+	public function UserList($uids){
+		if (!$this->IsViewRole()){ return null; }
+		
+		if (!is_array($uids)){
+			$userIds = array(intval($uids));
+		}
+		
+		$list = new ForumUserList();
+		$rows = ForumQuery::UserList($this->db, $uids);
+		while (($d = $this->db->fetch_array($rows))){
+			$list->Add(new ForumUser($d));
+		}
+		return $list;
+	}
+	
+	/**
+	 * Список сообщений
+	 * 
+	 * @param unknown_type $lastupdate
+	 * @param unknown_type $orderByDateLine
+	 * @return ForumMessageList
+	 */
 	public function MessageList($lastupdate = 0, $orderByDateLine = false){
 		if (!$this->IsViewRole()){ return null; }
 		
+		$list = new ForumMessageList();
+		
 		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
-		return $this->ToArray($rows);
+		while (($d = $this->db->fetch_array($rows))){
+			$list->Add(new ForumMessage($d));
+		}
+		return $list;
+	}
+	
+	public function MessageListToAJAX($lastupdate = 0, $orderByDateLine = false){
+		$list = $this->MessageList($lastupdate, $orderByDateLine);
+		
+		if (empty($list)){ return null; }
+
+		if ($lastupdate == 0 || ($lastupdate > 0 && count($list->userIds) > 0)){
+			$list->AddUserId(Abricos::$user->id);
+		}
+		$userList = $this->UserList($list->userIds);
+		
+		$ret = new stdClass();
+		$ret->messages = $list->ToAJAX();
+		$ret->hlid = $list->hlid;
+		$ret->users = $userList->ToAJAX();
+		
+		return $ret;
 	}
 	
 	/**

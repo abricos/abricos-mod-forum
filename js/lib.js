@@ -72,14 +72,14 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(ForumList, NSys.ItemList, {});
 	NS.ForumList = ForumList;
 	
-	var MessageStatus = {
+	var TopicStatus = {
 		'OPENED'		: 0,	// открыта
 		'CLOSED'		: 1,	// закрыта
 		'REMOVED'		: 2		// удалена
 	};
-	NS.MessageStatus = MessageStatus;
+	NS.TopicStatus = TopicStatus;
 	
-	var Message = function(d){
+	var Topic = function(d){
 		d = L.merge({
 			'fmid': 0,
 			'tl': '',
@@ -94,11 +94,11 @@ Component.entryPoint = function(NS){
 			'dl': 0,
 			'uid': Brick.env.user.id
 		}, d || {});
-		Message.superclass.constructor.call(this, d);
+		Topic.superclass.constructor.call(this, d);
 	};
-	YAHOO.extend(Message, NSys.Item, {
+	YAHOO.extend(Topic, NSys.Item, {
 		init: function(d){
-			Message.superclass.init.call(this, d);
+			Topic.superclass.init.call(this, d);
 			
 			// была ли загрузка оставшихся данных?
 			this.isLoad = false;
@@ -131,19 +131,19 @@ Component.entryPoint = function(NS){
 			this.update(d);
 		},
 		isRemoved: function(){
-			return this.status*1 == MessageStatus.REMOVED;
+			return this.status*1 == TopicStatus.REMOVED;
 		},
 		isClosed: function(){
-			return this.status*1 == MessageStatus.CLOSED;
+			return this.status*1 == TopicStatus.CLOSED;
 		}
 	});
-	NS.Message = Message;
+	NS.Topic = Topic;
 	
-	var MessageList = function(d){
-		MessageList.superclass.constructor.call(this, d, Message);
+	var TopicList = function(d){
+		TopicList.superclass.constructor.call(this, d, Topic);
 	};
-	YAHOO.extend(MessageList, NSys.ItemList, {});
-	NS.MessageList = MessageList;
+	YAHOO.extend(TopicList, NSys.ItemList, {});
+	NS.TopicList = TopicList;
 	
 	var Manager = function(inda){
 		this.init(inda);
@@ -155,7 +155,7 @@ Component.entryPoint = function(NS){
 			this.messagesChangedEvent = new YAHOO.util.CustomEvent("messagesChangedEvent");
 
 			this.forums = new ForumList(); 
-			this.list = new MessageList();
+			this.list = new TopicList();
 			this.listUpdate(inda['board']);
 
 			this.users = UP.viewer.users;
@@ -193,7 +193,7 @@ Component.entryPoint = function(NS){
 				hlid = Math.max(di['udl']*1, hlid);
 				var message = this.list.get(id); 
 				if (L.isNull(message)){ // новая задача
-					message = new Message(di);
+					message = new Topic(di);
 					this.list.add(message);
 					n[n.length] = message;
 				}else{
@@ -258,11 +258,11 @@ Component.entryPoint = function(NS){
 			callback = callback || function(){};
 			var __self = this;
 			this.ajax({'do': cmd, 'messageid': messageid }, function(r){
-				__self._setLoadedMessageData(r);
+				__self._setLoadedTopicData(r);
 				callback(r);
 			});
 		},
-		_setLoadedMessageData: function(d){
+		_setLoadedTopicData: function(d){
 			if (L.isNull(d)){ return; }
 			var message = this.list.get(d['id']);
 			if (L.isNull(message)){ return; }
@@ -299,7 +299,7 @@ Component.entryPoint = function(NS){
 				'do': 'messagesave',
 				'message': dmessage
 			}, function(r){
-				__self._setLoadedMessageData(r);
+				__self._setLoadedTopicData(r);
 				callback(r);
 			});
 		},
@@ -325,7 +325,7 @@ Component.entryPoint = function(NS){
 				'do': 'forumsave',
 				'forum': dforum
 			}, function(r){
-				__self._setLoadedMessageData(r);
+				__self._setLoadedTopicData(r);
 				callback(r);
 			});
 		},

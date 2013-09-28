@@ -20,15 +20,15 @@ Component.entryPoint = function(NS){
 
 	var buildTemplate = this.buildTemplate;
 	
-	var MessageEditorPanel = function(messageid){
+	var TopicEditorPanel = function(messageid){
 		
 		this.messageid = messageid || 0;
 		
-		MessageEditorPanel.active = this;
+		TopicEditorPanel.active = this;
 
-		MessageEditorPanel.superclass.constructor.call(this, {fixedcenter: true});
+		TopicEditorPanel.superclass.constructor.call(this, {fixedcenter: true});
 	};
-	YAHOO.extend(MessageEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(TopicEditorPanel, Brick.widget.Panel, {
 		initTemplate: function(){
 			buildTemplate(this, 'panel,frow');
 
@@ -44,7 +44,7 @@ Component.entryPoint = function(NS){
 		onBuildManager: function(){
 			var TM = this._TM,
 				gel = function(n){ return TM.getEl('panel.'+n); },
-				message = this.messageid == 0 ? new NS.Message() : NS.forumManager.list.get(this.messageid);
+				message = this.messageid == 0 ? new NS.Topic() : NS.forumManager.list.get(this.messageid);
 				__self = this;
 				
 			if (L.isNull(message)){ return; }
@@ -70,18 +70,18 @@ Component.entryPoint = function(NS){
 		},
 		destroy: function(){
 			this.editor.destroy();
-			MessageEditorPanel.active = null;
-			MessageEditorPanel.superclass.destroy.call(this);
+			TopicEditorPanel.active = null;
+			TopicEditorPanel.superclass.destroy.call(this);
 		},
 		onClick: function(el){
 			var TId = this._TId, tp = TId['panel'];
 			switch(el.id){
-			case tp['bsave']: this.saveMessage(); return true;
+			case tp['bsave']: this.saveTopic(); return true;
 			case tp['bcancel']: this.close(); return true;
 			}
 			return false;
 		},
-		saveMessage: function(){
+		saveTopic: function(){
 			var TM = this._TM,
 				message = this.message;
 			
@@ -103,7 +103,7 @@ Component.entryPoint = function(NS){
 				__self.close();
 				setTimeout(function(){
 					if (messageid > 0){
-						Brick.Page.reload('#app=forum/msgview/showMessageViewPanel/'+messageid+'/');
+						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+messageid+'/');
 					}else{
 						Brick.Page.reload('#app=forum/board/showBoardPanel');
 					}
@@ -111,20 +111,20 @@ Component.entryPoint = function(NS){
 			});
 		}
 	});
-	NS.MessageEditorPanel = MessageEditorPanel;
+	NS.TopicEditorPanel = TopicEditorPanel;
 
 	// создать сообщение
-	NS.API.showCreateMessagePanel = function(){
-		return NS.API.showMessageEditorPanel(0);
+	NS.API.showCreateTopicPanel = function(){
+		return NS.API.showTopicEditorPanel(0);
 	};
 
 	var activePanel = null;
-	NS.API.showMessageEditorPanel = function(messageid, pmessageid){
+	NS.API.showTopicEditorPanel = function(messageid, pmessageid){
 		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
-			activePanel = new MessageEditorPanel(messageid, pmessageid);
+			activePanel = new TopicEditorPanel(messageid, pmessageid);
 		}
 		return activePanel;
 	};

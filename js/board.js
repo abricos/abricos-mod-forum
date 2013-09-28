@@ -7,7 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 		{name: 'sys', files: ['data.js', 'container.js']},
-        {name: 'forum', files: ['msglist.js', 'lib.js']}
+        {name: 'forum', files: ['topiclist.js', 'lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -41,7 +41,7 @@ Component.entryPoint = function(NS){
 		},
 		onBuildManager: function(){
 			var TM = this._TM;
-			this.list = new NS.MessageListWidget(TM.getEl('panel.list'));
+			this.list = new NS.TopicListWidget(TM.getEl('panel.list'));
 			
 			if (R['isAdmin']){
 				// TM.elShow('panel.baddfrm');

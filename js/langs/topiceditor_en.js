@@ -1,20 +1,20 @@
 Brick.util.Language.add('en',{'mod': {'{C#MODNAME}':{
-	'msgeditor': {
+	'topiceditor': {
 		'panel': {
-			'1': 'Message Editor',
-			'2': 'Message List',
-			'3': 'Create new Message',
-			'4': 'Edit Message',
+			'1': 'Topic Editor',
+			'2': 'Topic List',
+			'3': 'Create new Topic',
+			'4': 'Edit Topic',
 			'5': 'Title',
-			'6': 'Message Text',
+			'6': 'Topic Text',
 			'7': 'Files',
 			'8': 'Save',
 			'9': 'Cancel'
 		},
 		'files': {
-			'1': 'Attach files to messages',
+			'1': 'Attach files to topics',
 			'2': 'Attach a file',
-			'3': 'Attach files to messages',
+			'3': 'Attach files to topics',
 			'4': 'Attach another file',
 			'5': 'Upload from PC',
 			'6': 'Select in the File Manager',

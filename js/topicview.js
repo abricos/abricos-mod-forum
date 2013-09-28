@@ -20,7 +20,7 @@ Component.entryPoint = function(NS){
 		R = NS.roles;
 	
 	var LNG = this.language,
-		MST = NS.MessageStatus;
+		MST = NS.TopicStatus;
 
 	var buildTemplate = this.buildTemplate;
 	
@@ -37,16 +37,16 @@ Component.entryPoint = function(NS){
 		}
 	};
 	
-	var MessageViewPanel = function(messageid){
+	var TopicViewPanel = function(messageid){
 		this.messageid = messageid;
 		
-		MessageViewPanel.superclass.constructor.call(this, {
+		TopicViewPanel.superclass.constructor.call(this, {
 			fixedcenter: true, width: '790px', height: '400px',
 			overflow: false, 
 			controlbox: 1
 		});
 	};
-	YAHOO.extend(MessageViewPanel, Brick.widget.Panel, {
+	YAHOO.extend(TopicViewPanel, Brick.widget.Panel, {
 		initTemplate: function(){
 			buildTemplate(this, 'panel,user,frow,empttitle');
 			
@@ -81,18 +81,18 @@ Component.entryPoint = function(NS){
 			
 			// запросить дополнительные данные - описание
 			NS.forumManager.messageLoad(message.id, function(){
-				__self.renderMessage();
+				__self.renderTopic();
 			});
 			
-			NS.forumManager.messagesChangedEvent.subscribe(this.onMessagesChanged, this, true);
+			NS.forumManager.messagesChangedEvent.subscribe(this.onTopicsChanged, this, true);
 		},
 		destroy: function(){
-			MessageViewPanel.superclass.destroy.call(this);
+			TopicViewPanel.superclass.destroy.call(this);
 		},
-		onMessagesChanged: function(){
-			this.renderMessage();
+		onTopicsChanged: function(){
+			this.renderTopic();
 		},
-		renderMessage: function(){
+		renderTopic: function(){
 			var TM = this._TM, message = this.message, 
 				__self = this, 
 				gel = function(nm){ return TM.getEl('panel.'+nm); };
@@ -143,11 +143,11 @@ Component.entryPoint = function(NS){
 			// закрыть все кнопки, открыть по ролям 
 			TM.elHide('panel.bopen,bclose,beditor,bremove');
 			
-			var isMyMessage = user.id*1 == Brick.env.user.id*1;
+			var isMyTopic = user.id*1 == Brick.env.user.id*1;
 			if (message.status == MST.OPENED){
 				if (R['isModer']){
 					TM.elShow('panel.beditor,bremove,bclose'); 
-				}else if (isMyMessage){
+				}else if (isMyTopic){
 					TM.elShow('panel.beditor,bremove'); 
 				}
 			}
@@ -239,15 +239,15 @@ Component.entryPoint = function(NS){
 			});
 		}
 	});
-	NS.MessageViewPanel = MessageViewPanel;
+	NS.TopicViewPanel = TopicViewPanel;
 	
 	var activePanel = null;
-	NS.API.showMessageViewPanel = function(messageid, pmessageid){
+	NS.API.showTopicViewPanel = function(messageid, pmessageid){
 		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
-			activePanel = new MessageViewPanel(messageid, pmessageid);
+			activePanel = new TopicViewPanel(messageid, pmessageid);
 		}
 		return activePanel;
 	};

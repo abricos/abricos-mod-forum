@@ -1,5 +1,5 @@
 Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
-	'msgview': {
+	'topicview': {
 		'panel': {
 			'1': 'Форум - Сообщение',
 			'2': 'Прикрепленные файлы',

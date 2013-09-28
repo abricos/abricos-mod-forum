@@ -37,9 +37,9 @@ class ForumModule extends Ab_Module {
 	}
 	
 	/**
-	 * @var ForumMessage
+	 * @var ForumTopic
 	 */
-	public $currentMessage;
+	public $currentTopic;
 	
 	public function GetContentName(){
 		$cname = 'index';
@@ -53,8 +53,8 @@ class ForumModule extends Ab_Module {
 
 			if ($a[0] == 'message'){
 				
-				$this->currentMessage = $this->GetManager()->Message(intval($a[1]));
-				if (empty($this->currentMessage)){
+				$this->currentTopic = $this->GetManager()->Topic(intval($a[1]));
+				if (empty($this->currentTopic)){
 					return '';
 				}
 				
@@ -72,11 +72,11 @@ class ForumModule extends Ab_Module {
 		
 		$host = $this->registry->adress->host;
 		
-		$cfg = new ForumMessageListConfig();
+		$cfg = new ForumTopicListConfig();
 		$cfg->limit = 30;
 		$cfg->orderByDateLine = true;
 		
-		$mList = $manager->MessageList($cfg);
+		$mList = $manager->TopicList($cfg);
 		for ($i=0;$i<$mList->Count();$i++){
 			$msg = $mList->GetByIndex($i);
 			

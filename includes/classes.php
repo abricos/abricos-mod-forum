@@ -34,7 +34,7 @@ class ForumList extends AbricosList {
 	}
 }
 
-class ForumMessage extends AbricosItem {
+class ForumTopic extends AbricosItem {
 	
 	const ST_OPENED = 0;
 	const ST_CLOSED = 1;
@@ -52,7 +52,7 @@ class ForumMessage extends AbricosItem {
 	private $_isPrivate;
 	
 	/**
-	 * @var ForumMessageDetail
+	 * @var ForumTopicDetail
 	 */
 	public $detail = null;
 	
@@ -76,19 +76,19 @@ class ForumMessage extends AbricosItem {
 	}
 	
 	public function IsClosed(){
-		return $this->status == ForumMessage::ST_CLOSED;
+		return $this->status == ForumTopic::ST_CLOSED;
 	}
 	
 	public function IsRemoved(){
-		return $this->status == ForumMessage::ST_REMOVED;
+		return $this->status == ForumTopic::ST_REMOVED;
 	}
 	
 	public function URI(){
-		return "/forum/message_".$this->id."/";
+		return "/forum/topic_".$this->id."/";
 	}
 }
 
-class ForumMessageDetail {
+class ForumTopicDetail {
 	public $body;
 	public $contentid;
 	
@@ -97,7 +97,7 @@ class ForumMessageDetail {
 	}
 }
 
-class ForumMessageList extends AbricosList {
+class ForumTopicList extends AbricosList {
 	
 	/**
 	 * Идентификаторы пользователей
@@ -123,14 +123,14 @@ class ForumMessageList extends AbricosList {
 	}
 	
 	/**
-	 * @return ForumMessage
+	 * @return ForumTopic
 	 */
 	public function Get($id){
 		return parent::Get($id);
 	}
 	
 	/**
-	 * @return ForumMessage
+	 * @return ForumTopic
 	 */
 	public function GetByIndex($i){
 		return parent::GetByIndex($i);
@@ -146,7 +146,7 @@ class ForumMessageList extends AbricosList {
 	
 	/**
 	 * Добавить сообщение в список
-	 * @param ForumMessage $item
+	 * @param ForumTopic $item
 	 */
 	public function Add($item){
 		parent::Add($item);
@@ -161,7 +161,7 @@ class ForumMessageList extends AbricosList {
 /**
  * Настройки списка сообщений форума
  */
-class ForumMessageListConfig {
+class ForumTopicListConfig {
 
 	/**
 	 * Лимит записей
@@ -180,6 +180,20 @@ class ForumMessageListConfig {
 	 * @var boolean
 	 */
 	public $orderByDateLine = false;
+	
+	/**
+	 * Идентификаторы тем
+	 * @var array
+	 */
+	public $topicIds;
+	
+	/**
+	 * Глобальные идентификаторы контента 
+	 * @var array
+	 */
+	public $contentIds;
+	
+	public $withDetail = false;
 	
 	public function __construct(){
 		

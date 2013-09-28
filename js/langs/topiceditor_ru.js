@@ -1,5 +1,5 @@
 Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
-	'msgeditor': {
+	'topiceditor': {
 		'panel': {
 			'1': 'Редактор сообщения',
 			'2': 'Список сообщений',

@@ -12,7 +12,7 @@ $v = &$brick->param->var;
 
 $man = ForumModule::$instance->GetManager();
 
-$mList = $man->MessageList();
+$mList = $man->TopicList();
 
 if ($mList->Count() == 0){
 	$brick->content = "";

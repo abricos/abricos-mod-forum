@@ -63,12 +63,12 @@ Component.entryPoint = function(NS){
 		onClick: function(el){
 			var TId = this._TId, tp = TId['panel'];
 			switch(el.id){
-			case tp['bsave']: this.saveMessage(); return true;
+			case tp['bsave']: this.saveTopic(); return true;
 			case tp['bcancel']: this.close(); return true;
 			}
 			return false;
 		},
-		saveMessage: function(){
+		saveTopic: function(){
 			var TM = this._TM,
 				forum = this.forum;
 			
@@ -89,7 +89,7 @@ Component.entryPoint = function(NS){
 				__self.close();
 				setTimeout(function(){
 					if (forumid > 0){
-						Brick.Page.reload('#app=forum/msgview/showMessageViewPanel/'+forumid+'/');
+						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+forumid+'/');
 					}else{
 						Brick.Page.reload('#app=forum/board/showBoardPanel');
 					}

@@ -48,11 +48,11 @@ class ForumManager extends Ab_ModuleManager {
 		
 		switch($d->do){
 			case 'forumsave':		return $this->ForumSave($d->forum);
-			case 'messagesave':		return $this->MessageSave($d->message);
-			case 'message': 		return $this->Message($d->messageid);
+			case 'topicsave':		return $this->TopicSave($d->topic);
+			case 'topic': 		return $this->Topic($d->topicid);
 			case 'sync':			return $this->Sync();
-			case 'messageclose': 	return $this->MessageClose($d->messageid);
-			case 'messageremove': 	return $this->MessageRemove($d->messageid);
+			case 'topicclose': 	return $this->TopicClose($d->topicid);
+			case 'topicremove': 	return $this->TopicRemove($d->topicid);
 		}
 		return null;
 	}
@@ -105,17 +105,17 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function Bos_OnlineData(){
 		if (!$this->IsViewRole()){ return null; }
-		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
+		$rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
 		return $this->ToArray($rows);
 	}
 	
 	public function BoardData($lastupdate = 0, $orderByDateLine = false){
 		if (!$this->IsViewRole()){ return null; }
-		$ret = $this->MessageListToAJAX($lastupdate, $orderByDateLine);
+		$ret = $this->TopicListToAJAX($lastupdate, $orderByDateLine);
 		
 		$uids = array();
 		
-		$rows = ForumQuery::MessageList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
+		$rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
 		while (($row = $this->db->fetch_array($rows))){
 			$ret->hlid = max($ret->hlid, intval($row['udl']));
 			
@@ -186,7 +186,7 @@ class ForumManager extends Ab_ModuleManager {
 	 * Если текущий пользователь модератор и выше или этот пользователь автор сообщения, то вернет истину
 	 * @param array $msg
 	 */
-	public function MessageAccess($msg){
+	public function TopicAccess($msg){
 		if (!$this->IsViewRole() || empty($msg)){
 			return false;
 		}
@@ -201,49 +201,82 @@ class ForumManager extends Ab_ModuleManager {
 		return true;
 	}
 	
-	public function Message($messageid){
+	private $_cacheTopic;
+	
+	/**
+	 * Тема форума
+	 * 
+	 * @param integer $topicid
+	 * @param boolean $clearCache
+	 * @return ForumTopic
+	 */
+	public function Topic($topicid, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
 		
-		$d = ForumQuery::Message($this->db, $messageid, true);
-		if (empty($d)){ return null; 
+		if ($clearCache){
+			$this->_cacheTopic = null;
 		}
-	
-		$msg['files'] = array();
-		$files = $this->MessageFiles($messageid, true);
-		foreach ($files as $file){
-			array_push($msg['files'], $file);
+		if (!is_array($this->_cacheTopic)){
+			$this->_cacheTopic = array();
 		}
-		return $msg;
+		
+		if (!empty($this->_cacheTopic[$topicid])){
+			return $this->_cacheTopic[$topicid];
+		}
+		
+		$cfg = new ForumTopicListConfig();
+		$cfg->topicIds = array($topicid);
+		$cfg->withDetail = true;
+		
+		$list = $this->TopicList($cfg);
+		$this->_cacheTopic[$topicid] = $topic = $list->GetByIndex(0);
+		if (empty($topic)){ return null; }
+		
+		return $topic;
 	}
-	
 	
 	
 	/**
 	 * Список сообщений
 	 * 
-	 * @param ForumMessageListConfig|array|object $cfg
-	 * @return ForumMessageList
+	 * @param ForumTopicListConfig|array|object $cfg
+	 * @return ForumTopicList
 	 */
-	public function MessageList($cfg = null){
+	public function TopicList($cfg = null){
 		if (!$this->IsViewRole()){ return null; }
 		
-		if ($cfg instanceof ForumMessageListConfig){
-			
+		if ($cfg instanceof ForumTopicListConfig){
 		}else{
-			$cfg = new ForumMessageListConfig($this->ParamToObject($cfg));
+			$cfg = new ForumTopicListConfig($this->ParamToObject($cfg));
 		}
 		
-		$list = new ForumMessageList();
+		$list = new ForumTopicList();
 		
-		$rows = ForumQuery::MessageList($this->db, $cfg);
+		$rows = ForumQuery::TopicList($this->db, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
-			$list->Add(new ForumMessage($d));
+			$list->Add(new ForumTopic($d));
 		}
+		
+		if (!$cfg->withDetail || $list->Count() == 0){
+			return $list;
+		}
+		
+		$d = ForumQuery::Topic($this->db, $topicid, true);
+		if (empty($d)){
+			return null;
+		}
+		
+		$msg['files'] = array();
+		$files = $this->TopicFiles($topicid, true);
+		foreach ($files as $file){
+			array_push($msg['files'], $file);
+		}
+		
 		return $list;
 	}
 	
-	public function MessageListToAJAX($lastupdate = 0, $orderByDateLine = false){
-		$list = $this->MessageList($lastupdate, $orderByDateLine);
+	public function TopicListToAJAX($lastupdate = 0, $orderByDateLine = false){
+		$list = $this->TopicList($lastupdate, $orderByDateLine);
 		
 		if (empty($list)){ return null; }
 
@@ -253,7 +286,7 @@ class ForumManager extends Ab_ModuleManager {
 		$userList = $this->UserList($list->userIds);
 		
 		$ret = new stdClass();
-		$ret->messages = $list->ToAJAX();
+		$ret->topics = $list->ToAJAX();
 		$ret->hlid = $list->hlid;
 		$ret->users = $userList->ToAJAX();
 		
@@ -265,7 +298,7 @@ class ForumManager extends Ab_ModuleManager {
 	 * 
 	 * @param object $sd
 	 */
-	public function MessageSave($sd){
+	public function TopicSave($sd){
 		
 		if (!$this->IsWriteRole()){ return null; }
 		
@@ -284,25 +317,25 @@ class ForumManager extends Ab_ModuleManager {
 		if ($sd->id == 0){
 			$sd->uid = $this->userid;
 			$pubkey = md5(time().$this->userid);
-			$sd->id = ForumQuery::MessageAppend($this->db, $sd, $pubkey);
+			$sd->id = ForumQuery::TopicAppend($this->db, $sd, $pubkey);
 			
 			$sendNewNotify = true;
 		}else{
-			$info = $this->Message($sd->id);
-			if (!$this->MessageAccess($info)){
+			$info = $this->Topic($sd->id);
+			if (!$this->TopicAccess($info)){
 				return null;
 			}
 			
-			if ($info['st'] == ForumMessage::ST_CLOSED ||
-				$info['st'] == ForumMessage::ST_REMOVED ){ 
+			if ($info['st'] == ForumTopic::ST_CLOSED ||
+				$info['st'] == ForumTopic::ST_REMOVED ){ 
 				return null; 
 			}
 			
-			ForumQuery::MessageUpdate($this->db, $sd, $this->userid);
+			ForumQuery::TopicUpdate($this->db, $sd, $this->userid);
 		}
 		
 		// обновить информацию по файлам
-		$files = $this->MessageFiles($sd->id, true);
+		$files = $this->TopicFiles($sd->id, true);
 		$arr = $sd->files;
 
 		foreach ($files as $rFileId => $cfile){
@@ -314,7 +347,7 @@ class ForumManager extends Ab_ModuleManager {
 				}
 			}
 			if (!$find){
-				ForumQuery::MessageFileRemove($this->db, $sd->id, $rFileId);
+				ForumQuery::TopicFileRemove($this->db, $sd->id, $rFileId);
 			}
 		}
 		foreach ($arr as $file){
@@ -326,20 +359,20 @@ class ForumManager extends Ab_ModuleManager {
 				}
 			}
 			if (!$find){
-				ForumQuery::MessageFileAppend($this->db, $sd->id, $file->id, $this->userid);
+				ForumQuery::TopicFileAppend($this->db, $sd->id, $file->id, $this->userid);
 			}
 		}
 		
-		$messageid = $sd->id;
+		$topicid = $sd->id;
 		
-		$message = $this->Message($messageid);
+		$topic = $this->Topic($topicid);
 		
 		if ($sendNewNotify){
 			// Отправить уведомление всем модераторам
 			
 			$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 			$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-			$plnk = "http://".$host."/bos/#app=forum/msgview/showMessageViewPanel/".$message['id']."/";
+			$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic['id']."/";
 			
 			$rows = ForumQuery::ModeratorList($this->db);
 			while (($user = $this->db->fetch_array($rows))){
@@ -349,27 +382,20 @@ class ForumManager extends Ab_ModuleManager {
 				if (empty($email)){ continue; }
 				
 				$subject = Brick::ReplaceVarByData($brick->param->var['newprojectsubject'], array(
-					"tl" => $message['tl']
+					"tl" => $topic['tl']
 				));
 				$body = Brick::ReplaceVarByData($brick->param->var['newprojectbody'], array(
-					"tl" => $message['tl'],
+					"tl" => $topic['tl'],
 					"plnk" => $plnk,
 					"unm" => $this->UserNameBuild($this->user->info),
-					"prj" => $message['bd'],
+					"prj" => $topic['bd'],
 					"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 				));
 				Abricos::Notify()->SendMail($email, $subject, $body);
 			}
 		}
 		
-		return $message;
-	}
-	
-	public function MessageFiles($messageid, $retarray = false){
-		if (!$this->IsViewRole()){ return null; }
-		$rows = ForumQuery::MessageFiles($this->db, $messageid);
-		if (!$retarray){ return $rows; }
-		return $this->ToArrayId($rows);
+		return $topic;
 	}
 	
 	////////////////////////////// комментарии /////////////////////////////
@@ -382,14 +408,14 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function IsCommentList($contentid){
 		if (!$this->IsViewRole()){ return null; }
-		$message = ForumQuery::MessageByContentId($this->db, $contentid, true);
-		return $this->MessageAccess($message);
+		$topic = ForumQuery::TopicByContentId($this->db, $contentid, true);
+		return $this->TopicAccess($topic);
 	}
 	
 	public function IsCommentAppend($contentid){
-		$message = ForumQuery::MessageByContentId($this->db, $contentid, true);
-		if (!$this->MessageAccess($message)){ return false; }
-		if ($message['st'] == ForumMessage::ST_CLOSED || $message['st'] == ForumMessage::ST_REMOVED){ return false; }
+		$topic = ForumQuery::TopicByContentId($this->db, $contentid, true);
+		if (!$this->TopicAccess($topic)){ return false; }
+		if ($topic['st'] == ForumTopic::ST_CLOSED || $topic['st'] == ForumTopic::ST_REMOVED){ return false; }
 		
 		return true;
 	}
@@ -416,16 +442,16 @@ class ForumManager extends Ab_ModuleManager {
 		// $data->bd	- текст комментария
 		// $data->cid	- идентификатор контента
 
-		$message = ForumQuery::MessageByContentId($this->db, $data->cid, true);
-		if (!$this->MessageAccess($message)){ return; }
+		$topic = ForumQuery::TopicByContentId($this->db, $data->cid, true);
+		if (!$this->TopicAccess($topic)){ return; }
 		
 		// комментарий добавлен, необходимо обновить инфу
-		ForumQuery::MessageCommentInfoUpdate($this->db, $message['id']);
+		ForumQuery::TopicCommentInfoUpdate($this->db, $topic['id']);
 		
 		
 		$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-		$plnk = "http://".$host."/bos/#app=forum/msgview/showMessageViewPanel/".$message['id']."/";
+		$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic['id']."/";
 
 
 		$emails = array();
@@ -439,10 +465,10 @@ class ForumManager extends Ab_ModuleManager {
 				if (!empty($email)){
 					$emails[$email] = true;
 					$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlanssubject'], array(
-						"tl" => $message['tl']
+						"tl" => $topic['tl']
 					));
 					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlansbody'], array(
-						"tl" => $message['tl'],
+						"tl" => $topic['tl'],
 						"plnk" => $plnk,
 						"unm" => $this->UserNameBuild($this->user->info),
 						"cmt1" => $parent['bd']." ",
@@ -455,16 +481,16 @@ class ForumManager extends Ab_ModuleManager {
 		}
 		
 		// уведомление автору
-		if ($message['uid'] != $this->userid){
-			$autor = UserQuery::User($this->db, $message['uid']);
+		if ($topic['uid'] != $this->userid){
+			$autor = UserQuery::User($this->db, $topic['uid']);
 			$email = $autor['email'];
 			if (!empty($email) && !$emails[$email]){
 				$emails[$email] = true;
 				$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
-					"tl" => $message['tl']
+					"tl" => $topic['tl']
 				));
 				$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
-					"tl" => $message['tl'],
+					"tl" => $topic['tl'],
 					"plnk" => $plnk,
 					"unm" => $this->UserNameBuild($this->user->info),
 					"cmt" => $data->bd." ",
@@ -484,10 +510,10 @@ class ForumManager extends Ab_ModuleManager {
 			}
 			$emails[$email] = true;
 			$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
-				"tl" => $message['tl']
+				"tl" => $topic['tl']
 			));
 			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
-				"tl" => $message['tl'],
+				"tl" => $topic['tl'],
 				"plnk" => $plnk,
 				"unm" => $this->UserNameBuild($this->user->info),
 				"cmt" => $data->bd." ",
@@ -500,33 +526,33 @@ class ForumManager extends Ab_ModuleManager {
 	/**
 	 * Закрыть сообщение. Роль модератора
 	 * 
-	 * @param integer $messageid
+	 * @param integer $topicid
 	 */
-	public function MessageClose($messageid){
+	public function TopicClose($topicid){
 		if (!$this->IsModerRole()){ return null; }
 		
-		$msg = $this->Message($messageid);
-		if ($msg['st'] != ForumMessage::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
+		$msg = $this->Topic($topicid);
+		if ($msg['st'] != ForumTopic::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
 		
-		ForumQuery::MessageSetStatus($this->db, $messageid, ForumMessage::ST_CLOSED, $this->userid);
+		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_CLOSED, $this->userid);
 		
-		return $this->Message($messageid);
+		return $this->Topic($topicid);
 	}
 	
 	/**
 	 * Удалить сообщение. Роль модератора
 	 * 
-	 * @param integer $messageid
+	 * @param integer $topicid
 	 */
-	public function MessageRemove($messageid){
+	public function TopicRemove($topicid){
 		if (!$this->IsModerRole()){ return null; }
 		
-		$msg = $this->Message($messageid);
-		if ($msg['st'] != ForumMessage::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
+		$msg = $this->Topic($topicid);
+		if ($msg['st'] != ForumTopic::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
 		
-		ForumQuery::MessageSetStatus($this->db, $messageid, ForumMessage::ST_REMOVED, $this->userid);
+		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_REMOVED, $this->userid);
 		
-		return $this->Message($messageid);
+		return $this->Topic($topicid);
 	}
 
 }

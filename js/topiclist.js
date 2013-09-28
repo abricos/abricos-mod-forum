@@ -28,20 +28,20 @@ Component.entryPoint = function(){
 
 	var initCSS = false, buildTemplate = function(w, ts){
 		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['forum']['msglist']);
-			delete Brick.util.CSS['forum']['msglist'];
+			Brick.util.CSS.update(Brick.util.CSS['forum']['topiclist']);
+			delete Brick.util.CSS['forum']['topiclist'];
 			initCSS = true;
 		}
 		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
 	};
 	
 
-	var TST = NS.MessageStatus;
+	var TST = NS.TopicStatus;
 	
-	var MessageListWidget = function(container){
+	var TopicListWidget = function(container){
 		this.init(container);
 	};
-	MessageListWidget.prototype = {
+	TopicListWidget.prototype = {
 		init: function(container){
 		
 			NS.forumManager.messagesChangedEvent.subscribe(this.onMesssagesChangedEvent, this, true);
@@ -117,7 +117,7 @@ Component.entryPoint = function(){
 			NS.forumManager.messagesChangedEvent.unsubscribe(this.onMesssagesChangedEvent);
 		}
 	};
-	NS.MessageListWidget = MessageListWidget;
+	NS.TopicListWidget = TopicListWidget;
 	
 	
 };

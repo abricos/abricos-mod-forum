@@ -22,18 +22,18 @@ class ForumQuery {
 		return $db->insert_id();
 	}
 	
-	public static function MessageAppend(Ab_Database $db, $msg, $pubkey){
+	public static function TopicAppend(Ab_Database $db, $msg, $pubkey){
 		$contentid = Ab_CoreQuery::ContentAppend($db, $msg->bd, 'forum');
 		
 		$sql = "
-			INSERT INTO ".$db->prefix."frm_message (
+			INSERT INTO ".$db->prefix."frm_topic (
 				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
 				".bkint($msg->uid).",
 				'".bkstr($msg->tl)."',
 				'".bkstr($pubkey)."',
 				".$contentid.",
 				".bkint($msg->prt).",
-				".ForumMessage::ST_OPENED.",
+				".ForumTopic::ST_OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'
@@ -43,23 +43,23 @@ class ForumQuery {
 		return $db->insert_id();
 	}
 	
-	public static function MessageUpdate(Ab_Database $db, $msg, $userid){
-		$info = ForumQuery::Message($db, $msg->id, $userid, true);
+	public static function TopicUpdate(Ab_Database $db, $msg, $userid){
+		$info = ForumQuery::Topic($db, $msg->id, $userid, true);
 		Ab_CoreQuery::ContentUpdate($db, $info['ctid'], $msg->bd);
 		$sql = "
-			UPDATE ".$db->prefix."frm_message
+			UPDATE ".$db->prefix."frm_topic
 			SET
 				title='".bkstr($msg->tl)."',
 				upddate=".TIMENOW."
-			WHERE messageid=".bkint($msg->id)."
+			WHERE topicid=".bkint($msg->id)."
 			LIMIT 1
 		";
 		$db->query_write($sql);
 	}
 	
-	public static function MessageFields (Ab_Database $db){
+	public static function TopicFields (Ab_Database $db){
 		return "
-			m.messageid as id,
+			m.topicid as id,
 			m.userid as uid,
 			m.title as tl,
 			m.isprivate as prt,
@@ -74,49 +74,35 @@ class ForumQuery {
 		";
 	}
 	
-	public static function Message(Ab_Database $db, $messageid){
+	public static function Topic(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT
-				".ForumQuery::MessageFields($db).",
+				".ForumQuery::TopicFields($db).",
 				c.body as bd,
 				c.contentid as ctid
-			FROM ".$db->prefix."frm_message m
+			FROM ".$db->prefix."frm_topic m
 			INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			WHERE m.messageid=".bkint($messageid)." 
+			WHERE m.topicid=".bkint($topicid)." 
 			LIMIT 1
 		";
 		return $db->query_first($sql);
 	}
 
-	public static function MessageByContentId(Ab_Database $db, $contentid, $retarray = false){
-		$sql = "
-			SELECT
-				".ForumQuery::MessageFields($db).",
-				c.body as bd,
-				c.contentid as ctid
-			FROM ".$db->prefix."frm_message m
-			INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			WHERE m.contentid=".bkint($contentid)." 
-			LIMIT 1
-		";
-		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
-	}
-	
-	public static function MessageList(Ab_Database $db, ForumMessageListConfig $cfg){
+	public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg){
 		
 		$lastupdate = bkint($cfg->lastUpdate);
 		
 		$sql = "
-			SELECT ".ForumQuery::MessageFields($db)."
-			FROM ".$db->prefix."frm_message m
+			SELECT ".ForumQuery::TopicFields($db)."
+			FROM ".$db->prefix."frm_topic m
 			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
 				AND language='".bkstr(Abricos::$LNG)."'
 		";
-		if (ForumManager::$instance->IsModerRole()){
+		if (!ForumManager::$instance->IsModerRole()){
 			// приватные темы доступны только авторам и модераторам
 			$sql .= " 
 				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id).")) 
-				AND m.status != ".ForumMessage::ST_REMOVED."
+				AND m.status != ".ForumTopic::ST_REMOVED."
 			";
 		}
 		
@@ -125,6 +111,20 @@ class ForumQuery {
 			LIMIT ".bkint($limit)."
 		";
 		return $db->query_read($sql);
+	}
+	
+	public static function TopicByContentId(Ab_Database $db, $contentid, $retarray = false){
+		$sql = "
+		SELECT
+		".ForumQuery::TopicFields($db).",
+		c.body as bd,
+		c.contentid as ctid
+		FROM ".$db->prefix."frm_topic m
+		INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
+		WHERE m.contentid=".bkint($contentid)."
+		LIMIT 1
+		";
+		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
 	}
 	
 	
@@ -149,7 +149,7 @@ class ForumQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function MessageCommentInfoUpdate(Ab_Database $db, $messageid){
+	public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid){
 		
 		$sql = "
 			SELECT
@@ -173,20 +173,20 @@ class ForumQuery {
 					ORDER BY c5.dateedit DESC
 					LIMIT 1
 				) as cmtuid	
-			FROM ".$db->prefix."frm_message m
+			FROM ".$db->prefix."frm_topic m
 			INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			WHERE m.messageid=".bkint($messageid)." 
+			WHERE m.topicid=".bkint($topicid)." 
 			LIMIT 1
 		";
 		$row = $db->query_first($sql);
 				
 		$sql = "
-			UPDATE ".$db->prefix."frm_message
+			UPDATE ".$db->prefix."frm_topic
 			SET
 				cmtcount=".bkint($row['cmt']).",
 				cmtuserid=".bkint($row['cmtuid']).",
 				cmtdate=".$row['cmtdl']."
-			WHERE messageid=".bkint($messageid)."
+			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
 		$db->query_write($sql);
@@ -198,7 +198,7 @@ class ForumQuery {
 			SELECT 
 				a.commentid as id,
 				a.parentcommentid as pid,
-				t1.messageid as tkid,
+				t1.topicid as tkid,
 				a.body as bd, 
 				a.dateedit as de,
 				a.status as st, 
@@ -209,9 +209,9 @@ class ForumQuery {
 				u.lastname as lnm
 			FROM ".$db->prefix."cmt_comment a 
 			INNER JOIN (SELECT
-					m.messageid, 
+					m.topicid, 
 					m.contentid
-				FROM ".$db->prefix."frm_message m 
+				FROM ".$db->prefix."frm_topic m 
 				WHERE (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid).")) AND m.language='".bkstr(Abricos::$LNG)."'
 			) t1 ON t1.contentid=a.contentid
 			LEFT JOIN ".$db->prefix."user u ON u.userid = a.userid
@@ -237,7 +237,7 @@ class ForumQuery {
 		return $db->query_read($sql);
 	}
 
-	public static function MessageFiles(Ab_Database $db, $messageid){
+	public static function TopicFiles(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT 
 				bf.filehash as id,
@@ -245,16 +245,16 @@ class ForumQuery {
 				f.filesize as sz
 			FROM ".$db->prefix."frm_file bf
 			INNER JOIN ".$db->prefix."fm_file f ON bf.filehash=f.filehash
-			WHERE bf.messageid=".bkint($messageid)."
+			WHERE bf.topicid=".bkint($topicid)."
 		";
 		return $db->query_read($sql);
 	}
 	
-	public static function MessageFileAppend(Ab_Database $db, $messageid, $filehash, $userid){
+	public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid){
 		$sql = "
-			INSERT INTO ".$db->prefix."frm_file (messageid, filehash, userid) VALUES
+			INSERT INTO ".$db->prefix."frm_file (topicid, filehash, userid) VALUES
 			(
-				".bkint($messageid).",
+				".bkint($topicid).",
 				'".bkstr($filehash)."',
 				".bkint($userid)."
 			)
@@ -262,22 +262,22 @@ class ForumQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function MessageFileRemove(Ab_Database $db, $messageid, $filehash){
+	public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash){
 		$sql = "
 			DELETE FROM ".$db->prefix."frm_file
-			WHERE messageid=".bkint($messageid)." AND filehash='".bkstr($filehash)."' 
+			WHERE topicid=".bkint($topicid)." AND filehash='".bkstr($filehash)."' 
 		";
 		$db->query_write($sql);
 	}
 	
-	public static function MessageSetStatus(Ab_Database $db, $messageid, $status, $userid){
+	public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid){
 		$sql = "
-			UPDATE ".$db->prefix."frm_message
+			UPDATE ".$db->prefix."frm_topic
 			SET
 				status=".bkint($status).",
 				statuserid=".bkint($userid).",
 				statdate=".TIMENOW."
-			WHERE messageid=".bkint($messageid)."
+			WHERE topicid=".bkint($topicid)."
 		";
 		$db->query_write($sql);
 	}
@@ -335,11 +335,11 @@ class ForumQuery {
 	}
 	
 /*
-	public static function MessageUnsetStatus(Ab_Database $db, $messageid){
+	public static function TopicUnsetStatus(Ab_Database $db, $topicid){
 		$sql = "
-			UPDATE ".$db->prefix."frm_message
-			SET status=".ForumMessage::ST_DRAW_OPEN.", statuserid=0, statdate=0
-			WHERE messageid=".bkint($messageid)."
+			UPDATE ".$db->prefix."frm_topic
+			SET status=".ForumTopic::ST_DRAW_OPEN.", statuserid=0, statdate=0
+			WHERE topicid=".bkint($topicid)."
 		";
 		$db->query_write($sql);
 	}
@@ -349,9 +349,9 @@ class ForumQuery {
 	 * Список участников проекта
 	 * 
 	 * @param Ab_Database $db
-	 * @param integer $messageid
+	 * @param integer $topicid
 	 */
-	public static function MessageUserList(Ab_Database $db, $messageid){
+	public static function TopicUserList(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT 
 				p.userid as id,
@@ -360,7 +360,7 @@ class ForumQuery {
 				u.lastname as lnm
 			FROM ".$db->prefix."frm_userrole p
 			INNER JOIN ".$db->prefix."user u ON p.userid=u.userid
-			WHERE p.messageid=".bkint($messageid)."
+			WHERE p.topicid=".bkint($topicid)."
 		";
 		return $db->query_read($sql);
 	}
@@ -369,9 +369,9 @@ class ForumQuery {
 	 * Список участников проекта с расшириными полями для служебных целей (отправка уведомлений и т.п.)
 	 * 
 	 * @param Ab_Database $db
-	 * @param integer $messageid
+	 * @param integer $topicid
 	 */
-	public static function MessageUserListForNotify(Ab_Database $db, $messageid){
+	public static function TopicUserListForNotify(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT 
 				p.userid as id,
@@ -381,7 +381,7 @@ class ForumQuery {
 				u.email
 				FROM ".$db->prefix."frm_userrole p
 			INNER JOIN ".$db->prefix."user u ON p.userid=u.userid
-			WHERE p.messageid=".bkint($messageid)."
+			WHERE p.topicid=".bkint($topicid)."
 		";
 		return $db->query_read($sql);
 	}

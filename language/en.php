@@ -9,7 +9,7 @@ return array(
 		'templates' => array(
 			"1" => "New post on the forum \"{v#tl}\"",
 			"2" => "<p><b>{v#unm}</b> has published a new post on the forum: <a href='{v#plnk}'>{v#tl}</a>.</p>
-	<p>Message:</p>
+	<p>Topic:</p>
 	<blockquote>
 		{v#prj}
 	</blockquote>

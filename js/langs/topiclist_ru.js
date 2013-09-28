@@ -1,5 +1,5 @@
 Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
-	'msglist': {
+	'topiclist': {
 		'table': {
 			'1': 'Название',
 			'2': 'Количество комментарий',

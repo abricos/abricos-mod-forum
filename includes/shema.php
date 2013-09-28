@@ -22,8 +22,8 @@ if ($updateManager->isInstall()){
 	
 	// проекты
 	$db->query_write("
-		CREATE TABLE IF NOT EXISTS ".$pfx."frm_message (
-			`messageid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
+		CREATE TABLE IF NOT EXISTS ".$pfx."frm_topic (
+			`topicid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`pubkey` varchar(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
 			`isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
@@ -44,7 +44,7 @@ if ($updateManager->isInstall()){
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
 			`deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
 			
-			PRIMARY KEY  (`messageid`),
+			PRIMARY KEY  (`topicid`),
 			KEY (`language`, `deldate`)
 		)".$charset
 	);
@@ -53,11 +53,11 @@ if ($updateManager->isInstall()){
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."frm_file (
 		  `fileid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
-		  `messageid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
+		  `topicid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
 		  `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
 		  `filehash` varchar(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
 		  PRIMARY KEY  (`fileid`), 
-		  UNIQUE KEY `file` (`messageid`,`filehash`)
+		  UNIQUE KEY `file` (`topicid`,`filehash`)
 		)".$charset
 	);
 
@@ -105,6 +105,23 @@ if ($updateManager->isUpdate('0.1.5')){
 			PRIMARY KEY  (`forumid`)
 		)".$charset
 	);
+	
+}
+
+if ($updateManager->isUpdate('0.1.6') && !$updateManager->isInstall()){
+	$db->query_write("
+		RENAME TABLE `".$pfx."frm_message` TO `".$pfx."frm_topic`
+	");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."frm_topic`
+		CHANGE `messageid` `topicid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения'
+	");
+
+	$db->query_write("
+		ALTER TABLE `".$pfx."frm_file`
+		CHANGE `messageid` `topicid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения'
+	");
 	
 }
 ?>

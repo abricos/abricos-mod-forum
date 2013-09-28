@@ -19,8 +19,8 @@ return array(
 			"4" => "<p><b>{v#unm}</b> add new comment to post <a href='{v#plnk}'>{v#tl}</a>:</p>
 	<blockquote>{v#cmt}</blockquote>
 	<p>All the best,<br />{v#sitename}</p>",
-			"5" => "The answer to your comment in the message \"{v#tl}\"",
-			"6" => "<p><b>{v#unm}</b> replied to your comment in the message <a href='{v#plnk}'>{v#tl}</a>:</p>
+			"5" => "The answer to your comment in the topic \"{v#tl}\"",
+			"6" => "<p><b>{v#unm}</b> replied to your comment in the topic <a href='{v#plnk}'>{v#tl}</a>:</p>
 	<blockquote>{v#cmt2}</blockquote>
 	<p>Comment:</p>
 	<blockquote>{v#cmt1}</blockquote>

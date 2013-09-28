@@ -51,14 +51,14 @@ class ForumModule extends Ab_Module {
 			
 			$a = explode("_", $d2);
 
-			if ($a[0] == 'message'){
+			if ($a[0] == 'topic'){
 				
 				$this->currentTopic = $this->GetManager()->Topic(intval($a[1]));
 				if (empty($this->currentTopic)){
 					return '';
 				}
 				
-				return 'message';
+				return 'topic';
 			}
 		}
 		

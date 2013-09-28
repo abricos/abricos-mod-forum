@@ -74,27 +74,29 @@ class ForumQuery {
 		";
 	}
 	
-	public static function Topic(Ab_Database $db, $topicid){
-		$sql = "
-			SELECT
-				".ForumQuery::TopicFields($db).",
-				c.body as bd,
-				c.contentid as ctid
-			FROM ".$db->prefix."frm_topic m
-			INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			WHERE m.topicid=".bkint($topicid)." 
-			LIMIT 1
-		";
-		return $db->query_first($sql);
-	}
-
 	public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg){
 		
 		$lastupdate = bkint($cfg->lastUpdate);
-		
+		$limit = $cfg->limit;
+
 		$sql = "
 			SELECT ".ForumQuery::TopicFields($db)."
+		";
+		if ($cfg->withDetail){
+			$sql .= ",
+				c.body as bd,
+				c.contentid as ctid
+			";
+		}
+		$sql .= "
 			FROM ".$db->prefix."frm_topic m
+		";
+		if ($cfg->withDetail){
+			$sql .= "
+				INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
+			";
+		}
+		$sql .="
 			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
 				AND language='".bkstr(Abricos::$LNG)."'
 		";
@@ -106,27 +108,24 @@ class ForumQuery {
 			";
 		}
 		
+		if (is_array($cfg->topicIds) && count($cfg->topicIds)){
+			$limit = 1;
+			$aWh = array();
+			for ($i=0; $i<count($cfg->topicIds); $i++){
+				array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
+			}
+			$sql .= "
+				AND (".implode(" OR ", $aWh).")
+			";
+		}
+		
 		$sql .="
 			ORDER BY m.upddate DESC
 			LIMIT ".bkint($limit)."
 		";
+		
 		return $db->query_read($sql);
 	}
-	
-	public static function TopicByContentId(Ab_Database $db, $contentid, $retarray = false){
-		$sql = "
-		SELECT
-		".ForumQuery::TopicFields($db).",
-		c.body as bd,
-		c.contentid as ctid
-		FROM ".$db->prefix."frm_topic m
-		INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-		WHERE m.contentid=".bkint($contentid)."
-		LIMIT 1
-		";
-		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
-	}
-	
 	
 	public static function UserList(Ab_Database $db, $uids){
 		$aWh = array();
@@ -237,15 +236,31 @@ class ForumQuery {
 		return $db->query_read($sql);
 	}
 
-	public static function TopicFiles(Ab_Database $db, $topicid){
+	/**
+	 * Список файлов топика
+	 * 
+	 * @param Ab_Database $db
+	 * @param array|integer $tids
+	 */
+	public static function TopicFileList(Ab_Database $db, $tids){
+		if (!is_array($tids)){
+			$tids = array(intval($tids));
+		}
+		$aWh = array();
+		foreach ($tids as $tid){
+			array_push($aWh, "bf.topicid=".bkint($tid));
+		}
+		
 		$sql = "
 			SELECT 
 				bf.filehash as id,
+				bf.topicid as tid,
 				f.filename as nm,
 				f.filesize as sz
 			FROM ".$db->prefix."frm_file bf
 			INNER JOIN ".$db->prefix."fm_file f ON bf.filehash=f.filehash
-			WHERE bf.topicid=".bkint($topicid)."
+			WHERE ".implode(" OR ", $aWh)."
+			ORDER BY tid
 		";
 		return $db->query_read($sql);
 	}

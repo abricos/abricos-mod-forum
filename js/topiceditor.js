@@ -20,9 +20,9 @@ Component.entryPoint = function(NS){
 
 	var buildTemplate = this.buildTemplate;
 	
-	var TopicEditorPanel = function(messageid){
+	var TopicEditorPanel = function(topicid){
 		
-		this.messageid = messageid || 0;
+		this.topicid = topicid || 0;
 		
 		TopicEditorPanel.active = this;
 
@@ -44,17 +44,17 @@ Component.entryPoint = function(NS){
 		onBuildManager: function(){
 			var TM = this._TM,
 				gel = function(n){ return TM.getEl('panel.'+n); },
-				message = this.messageid == 0 ? new NS.Topic() : NS.forumManager.list.get(this.messageid);
+				topic = this.topicid == 0 ? new NS.Topic() : NS.forumManager.list.get(this.topicid);
 				__self = this;
 				
-			if (L.isNull(message)){ return; }
+			if (L.isNull(topic)){ return; }
 			
-			this.message = message;
+			this.topic = topic;
 			
-			Dom.setStyle(TM.getEl('panel.tl'+(message.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
+			Dom.setStyle(TM.getEl('panel.tl'+(topic.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
 			
-			gel('tl').value = message.title;
-			gel('editor').innerHTML = message.body; 
+			gel('tl').value = topic.title;
+			gel('editor').innerHTML = topic.body; 
 			
 			var Editor = Brick.widget.Editor;
 			this.editor = new Editor(this._TId['panel']['editor'], {
@@ -62,7 +62,7 @@ Component.entryPoint = function(NS){
 			});
 			
 			if (Brick.Permission.check('filemanager', '30') == 1){
-				this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(gel('files'), message.files);
+				this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(gel('files'), topic.files);
 			}else{
 				this.filesWidget = null;
 				Dom.setStyle(gel('rfiles'), 'display', 'none');
@@ -83,7 +83,7 @@ Component.entryPoint = function(NS){
 		},
 		saveTopic: function(){
 			var TM = this._TM,
-				message = this.message;
+				topic = this.topic;
 			
 			Dom.setStyle(TM.getEl('panel.bsave'), 'display', 'none');
 			Dom.setStyle(TM.getEl('panel.bcancel'), 'display', 'none');
@@ -92,18 +92,18 @@ Component.entryPoint = function(NS){
 			var newdata = {
 				'title': TM.getEl('panel.tl').value,
 				'body': this.editor.getContent(),
-				'files':  L.isNull(this.filesWidget) ? message.files : this.filesWidget.files
+				'files':  L.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
 			};
 
 			var __self = this;
-			NS.forumManager.messageSave(message, newdata, function(d){
+			NS.forumManager.topicSave(topic, newdata, function(d){
 				d = d || {};
-				var messageid = (d['id'] || 0)*1;
+				var topicid = (d['id'] || 0)*1;
 
 				__self.close();
 				setTimeout(function(){
-					if (messageid > 0){
-						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+messageid+'/');
+					if (topicid > 0){
+						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+topicid+'/');
 					}else{
 						Brick.Page.reload('#app=forum/board/showBoardPanel');
 					}
@@ -119,12 +119,12 @@ Component.entryPoint = function(NS){
 	};
 
 	var activePanel = null;
-	NS.API.showTopicEditorPanel = function(messageid, pmessageid){
+	NS.API.showTopicEditorPanel = function(topicid, ptopicid){
 		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
-			activePanel = new TopicEditorPanel(messageid, pmessageid);
+			activePanel = new TopicEditorPanel(topicid, ptopicid);
 		}
 		return activePanel;
 	};

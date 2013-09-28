@@ -37,8 +37,8 @@ Component.entryPoint = function(NS){
 		}
 	};
 	
-	var TopicViewPanel = function(messageid){
-		this.messageid = messageid;
+	var TopicViewPanel = function(topicid){
+		this.topicid = topicid;
 		
 		TopicViewPanel.superclass.constructor.call(this, {
 			fixedcenter: true, width: '790px', height: '400px',
@@ -50,10 +50,10 @@ Component.entryPoint = function(NS){
 		initTemplate: function(){
 			buildTemplate(this, 'panel,user,frow,empttitle');
 			
-			var message = this.message;
+			var topic = this.topic;
 
 			return this._TM.replace('panel', {
-				'id': this.messageid
+				'id': this.topicid
 			});
 		},
 		onLoad: function(){
@@ -66,25 +66,25 @@ Component.entryPoint = function(NS){
 		},
 		onBuildManager: function(){
 
-			this.message = NS.forumManager.list.get(this.messageid);
-			if (L.isNull(this.message)){ return; }
-			// TODO: если this.message=null необходимо показать "либо нет прав, либо проект удален"
+			this.topic = NS.forumManager.list.get(this.topicid);
+			if (L.isNull(this.topic)){ return; }
+			// TODO: если this.topic=null необходимо показать "либо нет прав, либо проект удален"
 
-			var message = this.message,
+			var topic = this.topic,
 				TM = this._TM,
 				__self = this;
 			
-			TM.getEl('panel.title').innerHTML = message.title.length > 0 ? message.title : this._TM.replace('empttitle')
+			TM.getEl('panel.title').innerHTML = topic.title.length > 0 ? topic.title : this._TM.replace('empttitle')
 
 			
 			this.firstLoad = true;
 			
 			// запросить дополнительные данные - описание
-			NS.forumManager.messageLoad(message.id, function(){
+			NS.forumManager.topicLoad(topic.id, function(){
 				__self.renderTopic();
 			});
 			
-			NS.forumManager.messagesChangedEvent.subscribe(this.onTopicsChanged, this, true);
+			NS.forumManager.topicsChangedEvent.subscribe(this.onTopicsChanged, this, true);
 		},
 		destroy: function(){
 			TopicViewPanel.superclass.destroy.call(this);
@@ -93,12 +93,12 @@ Component.entryPoint = function(NS){
 			this.renderTopic();
 		},
 		renderTopic: function(){
-			var TM = this._TM, message = this.message, 
+			var TM = this._TM, topic = this.topic, 
 				__self = this, 
 				gel = function(nm){ return TM.getEl('panel.'+nm); };
 			
-			gel('title').innerHTML = message.title.length > 0 ? message.title : TM.replace('empttitle');
-			gel('messagebody').innerHTML = message.body;
+			gel('title').innerHTML = topic.title.length > 0 ? topic.title : TM.replace('empttitle');
+			gel('topicbody').innerHTML = topic.body;
 			
 			if (this.firstLoad){ // первичная рендер
 				this.firstLoad = false;
@@ -107,10 +107,10 @@ Component.entryPoint = function(NS){
 				Brick.ff('comment', 'comment', function(){
 					Brick.mod.comment.API.buildCommentTree({
 						'container': TM.getEl('panel.comments'),
-						'dbContentId': message.ctid,
+						'dbContentId': topic.ctid,
 						'config': {
 							'onLoadComments': function(){
-								aTargetBlank(TM.getEl('panel.messagebody'));
+								aTargetBlank(TM.getEl('panel.topicbody'));
 								aTargetBlank(TM.getEl('panel.comments'));
 							}
 							// ,
@@ -126,25 +126,25 @@ Component.entryPoint = function(NS){
 			for (var i=1;i<=5;i++){
 				Dom.removeClass(elColInfo, 'status'+i);
 			}
-			Dom.addClass(elColInfo, 'status'+message.status);
+			Dom.addClass(elColInfo, 'status'+topic.status);
 
 			// Статус
-			gel('status').innerHTML = LNG['status'][message.status];
+			gel('status').innerHTML = LNG['status'][topic.status];
 			
 			// Автор
-			var user = NS.forumManager.users.get(message.userid);
+			var user = NS.forumManager.users.get(topic.userid);
 			gel('author').innerHTML = TM.replace('user', {
 				'uid': user.id, 'unm': user.getUserName()
 			});
 			// Создана
-			gel('dl').innerHTML = Brick.dateExt.convert(message.date, 3, true);
-			gel('dlt').innerHTML = Brick.dateExt.convert(message.date, 4);
+			gel('dl').innerHTML = Brick.dateExt.convert(topic.date, 3, true);
+			gel('dlt').innerHTML = Brick.dateExt.convert(topic.date, 4);
 
 			// закрыть все кнопки, открыть по ролям 
 			TM.elHide('panel.bopen,bclose,beditor,bremove');
 			
 			var isMyTopic = user.id*1 == Brick.env.user.id*1;
-			if (message.status == MST.OPENED){
+			if (topic.status == MST.OPENED){
 				if (R['isModer']){
 					TM.elShow('panel.beditor,bremove,bclose'); 
 				}else if (isMyTopic){
@@ -152,7 +152,7 @@ Component.entryPoint = function(NS){
 				}
 			}
 			
-			var fs = message.files;
+			var fs = topic.files;
 			// показать прикрепленные файлы
 			if (fs.length > 0){
 				TM.elShow('panel.files');
@@ -180,16 +180,16 @@ Component.entryPoint = function(NS){
 			var tp = this._TId['panel'];
 			switch(el.id){
 			
-			case tp['beditor']: this.messageEditorShow(); return true;
+			case tp['beditor']: this.topicEditorShow(); return true;
 			
 			case tp['bclose']: 
-			case tp['bclosens']: this.messageClose(); return true;
-			case tp['bcloseno']: this.messageCloseCancel(); return true;
-			case tp['bcloseyes']: this.messageCloseMethod(); return true;
+			case tp['bclosens']: this.topicClose(); return true;
+			case tp['bcloseno']: this.topicCloseCancel(); return true;
+			case tp['bcloseyes']: this.topicCloseMethod(); return true;
 
-			case tp['bremove']: this.messageRemove(); return true;
-			case tp['bremoveno']: this.messageRemoveCancel(); return true;
-			case tp['bremoveyes']: this.messageRemoveMethod(); return true;
+			case tp['bremove']: this.topicRemove(); return true;
+			case tp['bremoveno']: this.topicRemoveCancel(); return true;
+			case tp['bremoveyes']: this.topicRemoveMethod(); return true;
 			}
 			return false;
 		},
@@ -201,40 +201,40 @@ Component.entryPoint = function(NS){
 		
 		
 		// закрыть сообщение
-		messageClose: function(){ 
+		topicClose: function(){ 
 			var TM = this._TM;
 			TM.elHide('panel.manbuttons');
 			TM.elShow('panel.dialogclose');
 		},
-		messageCloseCancel: function(){
+		topicCloseCancel: function(){
 			var TM = this._TM;
 			TM.elShow('panel.manbuttons');
 			TM.elHide('panel.dialogclose');
 		},
-		messageCloseMethod: function(){
-			this.messageCloseCancel();
+		topicCloseMethod: function(){
+			this.topicCloseCancel();
 			var __self = this;
 			this._shLoading(true);
-			NS.forumManager.messageClose(this.message.id, function(){
+			NS.forumManager.topicClose(this.topic.id, function(){
 				__self._shLoading(false);
 			});
 		},
 
-		messageRemove: function(){
+		topicRemove: function(){
 			var TM = this._TM;
 			TM.elHide('panel.manbuttons');
 			TM.elShow('panel.dialogremove');
 		},
-		messageRemoveCancel: function(){
+		topicRemoveCancel: function(){
 			var TM = this._TM;
 			TM.elShow('panel.manbuttons');
 			TM.elHide('panel.dialogremove');
 		},
-		messageRemoveMethod: function(){
-			this.messageRemoveCancel();
+		topicRemoveMethod: function(){
+			this.topicRemoveCancel();
 			var __self = this;
 			this._shLoading(true);
-			NS.forumManager.messageRemove(this.message.id, function(){
+			NS.forumManager.topicRemove(this.topic.id, function(){
 				__self._shLoading(false);
 			});
 		}
@@ -242,12 +242,12 @@ Component.entryPoint = function(NS){
 	NS.TopicViewPanel = TopicViewPanel;
 	
 	var activePanel = null;
-	NS.API.showTopicViewPanel = function(messageid, pmessageid){
+	NS.API.showTopicViewPanel = function(topicid, ptopicid){
 		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
-			activePanel = new TopicViewPanel(messageid, pmessageid);
+			activePanel = new TopicViewPanel(topicid, ptopicid);
 		}
 		return activePanel;
 	};

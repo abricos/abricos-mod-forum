@@ -89,11 +89,30 @@ class ForumTopic extends AbricosItem {
 }
 
 class ForumTopicDetail {
+	/**
+	 * Тело топика
+	 * @var string
+	 */
 	public $body;
+
+	/**
+	 * Идентификатор глобального контента
+	 * @var integer
+	 */
 	public $contentid;
 	
+	/**
+	 * Список файлов
+	 * 
+	 * @var ForumFileList
+	 */
+	public $fileList;
+	
 	public function __construct($d){
+		$this->body = strval($d['bd']);
+		$this->contentid = intval($d['ctid']);
 		
+		$this->fileList = new ForumFileList();
 	}
 }
 
@@ -197,6 +216,33 @@ class ForumTopicListConfig {
 	
 	public function __construct(){
 		
+	}
+}
+
+class ForumFile extends AbricosItem {
+	public $name;
+	public $counter;
+	public $dateline;
+	
+	public function __construct($d){
+		$this->id = strval($d['id']);
+		$this->name = strval($d['fn']);
+		$this->counter = intval($d['cnt']);
+		$this->dateline = intval($d['dl']);
+	}
+	
+	public function URL(){
+		return "/filemanager/i/".$this->id."/".$this->name;
+	}
+}
+
+class ForumFileList extends AbricosList {
+	
+	/**
+	 * @return ForumFile
+	 */
+	public function Get($id){
+		return parent::Get($id);
 	}
 }
 

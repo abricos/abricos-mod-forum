@@ -44,7 +44,7 @@ Component.entryPoint = function(){
 	TopicListWidget.prototype = {
 		init: function(container){
 		
-			NS.forumManager.messagesChangedEvent.subscribe(this.onMesssagesChangedEvent, this, true);
+			NS.forumManager.topicsChangedEvent.subscribe(this.onMesssagesChangedEvent, this, true);
 
 			this.list = NS.forumManager.list;
 			
@@ -114,7 +114,7 @@ Component.entryPoint = function(){
 		},
 
 		destroy: function(){
-			NS.forumManager.messagesChangedEvent.unsubscribe(this.onMesssagesChangedEvent);
+			NS.forumManager.topicsChangedEvent.unsubscribe(this.onMesssagesChangedEvent);
 		}
 	};
 	NS.TopicListWidget = TopicListWidget;

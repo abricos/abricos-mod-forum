@@ -152,7 +152,7 @@ Component.entryPoint = function(NS){
 		init: function(inda){
 
 			this._hlid = 0;
-			this.messagesChangedEvent = new YAHOO.util.CustomEvent("messagesChangedEvent");
+			this.topicsChangedEvent = new YAHOO.util.CustomEvent("topicsChangedEvent");
 
 			this.forums = new ForumList(); 
 			this.list = new TopicList();
@@ -191,16 +191,16 @@ Component.entryPoint = function(NS){
 			for (var id in data){
 				var di = data[id];
 				hlid = Math.max(di['udl']*1, hlid);
-				var message = this.list.get(id); 
-				if (L.isNull(message)){ // новая задача
-					message = new Topic(di);
-					this.list.add(message);
-					n[n.length] = message;
+				var topic = this.list.get(id); 
+				if (L.isNull(topic)){ // новая задача
+					topic = new Topic(di);
+					this.list.add(topic);
+					n[n.length] = topic;
 				}else{
-					message.update(di);
-					u[u.length] = message;
+					topic.update(di);
+					u[u.length] = topic;
 				}
-				objs[id] = message;
+				objs[id] = topic;
 			}
 			this._hlid = hlid;
 			return {
@@ -228,7 +228,7 @@ Component.entryPoint = function(NS){
 		_ajaxResult: function(upd){
 			if (L.isNull(upd)){ return null; }
 			if (upd['n'].length == 0 && upd['u'].length == 0 && upd['d'].length == 0){ return null; }
-			this.messagesChangedEvent.fire(upd);
+			this.topicsChangedEvent.fire(upd);
 		},
 		
 		ajax: function(d, callback){
@@ -254,32 +254,32 @@ Component.entryPoint = function(NS){
 				}
 			});
 		},
-		_messageAJAX: function(messageid, cmd, callback){
+		_topicAJAX: function(topicid, cmd, callback){
 			callback = callback || function(){};
 			var __self = this;
-			this.ajax({'do': cmd, 'messageid': messageid }, function(r){
+			this.ajax({'do': cmd, 'topicid': topicid }, function(r){
 				__self._setLoadedTopicData(r);
 				callback(r);
 			});
 		},
 		_setLoadedTopicData: function(d){
 			if (L.isNull(d)){ return; }
-			var message = this.list.get(d['id']);
-			if (L.isNull(message)){ return; }
+			var topic = this.list.get(d['id']);
+			if (L.isNull(topic)){ return; }
 			
-			message.setData(d);
+			topic.setData(d);
 		},
-		messageLoad: function(messageid, callback){
+		topicLoad: function(topicid, callback){
 			callback = callback || function(){};
-			var message = this.list.get(messageid);
+			var topic = this.list.get(topicid);
 	
-			if (L.isNull(message) || message.isLoad){
+			if (L.isNull(topic) || topic.isLoad){
 				callback();
 				return true;
 			}
-			this._messageAJAX(messageid, 'message', callback);
+			this._topicAJAX(topicid, 'topic', callback);
 		},
-		messageSave: function(message, d, callback){
+		topicSave: function(topic, d, callback){
 			callback = callback || function(){};
 			var __self = this;
 			
@@ -289,25 +289,25 @@ Component.entryPoint = function(NS){
 				'files': {}
 			}, d || {});
 			
-			var dmessage = {
-				'id': message.id,
+			var dtopic = {
+				'id': topic.id,
 				'tl': d['title'],
 				'bd': d['body'],
 				'files': d['files']
 			};
 			this.ajax({
-				'do': 'messagesave',
-				'message': dmessage
+				'do': 'topicsave',
+				'topic': dtopic
 			}, function(r){
 				__self._setLoadedTopicData(r);
 				callback(r);
 			});
 		},
-		messageClose: function(messageid, callback){ // закрыть сообщение
-			this._messageAJAX(messageid, 'messageclose', callback);
+		topicClose: function(topicid, callback){ // закрыть сообщение
+			this._topicAJAX(topicid, 'topicclose', callback);
 		},
-		messageRemove: function(messageid, callback){ // удалить сообщение
-			this._messageAJAX(messageid, 'messageremove', callback);
+		topicRemove: function(topicid, callback){ // удалить сообщение
+			this._topicAJAX(topicid, 'topicremove', callback);
 		},
 		
 		forumSave: function(forum, d, callback){

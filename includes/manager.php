@@ -165,12 +165,14 @@ class ForumManager extends Ab_ModuleManager {
 	
 	/**
 	 * Получить список пользователей
-	 * @param integer|array $uids 
+	 * @param ForumTopic|array|integer $uids 
 	 */
 	public function UserList($uids){
 		if (!$this->IsViewRole()){ return null; }
 		
-		if (!is_array($uids)){
+		if ($uids instanceof ForumTopic){
+			$uids = array($uids->userid, $uids->lastUserId);
+		}else if (!is_array($uids)){
 			$userIds = array(intval($uids));
 		}
 		
@@ -229,7 +231,7 @@ class ForumManager extends Ab_ModuleManager {
 		$cfg->withDetail = true;
 		
 		$list = $this->TopicList($cfg);
-		$this->_cacheTopic[$topicid] = $topic = $list->GetByIndex(0);
+		$topic = $this->_cacheTopic[$topicid] = $list->GetByIndex(0);
 		if (empty($topic)){ return null; }
 		
 		return $topic;
@@ -254,24 +256,23 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$rows = ForumQuery::TopicList($this->db, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
-			$list->Add(new ForumTopic($d));
+			$topic = new ForumTopic($d);
+			if ($cfg->withDetail){
+				$topic->detail = new ForumTopicDetail($d);
+			}
+				
+			$list->Add($topic);
 		}
 		
 		if (!$cfg->withDetail || $list->Count() == 0){
 			return $list;
 		}
 		
-		$d = ForumQuery::Topic($this->db, $topicid, true);
-		if (empty($d)){
-			return null;
+		$rows = ForumQuery::TopicFileList($this->db, $list->Ids());
+		while (($d = $this->db->fetch_array($rows))){
+			$topic = $list->Get($d['tid']);
+			$topic->detail->fileList->Add(new ForumFile($d));
 		}
-		
-		$msg['files'] = array();
-		$files = $this->TopicFiles($topicid, true);
-		foreach ($files as $file){
-			array_push($msg['files'], $file);
-		}
-		
 		return $list;
 	}
 	

@@ -4,10 +4,16 @@
 
 [v=files]
 	<ul class="dfiles">
-		<li class="tl">{#mod.forum.topicview.panel.2}:</li>
-		<li id="{i#ftable}"></li>
+		<li class="tl">Прикрепленные файлы:</li>
+		<li>{v#rows}</li>
 	</ul>
 [/v]
+[v=file]
+	<div class="file">
+		<a href="{v#url}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#url}" target="_blank">скачать</a>)
+	</div>
+[/v]
+
 
 [v=mtitle]
 	{v#title} / Форум / {v#sitename}

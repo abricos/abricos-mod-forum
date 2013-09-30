@@ -8,5 +8,8 @@ Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
 		'gbmenu': {
 			'1': 'Форум'
 		}
+	},
+	'topic': {
+		'emptytitle': '&lt;- Без темы -&gt;'
 	}
 }}});

@@ -261,8 +261,10 @@ class ForumQuery {
 			SELECT 
 				bf.filehash as id,
 				bf.topicid as tid,
-				f.filename as nm,
-				f.filesize as sz
+				f.filename as fn,
+				f.filesize as sz,
+				f.counter as cnt,
+				f.dateline as dl
 			FROM ".$db->prefix."frm_file bf
 			INNER JOIN ".$db->prefix."fm_file f ON bf.filehash=f.filehash
 			WHERE ".implode(" OR ", $aWh)."

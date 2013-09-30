@@ -31,6 +31,20 @@ Component.entryPoint = function(NS){
 	var buildTemplate = this.buildTemplate;
 	buildTemplate({});
 
+
+	NS.navigator = {
+		'WS': "#app={C#MODNAMEURI}/",
+		'home': function(){ return NS.navigator.WS+'board/showBoardPanel'; },
+		'topic': {
+			'view': function(id){
+				return NS.navigator.WS+'topicview/showTopicViewPanel/'+id+'/';
+			}
+		},
+		'go': function(url){
+			Brick.Page.reload(url);
+		}
+	};
+	
 	var Forum = function(d){
 		d = L.merge({
 			'tl': '',
@@ -114,7 +128,8 @@ Component.entryPoint = function(NS){
 	var TopicDetail = function(d){
 		d = L.merge({
 			'bd': '',
-			'ctid': 0
+			'ctid': 0,
+			'files': []
 		}, d || {});
 		TopicDetail.superclass.constructor.call(this, d);
 	};
@@ -227,10 +242,24 @@ Component.entryPoint = function(NS){
 			});
 		},
 		topicClose: function(topicid, callback){ // закрыть сообщение
-			this._topicAJAX(topicid, 'topicclose', callback);
+			var __self = this;
+			this.ajax({
+				'do': 'topicclose',
+				'topicid': topicid
+			}, function(d){
+				var topic = __self._updateTopic(d);
+				NS.life(callback, topic);
+			});
 		},
 		topicRemove: function(topicid, callback){ // удалить сообщение
-			this._topicAJAX(topicid, 'topicremove', callback);
+			var __self = this;
+			this.ajax({
+				'do': 'topicremove',
+				'topicid': topicid
+			}, function(d){
+				var topic = __self._updateTopic(d);
+				NS.life(callback, topic);
+			});
 		},
 		
 		forumSave: function(forum, d, callback){

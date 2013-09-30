@@ -19,6 +19,7 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
+	var LNG = this.language;
 
 	var TopicListWidget = function(container, cfg){
 		cfg = L.merge({
@@ -74,7 +75,7 @@ Component.entryPoint = function(NS){
 				var user = NS.manager.users.get(topic.userid);
 				var d = {
 					'id': topic.id,
-					'tl': topic.title,
+					'tl': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
 					'cmt': topic.cmt,
 					'cmtuser': TM.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
 					'cmtdate': Brick.dateExt.convert(topic.updDate),

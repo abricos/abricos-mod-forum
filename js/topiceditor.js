@@ -44,6 +44,22 @@ Component.entryPoint = function(NS){
 	
 	var TopicEditorWidget = function(container, topicid, cfg){
 		cfg = L.merge({
+			'onTopicSave': function(topic){
+				setTimeout(function(){
+					if (!L.isValue(topic)){
+						Brick.Page.reload(NS.navigator.home());
+					}else{
+						Brick.Page.reload(NS.navigator.topic.view(topic.id));
+					}
+				},100);
+			},
+			'onCancelClick': function(){
+				if (topicid > 0){
+					Brick.Page.reload(NS.navigator.topic.view(topicid));
+				}else{
+					Brick.Page.reload(NS.navigator.home());
+				}
+			}
 		}, cfg || {});
 		
 		TopicEditorWidget.superclass.constructor.call(this, container, {
@@ -61,7 +77,7 @@ Component.entryPoint = function(NS){
 			var __self = this;
 			NS.initManager(function(){
 				if (topicid == 0){
-					__self.onTopicLoad(new NS.Topic());
+					__self.onTopicLoad(new NS.Topic({'dtl': {'bd': ''}}));
 				}else{
 					NS.manager.topicLoad(topicid, function(topic){
 						__self.onTopicLoad(topic);
@@ -77,7 +93,7 @@ Component.entryPoint = function(NS){
 			Dom.setStyle(this.gel('tl'+(topic.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
 			
 			this.elSetValue({
-				'tl': topic.title
+				'tl': topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<')
 			});
 			this.elSetHTML({
 				'editor': topic.detail.body
@@ -108,12 +124,7 @@ Component.entryPoint = function(NS){
 			return false;
 		},
 		cancel: function(){
-			var topicid = this.topicid;
-			if (topicid > 0){
-				Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+topicid+'/');
-			}else{
-				Brick.Page.reload('#app=forum/board/showBoardPanel');
-			}
+			NS.life(this.cfg['onCancelClick']);
 		},
 		saveTopic: function(){
 			var topic = this.topic;
@@ -126,20 +137,9 @@ Component.entryPoint = function(NS){
 				'body': this.editor.getContent(),
 				'files':  L.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
 			};
-
-			// var __self = this;
-			NS.manager.topicSave(topic, newdata, function(d){
-				d = d || {};
-				var topicid = (d['id'] || 0)*1;
-
-				// __self.close();
-				setTimeout(function(){
-					if (topicid > 0){
-						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+topicid+'/');
-					}else{
-						Brick.Page.reload('#app=forum/board/showBoardPanel');
-					}
-				},100);
+			var __self = this;
+			NS.manager.topicSave(topic, newdata, function(nTopic){
+				NS.life(__self.cfg['onTopicSave'], nTopic);
 			});
 		}
 	});
@@ -152,8 +152,9 @@ Component.entryPoint = function(NS){
 
 	var activePanel = null;
 	NS.API.showTopicEditorPanel = function(topicid, ptopicid){
-		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
+		if (L.isValue(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
+			activePanel = null;
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
 			activePanel = new TopicEditorPanel(topicid, ptopicid);

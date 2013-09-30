@@ -56,13 +56,24 @@ Component.entryPoint = function(NS){
 			});
 		},
 		onLoad: function(){
-			this.widget = new NS.TopicViewWidget(this._TM.getEl('panel.widget'), this.topicid);
+			this.gmenu = new NS.GlobalMenuWidget(this._TM.getEl('panel.gmenu'), 'list');
+
+			this.widget = new NS.TopicViewWidget(this._TM.getEl('panel.widget'), this.topicid, {
+				'onTopicClosed': function(){
+					Brick.Page.reload(NS.navigator.home());
+				},
+				'onTopicRemoved': function(){
+					Brick.Page.reload(NS.navigator.home());
+				}
+			});
 		}
 	});
 	NS.TopicViewPanel = TopicViewPanel;
 	
 	var TopicViewWidget = function(container, topicid, cfg){
 		cfg = L.merge({
+			'onTopicClosed': null,
+			'onTopicRemoved': null
 		}, cfg || {});
 		
 		TopicViewWidget.superclass.constructor.call(this, container, {
@@ -81,8 +92,6 @@ Component.entryPoint = function(NS){
 			};
 		},
 		onLoad: function(topicid, cfg){
-			this.gmenu = new NS.GlobalMenuWidget(this.gel('gmenu'), 'list');
-			
 			var __self = this;
 			NS.initManager(function(){
 				NS.manager.topicLoad(topicid, function(topic){
@@ -92,7 +101,7 @@ Component.entryPoint = function(NS){
 		},
 		onTopicLoad: function(topic){
 			this.topic = topic;
-			if (L.isNull(this.topic)){ return; }
+			if (!L.isValue(this.topic)){ return; }
 			// TODO: если this.topic=null необходимо показать "либо нет прав, либо проект удален"
 
 			var TM = this._TM;
@@ -109,10 +118,9 @@ Component.entryPoint = function(NS){
 							'onLoadComments': function(){
 								aTargetBlank(TM.getEl('widget.topicbody'));
 								aTargetBlank(TM.getEl('widget.comments'));
-							}
-							// ,
-							// 'readOnly': project.w*1 == 0,
-							// 'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
+							},
+							'readOnly': (topic.isRemoved() || topic.isClosed())
+							// ,'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
 						},
 						'instanceCallback': function(b){ }
 					});
@@ -135,7 +143,7 @@ Component.entryPoint = function(NS){
 				'dl': Brick.dateExt.convert(topic.date, 3, true),
 				'dlt': Brick.dateExt.convert(topic.date, 4),
 				'status': LNG['status'][topic.status],
-				'title': topic.title.length > 0 ? topic.title : this._TM.replace('empttitle'),
+				'title': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
 				'topicbody': topic.detail.body
 			});
 
@@ -151,8 +159,8 @@ Component.entryPoint = function(NS){
 				}
 			}
 			
-			var fs = topic.detail.files;
 			// показать прикрепленные файлы
+			var fs = topic.detail.files;
 			if (fs.length > 0){
 				this.elShow('files');
 				
@@ -193,48 +201,50 @@ Component.entryPoint = function(NS){
 			return false;
 		},
 		_shLoading: function(show){
-			var TM = this._TM;
-			TM.elShowHide('panel.buttons', !show);
-			TM.elShowHide('panel.bloading', show);
+			if (show){
+				this.elShow('bloading');
+				this.elHide('buttons');
+			}else{
+				this.elHide('bloading');
+				this.elShow('buttons');
+			}
 		},
 		
 		
 		// закрыть сообщение
-		topicClose: function(){ 
-			var TM = this._TM;
-			TM.elHide('panel.manbuttons');
-			TM.elShow('panel.dialogclose');
+		topicClose: function(){
+			this.elHide('manbuttons');
+			this.elShow('dialogclose');
 		},
 		topicCloseCancel: function(){
-			var TM = this._TM;
-			TM.elShow('panel.manbuttons');
-			TM.elHide('panel.dialogclose');
+			this.elShow('manbuttons');
+			this.elHide('dialogclose');
 		},
 		topicCloseMethod: function(){
 			this.topicCloseCancel();
 			var __self = this;
 			this._shLoading(true);
-			NS.forumManager.topicClose(this.topic.id, function(){
+			NS.manager.topicClose(this.topic.id, function(topic){
 				__self._shLoading(false);
+				NS.life(__self.cfg['onTopicClosed']);
 			});
 		},
 
 		topicRemove: function(){
-			var TM = this._TM;
-			TM.elHide('panel.manbuttons');
-			TM.elShow('panel.dialogremove');
+			this.elHide('manbuttons');
+			this.elShow('dialogremove');
 		},
 		topicRemoveCancel: function(){
-			var TM = this._TM;
-			TM.elShow('panel.manbuttons');
-			TM.elHide('panel.dialogremove');
+			this.elShow('manbuttons');
+			this.elHide('dialogremove');
 		},
 		topicRemoveMethod: function(){
 			this.topicRemoveCancel();
 			var __self = this;
 			this._shLoading(true);
-			NS.forumManager.topicRemove(this.topic.id, function(){
+			NS.manager.topicRemove(this.topic.id, function(topic){
 				__self._shLoading(false);
+				NS.life(__self.cfg['onTopicRemoved']);
 			});
 		}
 	});
@@ -242,8 +252,9 @@ Component.entryPoint = function(NS){
 	
 	var activePanel = null;
 	NS.API.showTopicViewPanel = function(topicid, ptopicid){
-		if (!L.isNull(activePanel) && !activePanel.isDestroy()){
+		if (L.isValue(activePanel) && !activePanel.isDestroy()){
 			activePanel.close();
+			activePanel = null;
 		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
 			activePanel = new TopicViewPanel(topicid, ptopicid);

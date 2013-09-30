@@ -285,6 +285,14 @@ class ForumFile extends AbricosItem {
 	public function URL(){
 		return "/filemanager/i/".$this->id."/".$this->name;
 	}
+	
+	public function ToAJAX(){
+		$ret = parent::ToAJAX();
+		$ret->nm = $this->name;
+		$ret->cnt = $this->counter;
+		$ret->dl = $this->dateline;
+		return $ret;
+	}
 }
 
 class ForumFileList extends AbricosList {

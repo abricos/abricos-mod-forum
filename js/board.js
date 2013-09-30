@@ -51,7 +51,6 @@ Component.entryPoint = function(NS){
 			}
 		},
 		destroy: function(){
-			this.navigate.destroy();
 			this.list.destroy();
 			BoardPanel.superclass.destroy.call(this);
 		}
@@ -60,6 +59,10 @@ Component.entryPoint = function(NS){
 	
 	var activePanel = null;
 	NS.API.showBoardPanel = function(){
+		if (L.isValue(activePanel) && !activePanel.isDestroy()){
+			activePanel.destroy();
+			activePanel = null;
+		}
 		if (L.isNull(activePanel) || activePanel.isDestroy()){
 			activePanel = new BoardPanel();
 		}

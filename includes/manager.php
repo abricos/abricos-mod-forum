@@ -47,19 +47,11 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function AJAX($d){
 		switch($d->do){
-			
 			case 'topiclist': 		return $this->TopicListToAJAX();
 			case 'topic':	 		return $this->TopicToAJAX($d->topicid);
 			case 'topicsave':	 	return $this->TopicSaveToAJAX($d->savedata);
-				
-			/*
-				
-			case 'forumsave':		return $this->ForumSave($d->forum);
-			case 'topicsave':		return $this->TopicSave($d->topic);
-			case 'sync':			return $this->Sync();
-			case 'topicclose': 	return $this->TopicClose($d->topicid);
-			case 'topicremove': 	return $this->TopicRemove($d->topicid);
-			/**/
+			case 'topicclose': 		return $this->TopicCloseToAJAX($d->topicid);
+			case 'topicremove': 	return $this->TopicRemoveToAJAX($d->topicid);
 		}
 		return null;
 	}
@@ -409,7 +401,61 @@ class ForumManager extends Ab_ModuleManager {
 		return $this->TopicToAJAX($topicid);
 	}
 	
+	/**
+	 * Закрыть сообщение. Роль модератора
+	 *
+	 * @param integer $topicid
+	 */
+	public function TopicClose($topicid){
+		if (!$this->IsModerRole()){ return null; }
+	
+		$topic = $this->Topic($topicid);
+		if (empty($topic) || !$topic->IsWrite()){
+			return null;
+		}
+	
+		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_CLOSED, $this->userid);
+	
+		return $topicid;
+	}
+	
+	public function TopicCloseToAJAX($topicid){
+		$topicid = $this->TopicClose($topicid);
+		if (empty($topicid)){ return null; }
+		
+		return $this->TopicToAJAX($topicid);
+	}
+	
+	/**
+	 * Удалить сообщение. Роль модератора
+	 *
+	 * @param integer $topicid
+	 */
+	public function TopicRemove($topicid){
+		if (!$this->IsModerRole()){
+			return null;
+		}
+	
+		$topic = $this->Topic($topicid);
+		if (empty($topic) || !$topic->IsWrite()){
+			return null;
+		}
+	
+		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_REMOVED, $this->userid);
+	
+		return $topicid;
+	}
+	
+	public function TopicRemoveToAJAX($topicid){
+		$topicid = $this->TopicRemove($topicid);
+		if (empty($topicid)){ return null; }
+	
+		return $this->TopicToAJAX($topicid);
+	}
+	
+	
 	////////////////////////////// комментарии /////////////////////////////
+	
 	/**
 	 * Есть ли разрешение на вывод списка комментариев
 	 *  
@@ -542,38 +588,6 @@ class ForumManager extends Ab_ModuleManager {
 		}
 	}		
 	
-	/**
-	 * Закрыть сообщение. Роль модератора
-	 * 
-	 * @param integer $topicid
-	 */
-	public function TopicClose($topicid){
-		if (!$this->IsModerRole()){ return null; }
-		
-		$topic = $this->Topic($topicid);
-		if (empty($topic) || !$topic->IsWrite()){ return null; }
-		
-		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_CLOSED, $this->userid);
-		
-		return $this->Topic($topicid);
-	}
-	
-	/**
-	 * Удалить сообщение. Роль модератора
-	 * 
-	 * @param integer $topicid
-	 */
-	public function TopicRemove($topicid){
-		if (!$this->IsModerRole()){ return null; }
-		
-		$topic = $this->Topic($topicid);
-		if (empty($topic) || !$topic->IsWrite()){ return null; }
-				
-		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_REMOVED, $this->userid);
-		
-		return $this->Topic($topicid);
-	}
-
 }
 
 ?>

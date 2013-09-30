@@ -1,62 +1,63 @@
-<!--{panel}--><div class='hd'>{#mod.forum.topiceditor.panel.1}</div>
+<!--{panel}-->
+<div class='hd'>{#mod.forum.topiceditor.panel.1}</div>
 <div class='bd aw-forum'>
-
 	<div id="{i#gmenu}"></div>
 
-	<div class="topicedit ui-form">
-		
-		<div class="navigate">
-			<span class="item {v#first}">
-				<a href="#app=forum/board/showBoardPanel">{#mod.forum.topiceditor.panel.2}</a>
-			</span>
-			<span class="item {v#current}">
-				<span class="arrow"> → </span>
-				<span id="{i#tlnew}">{#mod.forum.topiceditor.panel.3}</span>
-				<span id="{i#tledit}">{#mod.forum.topiceditor.panel.4}</span>
-			</span>
-		</div>
+	<div id="{i#widget}"></div>
+</div>
 
-		<dl class="sel">
-			<dt>
-				<label for="{i#tl}">{#mod.forum.topiceditor.panel.5}</label>
-			</dt>
-			<dd>
-				<input id="{i#tl}" type="text" class="input-text font-large" style="width: 90%;" />
-			</dd>
-		</dl>
-		
-		<dl>
-			<dt>
-				<label>{#mod.forum.topiceditor.panel.6}</label>
-			</dt>
-			<dd>
-				<textarea id="{i#editor}" style="width: 560px; height: 300px"></textarea>
-			</dd>
-		</dl>
-
-		<dl id="{i#rfiles}">
-			<dt>
-				<label>{#mod.forum.topiceditor.panel.7}</label>
-			</dt>
-			<dd>
-				<div id="{i#files}"></div>
-			</dd>
-		</dl>
-		
-		<dl>
-			<dt></dt>
-			<dd>
-				<div class="field">
-					<div class="buttons">
-						<input type="button" value="{#mod.forum.topiceditor.panel.8}" id="{i#bsave}" class="btn" />
-						<input type="button" value="{#mod.forum.topiceditor.panel.9}" id="{i#bcancel}" class="btn" />
-						<img src="/images/loading.gif" id="{i#loading}" style="display: none;" />
-					</div>
-				</div>
-			</dd>
-		</dl>
-		
-	</div>
+<!--{widget}-->
+<div id="{i#id}" class="topicedit ui-form">
 	
-	<div class="clear: both;"></div>
+	<div class="navigate">
+		<span class="item {v#first}">
+			<a href="#app=forum/board/showBoardPanel">{#mod.forum.topiceditor.panel.2}</a>
+		</span>
+		<span class="item {v#current}">
+			<span class="arrow"> → </span>
+			<span id="{i#tlnew}">{#mod.forum.topiceditor.panel.3}</span>
+			<span id="{i#tledit}">{#mod.forum.topiceditor.panel.4}</span>
+		</span>
+	</div>
+
+	<dl class="sel">
+		<dt>
+			<label for="{i#tl}">{#mod.forum.topiceditor.panel.5}</label>
+		</dt>
+		<dd>
+			<input id="{i#tl}" type="text" class="input-text font-large" style="width: 90%;" />
+		</dd>
+	</dl>
+	
+	<dl>
+		<dt>
+			<label>{#mod.forum.topiceditor.panel.6}</label>
+		</dt>
+		<dd>
+			<textarea id="{i#editor}" style="width: 560px; height: 300px"></textarea>
+		</dd>
+	</dl>
+
+	<dl id="{i#rfiles}">
+		<dt>
+			<label>{#mod.forum.topiceditor.panel.7}</label>
+		</dt>
+		<dd>
+			<div id="{i#files}"></div>
+		</dd>
+	</dl>
+	
+	<dl>
+		<dt></dt>
+		<dd>
+			<div class="field">
+				<div class="buttons">
+					<input type="button" value="{#mod.forum.topiceditor.panel.8}" id="{i#bsave}" class="btn" />
+					<input type="button" value="{#mod.forum.topiceditor.panel.9}" id="{i#bcancel}" class="btn" />
+					<img src="/images/loading.gif" id="{i#loading}" style="display: none;" />
+				</div>
+			</div>
+		</dd>
+	</dl>
+	
 </div>

@@ -16,7 +16,8 @@ Component.entryPoint = function(NS){
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		R = NS.roles;
+		R = NS.roles,
+		BW = Brick.mod.widget.Widget;
 
 	var buildTemplate = this.buildTemplate;
 	
@@ -24,48 +25,74 @@ Component.entryPoint = function(NS){
 		
 		this.topicid = topicid || 0;
 		
-		TopicEditorPanel.active = this;
-
 		TopicEditorPanel.superclass.constructor.call(this, {fixedcenter: true});
 	};
 	YAHOO.extend(TopicEditorPanel, Brick.widget.Panel, {
 		initTemplate: function(){
-			buildTemplate(this, 'panel,frow');
+			buildTemplate(this, 'panel');
 
 			return this._TM.replace('panel');
 		},
 		onLoad: function(){
-			var __self = this, TM = this._TM;
+			var TM = this._TM;
 			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
-			NS.buildManager(function(man){
-				__self.onBuildManager();
+			
+			this.editorWidget = new NS.TopicEditorWidget(TM.getEl('panel.widget'), this.topicid);
+		}
+	});
+	NS.TopicEditorPanel = TopicEditorPanel;
+	
+	var TopicEditorWidget = function(container, topicid, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		
+		TopicEditorWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'widget,frow' 
+		}, topicid, cfg);
+	};
+	YAHOO.extend(TopicEditorWidget, BW, {
+		init: function(topicid, cfg){
+			TopicEditorWidget.active = this;
+			
+			this.topicid = topicid;
+			this.cfg = cfg;
+		},
+		onLoad: function(topicid, cfg){
+			var __self = this;
+			NS.initManager(function(){
+				if (topicid == 0){
+					__self.onTopicLoad(new NS.Topic());
+				}else{
+					NS.manager.topicLoad(topicid, function(topic){
+						__self.onTopicLoad(topic);
+					});
+				}
 			});
 		},
-		onBuildManager: function(){
-			var TM = this._TM,
-				gel = function(n){ return TM.getEl('panel.'+n); },
-				topic = this.topicid == 0 ? new NS.Topic() : NS.forumManager.list.get(this.topicid);
-				__self = this;
-				
-			if (L.isNull(topic)){ return; }
-			
+		onTopicLoad: function(topic){
 			this.topic = topic;
 			
-			Dom.setStyle(TM.getEl('panel.tl'+(topic.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
+			if (L.isNull(topic)){ return; }
+
+			Dom.setStyle(this.gel('tl'+(topic.id*1 > 0 ? 'new' : 'edit')), 'display', 'none');
 			
-			gel('tl').value = topic.title;
-			gel('editor').innerHTML = topic.body; 
+			this.elSetValue({
+				'tl': topic.title
+			});
+			this.elSetHTML({
+				'editor': topic.detail.body
+			});
 			
 			var Editor = Brick.widget.Editor;
-			this.editor = new Editor(this._TId['panel']['editor'], {
+			this.editor = new Editor(this.gel('editor'), {
 				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
 			});
 			
 			if (Brick.Permission.check('filemanager', '30') == 1){
-				this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(gel('files'), topic.files);
+				this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), topic.detail.files);
 			}else{
 				this.filesWidget = null;
-				Dom.setStyle(gel('rfiles'), 'display', 'none');
+				this.elHide('rfiles');
 			}
 		},
 		destroy: function(){
@@ -73,34 +100,39 @@ Component.entryPoint = function(NS){
 			TopicEditorPanel.active = null;
 			TopicEditorPanel.superclass.destroy.call(this);
 		},
-		onClick: function(el){
-			var TId = this._TId, tp = TId['panel'];
+		onClick: function(el, tp){
 			switch(el.id){
 			case tp['bsave']: this.saveTopic(); return true;
-			case tp['bcancel']: this.close(); return true;
+			case tp['bcancel']: this.cancel(); return true;
 			}
 			return false;
 		},
+		cancel: function(){
+			var topicid = this.topicid;
+			if (topicid > 0){
+				Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+topicid+'/');
+			}else{
+				Brick.Page.reload('#app=forum/board/showBoardPanel');
+			}
+		},
 		saveTopic: function(){
-			var TM = this._TM,
-				topic = this.topic;
+			var topic = this.topic;
 			
-			Dom.setStyle(TM.getEl('panel.bsave'), 'display', 'none');
-			Dom.setStyle(TM.getEl('panel.bcancel'), 'display', 'none');
-			Dom.setStyle(TM.getEl('panel.loading'), 'display', '');
+			this.elHide('bsave,bcancel');
+			this.elShow('loading');
 			
 			var newdata = {
-				'title': TM.getEl('panel.tl').value,
+				'title': this.gel('tl').value,
 				'body': this.editor.getContent(),
 				'files':  L.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
 			};
 
-			var __self = this;
-			NS.forumManager.topicSave(topic, newdata, function(d){
+			// var __self = this;
+			NS.manager.topicSave(topic, newdata, function(d){
 				d = d || {};
 				var topicid = (d['id'] || 0)*1;
 
-				__self.close();
+				// __self.close();
 				setTimeout(function(){
 					if (topicid > 0){
 						Brick.Page.reload('#app=forum/topicview/showTopicViewPanel/'+topicid+'/');
@@ -111,7 +143,7 @@ Component.entryPoint = function(NS){
 			});
 		}
 	});
-	NS.TopicEditorPanel = TopicEditorPanel;
+	NS.TopicEditorWidget = TopicEditorWidget;
 
 	// создать сообщение
 	NS.API.showCreateTopicPanel = function(){

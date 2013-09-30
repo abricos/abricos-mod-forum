@@ -22,17 +22,17 @@ class ForumQuery {
 		return $db->insert_id();
 	}
 	
-	public static function TopicAppend(Ab_Database $db, $msg, $pubkey){
-		$contentid = Ab_CoreQuery::ContentAppend($db, $msg->bd, 'forum');
+	public static function TopicAppend(Ab_Database $db, $d, $pubkey){
+		$contentid = Ab_CoreQuery::ContentAppend($db, $d->bd, 'forum');
 		
 		$sql = "
 			INSERT INTO ".$db->prefix."frm_topic (
 				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
-				".bkint($msg->uid).",
-				'".bkstr($msg->tl)."',
+				".bkint($d->uid).",
+				'".bkstr($d->tl)."',
 				'".bkstr($pubkey)."',
 				".$contentid.",
-				".bkint($msg->prt).",
+				".bkint($d->prt).",
 				".ForumTopic::ST_OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
@@ -43,15 +43,14 @@ class ForumQuery {
 		return $db->insert_id();
 	}
 	
-	public static function TopicUpdate(Ab_Database $db, $msg, $userid){
-		$info = ForumQuery::Topic($db, $msg->id, $userid, true);
-		Ab_CoreQuery::ContentUpdate($db, $info['ctid'], $msg->bd);
+	public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid){
+		Ab_CoreQuery::ContentUpdate($db, $topic->detail->contentid, $d->bd);
 		$sql = "
 			UPDATE ".$db->prefix."frm_topic
 			SET
-				title='".bkstr($msg->tl)."',
+				title='".bkstr($d->tl)."',
 				upddate=".TIMENOW."
-			WHERE topicid=".bkint($msg->id)."
+			WHERE topicid=".bkint($d->id)."
 			LIMIT 1
 		";
 		$db->query_write($sql);

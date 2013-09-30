@@ -176,11 +176,10 @@ Component.entryPoint = function(NS){
 			}
 			
 		},
-		onClick: function(el){
-			var tp = this._TId['panel'];
+		onClick: function(el, tp){
 			switch(el.id){
 			
-			case tp['beditor']: this.topicEditorShow(); return true;
+			// case tp['beditor']: this.topicEditorShow(); return true;
 			
 			case tp['bclose']: 
 			case tp['bclosens']: this.topicClose(); return true;

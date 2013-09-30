@@ -50,6 +50,7 @@ class ForumManager extends Ab_ModuleManager {
 			
 			case 'topiclist': 		return $this->TopicListToAJAX();
 			case 'topic':	 		return $this->TopicToAJAX($d->topicid);
+			case 'topicsave':	 	return $this->TopicSaveToAJAX($d->savedata);
 				
 			/*
 				
@@ -162,7 +163,7 @@ class ForumManager extends Ab_ModuleManager {
 			$this->_cacheTopic = null;
 			$this->_cacheTopicCID = null;
 		}
-			if (!is_array($this->_cacheTopic)){
+		if (!is_array($this->_cacheTopic)){
 			$this->_cacheTopic = array();
 		}
 		if (!is_array($this->_cacheTopicCID)){
@@ -180,8 +181,10 @@ class ForumManager extends Ab_ModuleManager {
 	public function Topic($topicid, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
 		
-		$this->_TopicInitCache($clearCache);
+		$topicid = intval($topicid);
 		
+		$this->_TopicInitCache($clearCache);
+
 		if (!empty($this->_cacheTopic[$topicid])){
 			return $this->_cacheTopic[$topicid];
 		}
@@ -206,7 +209,9 @@ class ForumManager extends Ab_ModuleManager {
 	 */
 	public function TopicByContentId($contentid, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
-		
+
+		$topicid = intval($topicid);
+				
 		$this->_TopicInitCache($clearCache);
 		
 		if (!empty($this->_cacheTopicCID[$contentid])){
@@ -302,7 +307,6 @@ class ForumManager extends Ab_ModuleManager {
 	 * @param object $sd
 	 */
 	public function TopicSave($sd){
-		
 		if (!$this->IsWriteRole()){ return null; }
 		
 		$sd->id = intval($sd->id);
@@ -314,27 +318,34 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$sendNewNotify = false;
 		
+		$topic = null;
 		if ($sd->id == 0){
 			$sd->uid = $this->userid;
 			$pubkey = md5(time().$this->userid);
 			$sd->id = ForumQuery::TopicAppend($this->db, $sd, $pubkey);
 			
 			$sendNewNotify = true;
+			$topic = $this->Topic($sd->id);
 		}else{
 			$topic = $this->Topic($sd->id);
 			if (empty($topic) || !$topic->IsWrite()){ return null; }
 			
-			ForumQuery::TopicUpdate($this->db, $sd, $this->userid);
+			ForumQuery::TopicUpdate($this->db, $topic, $sd, $this->userid);
+		}
+
+		if (empty($topic)){
+			return null;
 		}
 		
 		// обновить информацию по файлам
-		$files = $this->TopicFiles($sd->id, true);
+		$fileList = $topic->detail->fileList;
 		$arr = $sd->files;
 
-		foreach ($files as $rFileId => $cfile){
+		for ($i=0;$i<$fileList->Count(); $i++){
+			$cFile = $fileList->GetByIndex($i);
 			$find = false;
 			foreach ($arr as $file){
-				if ($file->id == $rFileId){
+				if ($file->id == $cFile->id){
 					$find = true;
 					break;
 				}
@@ -345,8 +356,9 @@ class ForumManager extends Ab_ModuleManager {
 		}
 		foreach ($arr as $file){
 			$find = false;
-			foreach ($files as $rFileId => $cfile){
-				if ($file->id == $rFileId){
+			for ($i=0;$i<$fileList->Count(); $i++){
+				$cFile = $fileList->GetByIndex($i);
+				if ($file->id == $cFile->id){
 					$find = true;
 					break;
 				}
@@ -356,9 +368,7 @@ class ForumManager extends Ab_ModuleManager {
 			}
 		}
 		
-		$topicid = $sd->id;
-		
-		$topic = $this->Topic($topicid, true);
+		$topic = $this->Topic($sd->id, true);
 		
 		if ($sendNewNotify){
 			// Отправить уведомление всем модераторам
@@ -388,7 +398,15 @@ class ForumManager extends Ab_ModuleManager {
 			}
 		}
 		
-		return $topic;
+		return $topic->id;
+	}
+	
+	public function TopicSaveToAJAX($sd){
+		$topicid = $this->TopicSave($sd);
+		
+		if (empty($topicid)){ return null; }
+		
+		return $this->TopicToAJAX($topicid);
 	}
 	
 	////////////////////////////// комментарии /////////////////////////////

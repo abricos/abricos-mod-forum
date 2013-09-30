@@ -183,18 +183,22 @@ Component.entryPoint = function(NS){
 			});
 		},
 
+		_updateTopic: function(d){
+			var topic = null;
+			if (L.isValue(d) && L.isValue(d['topic'])){
+				topic = new NS.Topic(d['topic']);
+				this._updateUserList(d);
+			}
+			return topic;
+		},
+		
 		topicLoad: function(topicid, callback){
-
 			var __self = this;
 			this.ajax({
 				'do': 'topic',
 				'topicid': topicid
 			}, function(d){
-				var topic = null;
-				if (L.isValue(d) && L.isValue(d['topic'])){
-					topic = new NS.Topic(d['topic']);
-					__self._updateUserList(d);
-				}
+				var topic = __self._updateTopic(d);
 				NS.life(callback, topic);
 			});
 		},
@@ -216,10 +220,10 @@ Component.entryPoint = function(NS){
 			};
 			this.ajax({
 				'do': 'topicsave',
-				'topic': dtopic
-			}, function(r){
-				__self._setLoadedTopicData(r);
-				callback(r);
+				'savedata': dtopic
+			}, function(d){
+				var topic = __self._updateTopic(d);
+				callback(topic);
 			});
 		},
 		topicClose: function(topicid, callback){ // закрыть сообщение

@@ -295,6 +295,12 @@ class ForumFileList extends AbricosList {
 	public function Get($id){
 		return parent::Get($id);
 	}
+	/**
+	 * @return ForumFile
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
 }
 
 class ForumUser extends AbricosItem {

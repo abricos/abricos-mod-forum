@@ -96,7 +96,8 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$list = $this->TopicList($cfg);
 		if (empty($list)){ return null; }
-		return $list->ToAJAX();
+		$ret = $list->ToAJAX();
+		return $ret->list;
 	}
 	
 	public function ForumSave($sd){

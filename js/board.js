@@ -35,11 +35,11 @@ Component.entryPoint = function(NS){
 			
 			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
 			
-			NS.buildManager(function(){
-				__self.onBuildManager();
+			NS.initManager(function(){
+				__self._onLoadManager();
 			});
 		},
-		onBuildManager: function(){
+		_onLoadManager: function(){
 			var TM = this._TM;
 			this.list = new NS.TopicListWidget(TM.getEl('panel.list'));
 			
@@ -47,7 +47,7 @@ Component.entryPoint = function(NS){
 				// TM.elShow('panel.baddfrm');
 			}
 			if (R['isWrite']){
-				TM.elShow('panel.baddmsg');
+				Dom.setStyle(TM.getEl('panel.baddmsg'), 'display', '');
 			}
 		},
 		destroy: function(){

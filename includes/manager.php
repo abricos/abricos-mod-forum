@@ -44,29 +44,23 @@ class ForumManager extends Ab_ModuleManager {
 		return $this->IsRoleEnable(ForumAction::VIEW);
 	}
 	
-	private function _AJAX($d){
-		
+	
+	public function AJAX($d){
 		switch($d->do){
+			
+			case 'topiclist': 		return $this->TopicListToAJAX();
+			case 'topic':	 		return $this->TopicToAJAX($d->topicid);
+				
+			/*
+				
 			case 'forumsave':		return $this->ForumSave($d->forum);
 			case 'topicsave':		return $this->TopicSave($d->topic);
-			case 'topic': 		return $this->Topic($d->topicid);
 			case 'sync':			return $this->Sync();
 			case 'topicclose': 	return $this->TopicClose($d->topicid);
 			case 'topicremove': 	return $this->TopicRemove($d->topicid);
+			/**/
 		}
 		return null;
-	}
-	
-	public function AJAX($d){
-		if ($d->do == "init"){
-			return $this->BoardData(0);
-		}
-		$ret = new stdClass();
-		$ret->u = $this->userid;
-		$ret->r = $this->_AJAX($d);
-		$ret->changes = $this->BoardData($d->hlid);
-		
-		return $ret;
 	}
 	
 	public function ToArrayId($rows, $field = "id"){
@@ -101,40 +95,15 @@ class ForumManager extends Ab_ModuleManager {
 		return $o;
 	}
 	
-	public function Sync(){ return TIMENOW; }
-	
 	public function Bos_OnlineData(){
 		if (!$this->IsViewRole()){ return null; }
-		exit;
-		// $rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
-		// return $this->ToArray($rows);
-	}
-	
-	public function BoardData($lastupdate = 0, $orderByDateLine = false){
-		if (!$this->IsViewRole()){ return null; }
-		$ret = $this->TopicListToAJAX($lastupdate, $orderByDateLine);
 		
-		$uids = array();
+		$cfg = new ForumTopicListConfig();
+		$cfg->limit = 15;
 		
-		$rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), $lastupdate, 15, $orderByDateLine);
-		while (($row = $this->db->fetch_array($rows))){
-			$ret->hlid = max($ret->hlid, intval($row['udl']));
-			
-			// время последнего комментария тоже участвует в определении изменений
-			$ret->hlid = max($ret->hlid, intval($row['cmtdl']));
-			
-			$uids[$row['uid']] = true;
-			$uids[$row['cmtuid']] = true;
-			
-			$ret->board[$row['id']] = $row;
-		}
-		if ($lastupdate == 0 || ($lastupdate > 0 && count($uids) > 0)){
-			$uids[$this->userid] = true;
-		}
-		
-		// $ret->users = $this->ToArray(ForumQuery::Users($this->db, $uids));
-
-		return $ret;
+		$list = $this->TopicList($cfg);
+		if (empty($list)){ return null; }
+		return $list->ToAJAX();
 	}
 	
 	public function ForumSave($sd){
@@ -174,7 +143,7 @@ class ForumManager extends Ab_ModuleManager {
 		if ($uids instanceof ForumTopic){
 			$uids = array($uids->userid, $uids->lastUserId);
 		}else if (!is_array($uids)){
-			$userIds = array(intval($uids));
+			$uids = array(intval($uids));
 		}
 		
 		$list = new ForumUserList();
@@ -258,6 +227,19 @@ class ForumManager extends Ab_ModuleManager {
 		return $topic;
 	}
 	
+	public function TopicToAJAX($topicid){
+		$topic = $this->Topic($topicid);
+		if (empty($topic)){ return null; }
+		
+		$ret = new stdClass();
+		$ret->topic = $topic->ToAJAX();
+		
+		$userList = $this->UserList($topic->userid);
+		$ret->users = $userList->ToAJAX();
+		
+		return $ret;
+	}
+	
 	/**
 	 * Список сообщений
 	 * 
@@ -296,19 +278,19 @@ class ForumManager extends Ab_ModuleManager {
 		return $list;
 	}
 	
-	public function TopicListToAJAX($lastupdate = 0, $orderByDateLine = false){
-		$list = $this->TopicList($lastupdate, $orderByDateLine);
+	public function TopicListToAJAX(){
+		
+		$cfg = new ForumTopicListConfig();
+		$cfg->limit = 50;
+		
+		$list = $this->TopicList($cfg);
 		
 		if (empty($list)){ return null; }
 
-		if ($lastupdate == 0 || ($lastupdate > 0 && count($list->userIds) > 0)){
-			$list->AddUserId(Abricos::$user->id);
-		}
 		$userList = $this->UserList($list->userIds);
 		
 		$ret = new stdClass();
 		$ret->topics = $list->ToAJAX();
-		$ret->hlid = $list->hlid;
 		$ret->users = $userList->ToAJAX();
 		
 		return $ret;

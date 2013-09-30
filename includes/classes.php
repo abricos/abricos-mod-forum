@@ -48,6 +48,8 @@ class ForumTopic extends AbricosItem {
 	public $lastCommentDate;
 	public $lastUserId;
 	public $status;
+	public $stUserId;
+	public $stDate;
 	
 	private $_isPrivate;
 	
@@ -67,6 +69,8 @@ class ForumTopic extends AbricosItem {
 		$this->lastCommentDate = intval($d['cmtdl']);
 		$this->lastUserId = intval($d['cmtuid']);
 		$this->status = intval($d['st']);
+		$this->stUserId = intval($d['stuid']);
+		$this->stDate = intval($d['stdl']);
 		
 		$this->_isPrivate = intval($d['prt']) > 0;
 	}
@@ -106,6 +110,25 @@ class ForumTopic extends AbricosItem {
 	public function URI(){
 		return "/forum/topic_".$this->id."/";
 	}
+	
+	public function ToAJAX(){
+		$ret = parent::ToAJAX();
+		$ret->tl = $this->title;
+		$ret->dl = $this->dateline;
+		$ret->upd = $this->upddate;
+		$ret->cmt = $this->commentCount;
+		$ret->cmtdl = $this->lastCommentDate;
+		$ret->cmtuid = $this->lastUserId;
+		$ret->st = $this->status;
+		$ret->stuid = $this->stUserId;
+		$ret->stdl = $this->stDate;
+		
+		if (!empty($this->detail)){
+			$ret->dtl = $this->detail->ToAJAX();
+		}
+	
+		return $ret;
+	}
 }
 
 class ForumTopicDetail {
@@ -133,6 +156,17 @@ class ForumTopicDetail {
 		$this->contentid = intval($d['ctid']);
 		
 		$this->fileList = new ForumFileList();
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->bd = $this->body;
+		$ret->ctid = $this->contentid;
+		
+		$files = $this->fileList->ToAJAX();
+		$ret->files = $files->list;
+		
+		return $ret;
 	}
 }
 

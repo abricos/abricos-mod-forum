@@ -82,7 +82,7 @@ Component.entryPoint = function(NS){
 			};
 
 			var __self = this;
-			NS.forumManager.forumSave(forum, newdata, function(d){
+			NS.manager.forumSave(forum, newdata, function(d){
 				d = d || {};
 				var forumid = (d['id'] || 0)*1;
 

@@ -17,10 +17,11 @@ Component.entryPoint = function(NS){
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		R = NS.roles;
-	
+		R = NS.roles,
+		BW = Brick.mod.widget.Widget;
+
 	var LNG = this.language,
-		MST = NS.TopicStatus;
+		TST = NS.TopicStatus;
 
 	var buildTemplate = this.buildTemplate;
 	
@@ -48,57 +49,53 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(TopicViewPanel, Brick.widget.Panel, {
 		initTemplate: function(){
-			buildTemplate(this, 'panel,user,frow,empttitle');
+			var TM = buildTemplate(this, 'panel');
 			
-			var topic = this.topic;
-
-			return this._TM.replace('panel', {
+			return TM.replace('panel', {
 				'id': this.topicid
 			});
 		},
 		onLoad: function(){
-			var __self = this, TM = this._TM;
-			this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
+			this.widget = new NS.TopicViewWidget(this._TM.getEl('panel.widget'), this.topicid);
+		}
+	});
+	NS.TopicViewPanel = TopicViewPanel;
+	
+	var TopicViewWidget = function(container, topicid, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		
+		TopicViewWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'widget,user,frow,empttitle' 
+		}, topicid, cfg);
+	};
+	YAHOO.extend(TopicViewWidget, BW, {
+		init: function(topicid, cfg){
+			this.topicid = topicid;
+			this.cfg = cfg;
+			this.firstLoad = true;
+		},
+		buildTData: function(topicid, cfg){
+			return {
+				'id': topicid
+			};
+		},
+		onLoad: function(topicid, cfg){
+			this.gmenu = new NS.GlobalMenuWidget(this.gel('gmenu'), 'list');
 			
-			NS.buildManager(function(){
-				__self.onBuildManager();
+			var __self = this;
+			NS.initManager(function(){
+				NS.manager.topicLoad(topicid, function(topic){
+					__self.onTopicLoad(topic);
+				});
 			});
 		},
-		onBuildManager: function(){
-
-			this.topic = NS.forumManager.list.get(this.topicid);
+		onTopicLoad: function(topic){
+			this.topic = topic;
 			if (L.isNull(this.topic)){ return; }
 			// TODO: если this.topic=null необходимо показать "либо нет прав, либо проект удален"
 
-			var topic = this.topic,
-				TM = this._TM,
-				__self = this;
-			
-			TM.getEl('panel.title').innerHTML = topic.title.length > 0 ? topic.title : this._TM.replace('empttitle')
-
-			
-			this.firstLoad = true;
-			
-			// запросить дополнительные данные - описание
-			NS.forumManager.topicLoad(topic.id, function(){
-				__self.renderTopic();
-			});
-			
-			NS.forumManager.topicsChangedEvent.subscribe(this.onTopicsChanged, this, true);
-		},
-		destroy: function(){
-			TopicViewPanel.superclass.destroy.call(this);
-		},
-		onTopicsChanged: function(){
-			this.renderTopic();
-		},
-		renderTopic: function(){
-			var TM = this._TM, topic = this.topic, 
-				__self = this, 
-				gel = function(nm){ return TM.getEl('panel.'+nm); };
-			
-			gel('title').innerHTML = topic.title.length > 0 ? topic.title : TM.replace('empttitle');
-			gel('topicbody').innerHTML = topic.body;
+			var TM = this._TM;
 			
 			if (this.firstLoad){ // первичная рендер
 				this.firstLoad = false;
@@ -106,12 +103,12 @@ Component.entryPoint = function(NS){
 				// Инициализировать менеджер комментариев
 				Brick.ff('comment', 'comment', function(){
 					Brick.mod.comment.API.buildCommentTree({
-						'container': TM.getEl('panel.comments'),
-						'dbContentId': topic.ctid,
+						'container': TM.getEl('widget.comments'),
+						'dbContentId': topic.detail.contentid,
 						'config': {
 							'onLoadComments': function(){
-								aTargetBlank(TM.getEl('panel.topicbody'));
-								aTargetBlank(TM.getEl('panel.comments'));
+								aTargetBlank(TM.getEl('widget.topicbody'));
+								aTargetBlank(TM.getEl('widget.comments'));
 							}
 							// ,
 							// 'readOnly': project.w*1 == 0,
@@ -122,40 +119,42 @@ Component.entryPoint = function(NS){
 				});
 			}
 
-			var elColInfo = gel('colinfo');
+			var elColInfo = this.gel('colinfo');
 			for (var i=1;i<=5;i++){
 				Dom.removeClass(elColInfo, 'status'+i);
 			}
 			Dom.addClass(elColInfo, 'status'+topic.status);
 
-			// Статус
-			gel('status').innerHTML = LNG['status'][topic.status];
-			
 			// Автор
-			var user = NS.forumManager.users.get(topic.userid);
-			gel('author').innerHTML = TM.replace('user', {
-				'uid': user.id, 'unm': user.getUserName()
-			});
-			// Создана
-			gel('dl').innerHTML = Brick.dateExt.convert(topic.date, 3, true);
-			gel('dlt').innerHTML = Brick.dateExt.convert(topic.date, 4);
+			var user = NS.manager.users.get(topic.userid);
 
-			// закрыть все кнопки, открыть по ролям 
-			TM.elHide('panel.bopen,bclose,beditor,bremove');
+			this.elSetHTML({
+				'author': TM.replace('user', {
+					'uid': user.id, 'unm': user.getUserName()
+				}),
+				'dl': Brick.dateExt.convert(topic.date, 3, true),
+				'dlt': Brick.dateExt.convert(topic.date, 4),
+				'status': LNG['status'][topic.status],
+				'title': topic.title.length > 0 ? topic.title : this._TM.replace('empttitle'),
+				'topicbody': topic.detail.body
+			});
+
+			// закрыть все кнопки, открыть по ролям
+			this.elHide('bopen,bclose,beditor,bremove');
 			
 			var isMyTopic = user.id*1 == Brick.env.user.id*1;
-			if (topic.status == MST.OPENED){
+			if (topic.status == TST.OPENED){
 				if (R['isModer']){
-					TM.elShow('panel.beditor,bremove,bclose'); 
+					this.elShow('beditor,bremove,bclose'); 
 				}else if (isMyTopic){
-					TM.elShow('panel.beditor,bremove'); 
+					this.elHide('panel.beditor,bremove'); 
 				}
 			}
 			
-			var fs = topic.files;
+			var fs = topic.detail.files;
 			// показать прикрепленные файлы
 			if (fs.length > 0){
-				TM.elShow('panel.files');
+				this.elShow('files');
 				
 				var alst = [], lst = "";
 				for (var i=0;i<fs.length;i++){
@@ -171,10 +170,11 @@ Component.entryPoint = function(NS){
 					});
 				}
 				lst = alst.join('');
-				TM.getEl('panel.ftable').innerHTML = lst;
+				this.gel('ftable').innerHTML = lst;
 			}else{
-				TM.elHide('panel.files');
+				this.elHide('files');
 			}
+			
 		},
 		onClick: function(el){
 			var tp = this._TId['panel'];
@@ -239,7 +239,7 @@ Component.entryPoint = function(NS){
 			});
 		}
 	});
-	NS.TopicViewPanel = TopicViewPanel;
+	NS.TopicViewWidget = TopicViewWidget;
 	
 	var activePanel = null;
 	NS.API.showTopicViewPanel = function(topicid, ptopicid){

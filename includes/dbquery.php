@@ -67,7 +67,7 @@ class ForumQuery {
 			m.status as st,
 			m.statuserid as stuid,
 			m.statdate as stdl,
-			m.upddate as udl,
+			m.upddate as upd,
 			m.cmtcount as cmt,
 			m.cmtdate as cmtdl,
 			m.cmtuserid as cmtuid 

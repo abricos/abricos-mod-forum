@@ -11,65 +11,48 @@ Component.requires = {
         {name: 'forum', files: ['lib.js']}
 	]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
-		L = YAHOO.lang;
-	
-	var NS = this.namespace, 
-		TMG = this.template,
-		API = NS.API,
-		R = NS.roles;
-	
-	var UP = Brick.mod.uprofile;
-	
-	var LNG = Brick.util.Language.getc('mod.forum');
-
-	var initCSS = false, buildTemplate = function(w, ts){
-		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['forum']['topiclist']);
-			delete Brick.util.CSS['forum']['topiclist'];
-			initCSS = true;
-		}
-		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
-	};
+		L = YAHOO.lang,
+		buildTemplate = this.buildTemplate,
+		BW = Brick.mod.widget.Widget;
 	
 
-	var TST = NS.TopicStatus;
-	
-	var TopicListWidget = function(container){
-		this.init(container);
-	};
-	TopicListWidget.prototype = {
-		init: function(container){
+	var TopicListWidget = function(container, cfg){
+		cfg = L.merge({
+		}, cfg || {});
 		
-			NS.forumManager.topicsChangedEvent.subscribe(this.onMesssagesChangedEvent, this, true);
+		TopicListWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'widget,table,row,user' 
+		}, cfg);
+	};
+	YAHOO.extend(TopicListWidget, BW, {
+		init: function(cfg){
+			this.cfg = cfg;
 
-			this.list = NS.forumManager.list;
-			
-			buildTemplate(this, 'widget,table,row,user');
-			container.innerHTML = this._TM.replace('widget');
-
+			this.list = null;
+		},
+		
+		onLoad: function(cfg){
 			var __self = this;
-			E.on(container, 'click', function(e){
-                if (__self._onClick(E.getTarget(e))){ E.preventDefault(e); }
+			NS.initManager(function(){
+				NS.manager.topicListLoad(function(list){
+					__self.renderList(list);
+				});
 			});
-			this.render();
 		},
 		
-		onMesssagesChangedEvent: function(e1, e2){
-			this.render();
-		},
-		
-		render: function(){
+		renderList: function(list){
+			this.list = list;
 			
 			var TM = this._TM, 
 				lst = "";
 			
 			var arr = [];
-			this.list.foreach(function(msg){
-				arr[arr.length] = msg;
+			this.list.foreach(function(topic){
+				arr[arr.length] = topic;
 			});
 			arr = arr.sort(function(m1, m2){
 				var t1 = m1.updDate.getTime(),
@@ -86,37 +69,29 @@ Component.entryPoint = function(){
 				return 0;
 			});
 			for (var i=0; i<arr.length; i++){
-				var msg = arr[i];
+				var topic = arr[i];
 				
-				var user = NS.forumManager.users.get(msg.userid);
+				var user = NS.manager.users.get(topic.userid);
 				var d = {
-					'id': msg.id,
-					'tl': msg.title,
-					'cmt': msg.cmt,
+					'id': topic.id,
+					'tl': topic.title,
+					'cmt': topic.cmt,
 					'cmtuser': TM.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
-					'cmtdate': Brick.dateExt.convert(msg.updDate),
-					'closed': msg.isClosed() ? 'closed' : '',
-					'removed': msg.isRemoved() ? 'removed' : ''
+					'cmtdate': Brick.dateExt.convert(topic.updDate),
+					'closed': topic.isClosed() ? 'closed' : '',
+					'removed': topic.isRemoved() ? 'removed' : ''
 				};
-				if (msg.cmt > 0){
-					var user = NS.forumManager.users.get(msg.cmtUserId);
+				if (topic.cmt > 0){
+					var user = NS.manager.users.get(topic.cmtUserId);
 					d['cmtuser'] =  TM.replace('user', {'uid': user.id, 'unm': user.getUserName()});
-					d['cmtdate'] = Brick.dateExt.convert(msg.cmtDate);
+					d['cmtdate'] = Brick.dateExt.convert(topic.cmtDate);
 				}
 				
 				lst += TM.replace('row', d);
 			}
 			TM.getEl('widget.table').innerHTML = TM.replace('table', {'rows': lst});
-		},
-		
-		_onClick: function(el){
-			return false;
-		},
-
-		destroy: function(){
-			NS.forumManager.topicsChangedEvent.unsubscribe(this.onMesssagesChangedEvent);
 		}
-	};
+	});
 	NS.TopicListWidget = TopicListWidget;
 	
 	

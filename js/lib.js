@@ -6,6 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
+        {name: 'widget', files: ['lib.js']},
         {name: 'uprofile', files: ['users.js']},
         {name: 'sys', files: ['item.js','date.js']},
         {name: 'forum', files: ['roles.js']}
@@ -22,35 +23,14 @@ Component.entryPoint = function(NS){
 	NS.Item = NSys.Item;
 	NS.ItemList = NSys.ItemList;
 
-	var UP = Brick.mod.uprofile;
-
-	var buildTemplate = this.buildTemplate;
-	buildTemplate({});
-	
-	// дополнить эксперементальными функциями менеджер шаблонов
-	var TMP = Brick.Template.Manager.prototype;
-	TMP.elHide = function(els){ this.elShowHide(els, false); };
-	TMP.elShow = function(els){ this.elShowHide(els, true); };
-	TMP.elShowHide = function(els, show){
-		if (L.isString(els)){
-			var arr = els.split(','), tname = '';
-			els = [];
-			for (var i=0;i<arr.length;i++){
-				var arr1 = arr[i].split('.');
-				if (arr1.length == 2){
-					tname = L.trim(arr1[0]);
-					els[els.length] = L.trim(arr[i]);
-				}
-				els[els.length] = tname+'.'+L.trim(arr[i]);
-			}
-		}
-		if (!L.isArray(els)){ return; }
-		for (var i=0;i<els.length;i++){
-			var el = this.getEl(els[i]);
-			Dom.setStyle(el, 'display', show ? '' : 'none');
-		}
+	NS.lif = function(f){return L.isFunction(f) ? f : function(){}; };
+	NS.life = function(f, p1, p2, p3, p4, p5, p6, p7){
+		f = NS.lif(f); f(p1, p2, p3, p4, p5, p6, p7);
 	};
 	
+	var buildTemplate = this.buildTemplate;
+	buildTemplate({});
+
 	var Forum = function(d){
 		d = L.merge({
 			'tl': '',
@@ -84,28 +64,23 @@ Component.entryPoint = function(NS){
 			'fmid': 0,
 			'tl': '',
 			'dl': 0,
-			'udl': 0,
+			'upd': 0,
 			'cmt': null,
 			'cmtdl': 0,
 			'cmtuid': null,
 			'st': 0,
 			'stuid': 0,
 			'stdl': 0,
-			'dl': 0,
-			'uid': Brick.env.user.id
+			'uid': Brick.env.user.id,
+			'dtl': null
 		}, d || {});
 		Topic.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(Topic, NSys.Item, {
 		init: function(d){
-			Topic.superclass.init.call(this, d);
+			this.detail = null;
 			
-			// была ли загрузка оставшихся данных?
-			this.isLoad = false;
-
-			// описание задачи
-			this.body = '';
-			this.files = [];
+			Topic.superclass.init.call(this, d);
 		},
 		update: function(d){ 
 			this.title = d['tl'];								// заголовок
@@ -113,7 +88,7 @@ Component.entryPoint = function(NS){
 			this.forumid = d['fmid'];
 			this.date = NSys.dateToClient(d['dl']); 				// дата создания 
 
-			this.updDate = NSys.dateToClient(d['udl']); 			// дата создания 
+			this.updDate = NSys.dateToClient(d['upd']); 			// дата создания 
 			
 			this.cmt = (L.isNull(d['cmt']) ? 0 : d['cmt'])*1;	// кол-во сообщений
 			this.cmtDate = NSys.dateToClient(d['cmtdl']);			// дата последнего сообщения
@@ -122,13 +97,10 @@ Component.entryPoint = function(NS){
 			this.status = d['st']*1;
 			this.stUserId = d['stuid'];
 			this.stDate = NSys.dateToClient(d['stdl']);
-		},
-		setData: function(d){
-			this.isLoad = true;
-			this.body = d['bd'];
-			this.ctid = d['ctid'];
-			this.files = d['files'];
-			this.update(d);
+	
+			if (L.isValue(d['dtl'])){
+				this.detail = new NS.TopicDetail(d['dtl']);
+			}
 		},
 		isRemoved: function(){
 			return this.status*1 == TopicStatus.REMOVED;
@@ -139,145 +111,92 @@ Component.entryPoint = function(NS){
 	});
 	NS.Topic = Topic;
 	
+	var TopicDetail = function(d){
+		d = L.merge({
+			'bd': '',
+			'ctid': 0
+		}, d || {});
+		TopicDetail.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(TopicDetail, NS.Item, {
+		update: function(d){
+			this.body			= d['bd'];
+			this.contentid		= d['ctid'];
+			this.files			= d['files'];
+		}
+	});		
+	NS.TopicDetail = TopicDetail;
+	
 	var TopicList = function(d){
 		TopicList.superclass.constructor.call(this, d, Topic);
 	};
 	YAHOO.extend(TopicList, NSys.ItemList, {});
 	NS.TopicList = TopicList;
 	
-	var Manager = function(inda){
-		this.init(inda);
+	var Manager = function(callback){
+		this.init(callback);
 	};
 	Manager.prototype = {
-		init: function(inda){
-
-			this._hlid = 0;
-			this.topicsChangedEvent = new YAHOO.util.CustomEvent("topicsChangedEvent");
+		init: function(callback){
+			NS.manager = this;
 
 			this.forums = new ForumList(); 
-			this.list = new TopicList();
-			this.listUpdate(inda['board']);
-
-			this.users = UP.viewer.users;
-			this.users.update(inda['users']);
-
-			this.lastUpdateTime = new Date();
+			this.users = Brick.mod.uprofile.viewer.users;
 			
-			E.on(document.body, 'mousemove', this.onMouseMove, this, true);
+			R.load(function(){
+				NS.life(callback, NS.manager);
+			});
 		},
 		
-		onMouseMove: function(evt){
-			var ctime = (new Date()).getTime(), ltime = this.lastUpdateTime.getTime();
-			
-			if ((ctime-ltime)/(1000*60) < 3){ return; }
-			// if ((ctime-ltime)/(1000) < 5){ return; }
-			
-			this.lastUpdateTime = new Date();
-			
-			// получения времени сервера необходимое для синхронизации
-			// и проверка обновлений в задачах
-			this.ajax({'do': 'sync'}, function(r){});
-		},
+		ajax: function(data, callback){
+			data = data || {};
 
-		listUpdate: function(data){
-			// обновить данные по сообщениям: новые - создать, существующие - обновить
-			var objs = {},
-				n = [], // новые 
-				u = [], // обновленые
-				d = []; // удаленные
-			
-			var hlid = this._hlid*1;
-			
-			for (var id in data){
-				var di = data[id];
-				hlid = Math.max(di['udl']*1, hlid);
-				var topic = this.list.get(id); 
-				if (L.isNull(topic)){ // новая задача
-					topic = new Topic(di);
-					this.list.add(topic);
-					n[n.length] = topic;
-				}else{
-					topic.update(di);
-					u[u.length] = topic;
+			Brick.ajax('{C#MODNAME}', {
+				'data': data,
+				'event': function(request){
+					NS.life(callback, request.data);
 				}
-				objs[id] = topic;
-			}
-			this._hlid = hlid;
-			return {
-				'n': n,
-				'u': u,
-				'd': d
-			};
+			});
 		},
 		
-		_ajaxBeforeResult: function(r){
-			if (L.isNull(r)){ return null; }
-			if (r.u*1 != Brick.env.user.id){ // пользователь разлогинился
-				Brick.Page.reload();
+		_updateUserList: function(d){
+			if (!L.isValue(d) || !L.isValue(d['users']) || !L.isValue(d['users']['list'])){
 				return null;
 			}
-			
-			var chgs = r['changes'];
-			
-			if (L.isNull(chgs)){ return null; } // изменения не зафиксированы
-			
-			this.users.update(chgs['users']);
-			return this.listUpdate(chgs['board']);
+			this.users.update(d['users']['list']);
 		},
 		
-		_ajaxResult: function(upd){
-			if (L.isNull(upd)){ return null; }
-			if (upd['n'].length == 0 && upd['u'].length == 0 && upd['d'].length == 0){ return null; }
-			this.topicsChangedEvent.fire(upd);
-		},
-		
-		ajax: function(d, callback){
-			// d['hlid'] = this.history.lastId();
-			d['hlid'] = this._hlid;
-			
-			// все запросы по модулю проходят через этот менеджер.
-			// ко всем запросам добавляется идентификатор последнего обновления
-			// если на сервере произошли изменения, то они будут 
-			// зафиксированны у этого пользователя
-			var __self = this;
-			Brick.ajax('forum', {
-				'data': d,
-				'event': function(request){
-					if (L.isNull(request.data)){ return; }
-
-					var upd = __self._ajaxBeforeResult(request.data);
-
-					// применить результат запроса
-					callback(request.data.r);
-					
-					__self._ajaxResult(upd);
-				}
-			});
-		},
-		_topicAJAX: function(topicid, cmd, callback){
-			callback = callback || function(){};
-			var __self = this;
-			this.ajax({'do': cmd, 'topicid': topicid }, function(r){
-				__self._setLoadedTopicData(r);
-				callback(r);
-			});
-		},
-		_setLoadedTopicData: function(d){
-			if (L.isNull(d)){ return; }
-			var topic = this.list.get(d['id']);
-			if (L.isNull(topic)){ return; }
-			
-			topic.setData(d);
-		},
-		topicLoad: function(topicid, callback){
-			callback = callback || function(){};
-			var topic = this.list.get(topicid);
-	
-			if (L.isNull(topic) || topic.isLoad){
-				callback();
-				return true;
+		_updateTopicList: function(d){
+			if (!L.isValue(d) || !L.isValue(d['topics']) || !L.isValue(d['topics']['list'])){
+				return null;
 			}
-			this._topicAJAX(topicid, 'topic', callback);
+			this._updateUserList(d);
+			return new NS.TopicList(d['topics']['list']);
+		},
+		topicListLoad: function(callback){
+			var __self = this;
+			this.ajax({
+				'do': 'topiclist'
+			},function(d){
+				var list = __self._updateTopicList(d);
+				NS.life(callback, list);
+			});
+		},
+
+		topicLoad: function(topicid, callback){
+
+			var __self = this;
+			this.ajax({
+				'do': 'topic',
+				'topicid': topicid
+			}, function(d){
+				var topic = null;
+				if (L.isValue(d) && L.isValue(d['topic'])){
+					topic = new NS.Topic(d['topic']);
+					__self._updateUserList(d);
+				}
+				NS.life(callback, topic);
+			});
 		},
 		topicSave: function(topic, d, callback){
 			callback = callback || function(){};
@@ -328,26 +247,18 @@ Component.entryPoint = function(NS){
 				__self._setLoadedTopicData(r);
 				callback(r);
 			});
-		},
+		}
 		
 		
 	};
-	NS.forumManager = NS.manager = null;
+	NS.manager = null;
 	
-	NS.buildManager = function(callback){
-		if (!L.isNull(NS.manager)){
-			callback(NS.manager);
-			return;
+	NS.initManager = function(callback){
+		if (L.isNull(NS.manager)){
+			NS.manager = new Manager(callback);
+		}else{
+			NS.life(callback, NS.manager);
 		}
-		R.load(function(){
-			Brick.ajax('forum', {
-				'data': {'do': 'init'},
-				'event': function(request){
-					NS.forumManager = NS.manager = new Manager(request.data);
-					callback(NS.manager);
-				}
-			});
-		});
 	};
 	
 	var GlobalMenuWidget = function(container, page){

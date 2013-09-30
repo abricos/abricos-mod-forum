@@ -19,31 +19,30 @@ if (empty($topic)){
 $man = ForumModule::$instance->GetManager();
 
 $userList = $man->UserList($topic);
+$user = $userList->Get($topic->userid);
+
+$dl = $topic->dateline;
 
 $replace = array(
+	"status" => $v["st_".$topic->status],
+	"uid" => $user->id,
+	"unm" => $user->GetUserName(),
+	"userurl" => $user->URL(),
+	"files" => "",
+	"dl" => date("d", $dl)." ".rusMonth($dl)." ".date("Y", $dl),
+	"dlt" => date("H:i", $dl),
 	"tl" => $topic->title,
 	"body" => $topic->detail->body
 );
-/*
-$user = $userList->Get($topic->lastUserId);
-if (empty($user)){
-	$user = $userList->Get($topic->userid);
-}
-
-$lst .= Brick::ReplaceVarByData($v['row'], array(
-	"removed" => $topic->IsRemoved() ? "removed" : "",
-	"closed" => $topic->IsClosed() ? "closed" : "",
-	"uri" => $topic->URI(),
-	"tl" => $topic->title,
-	"cmtdate" => rusDateTime($topic->lastCommentDate ? $topic->lastCommentDate : $topic->dateline),
-	"cmt" => $topic->commentCount,
-	"cmtuser" => Brick::ReplaceVarByData($v['user'], array(
-		"uid" => $user->id,
-		"unm" => $user->GetUserName(),
-		"url" => $user->URL()
-	))
-));
-/**/
 
 $brick->content = Brick::ReplaceVarByData($brick->content, $replace);
+
+$meta_title = Brick::ReplaceVarByData($v['mtitle'], array(
+		"title" => $topic->title,
+		"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+		
+));
+
+Brick::$builder->SetGlobalVar('meta_title', $meta_title);
+
 ?>

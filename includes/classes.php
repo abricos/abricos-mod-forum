@@ -83,6 +83,26 @@ class ForumTopic extends AbricosItem {
 		return $this->status == ForumTopic::ST_REMOVED;
 	}
 	
+	/**
+	 * Разрешено ли писать комментарий в тему
+	 */
+	public function IsCommentWrite(){
+		return !$this->IsClosed() && !$this->IsRemoved();
+	}
+
+	/**
+	 * Разрешено ли изменять тему
+	 */
+	public function IsWrite(){
+		if ($this->IsClosed() || $this->IsRemoved()){ return false; }
+		
+		if (ForumManager::$instance->IsModerRole()){ return true; }
+		
+		if ($this->userid == Abricos::$user->id){ return true; }
+		
+		return false;
+	}
+	
 	public function URI(){
 		return "/forum/topic_".$this->id."/";
 	}
@@ -207,16 +227,13 @@ class ForumTopicListConfig {
 	public $topicIds;
 	
 	/**
-	 * Глобальные идентификаторы контента 
+	 * Глобальные идентификаторы контента
 	 * @var array
 	 */
 	public $contentIds;
 	
 	public $withDetail = false;
 	
-	public function __construct(){
-		
-	}
 }
 
 class ForumFile extends AbricosItem {

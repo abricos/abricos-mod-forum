@@ -2,6 +2,23 @@
 [script]brick_topic.php[/script]
 [mcss=forum]forum.css[/mcss]
 
+[v=files]
+	<ul class="dfiles">
+		<li class="tl">{#mod.forum.topicview.panel.2}:</li>
+		<li id="{i#ftable}"></li>
+	</ul>
+[/v]
+
+[v=mtitle]
+	{v#title} / Форум / {v#sitename}
+[/v]
+
+[v=st_0]Открыто[/v]
+[v=st_1]Закрыто[/v]
+[v=st_2]Удалено[/v]
+
+[mod=comment]page|voting=true[/mod]
+	
 [*]-->
 <div class="topicview">
 	<h3><a href="/forum/">Форум</a> → {v#tl}</h3>
@@ -13,19 +30,16 @@
 			<div class="topicbody aw-page-content">
 				{v#body}
 			</div>
-		
-			<ul class="dfiles">
-				<li class="tl">{#mod.forum.topicview.panel.2}:</li>
-				<li id="{i#ftable}"></li>
-			</ul>
+			
+			{v#files}
+			
 			<div class="clear"></div>
-
 		</div>
 	</td>
 	<td class="rightcol">
 	
 		<div class="colbody colinfo">
-			<div class="cirow status">&nbsp;</div>
+			<div class="cirow status">{v#status}</div>
 
 			<div class="cirow author">
 				<div class="tl">Автор</div>
@@ -40,8 +54,8 @@
 			<div class="cirow dl nobline">
 				<div class="tl">Создано</div>
 				<div class="vl">
-					<div class="dt vi" id="{i#dl}"></div>
-					<div class="tm vi" id="{i#dlt}"></div>
+					<div class="dt vi">{v#dl}</div>
+					<div class="tm vi">{v#dlt}</div>
 				</div>
 				<div class="clear"></div>
 			</div>
@@ -51,5 +65,7 @@
 	</td>
 	</tr></tbody></table>
 	
-	<div class="comments"></div>
+	<div class="comments">
+		[mod]comment:page[/mod]
+	</div>
 </div>		

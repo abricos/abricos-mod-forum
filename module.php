@@ -58,6 +58,8 @@ class ForumModule extends Ab_Module {
 					return '';
 				}
 				
+				Brick::$contentId = $this->currentTopic->detail->contentid;
+				
 				return 'topic';
 			}
 		}

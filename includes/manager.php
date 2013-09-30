@@ -105,8 +105,9 @@ class ForumManager extends Ab_ModuleManager {
 	
 	public function Bos_OnlineData(){
 		if (!$this->IsViewRole()){ return null; }
-		$rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
-		return $this->ToArray($rows);
+		exit;
+		// $rows = ForumQuery::TopicList($this->db, $this->userid, $this->IsModerRole(), 0, 15);
+		// return $this->ToArray($rows);
 	}
 	
 	public function BoardData($lastupdate = 0, $orderByDateLine = false){
@@ -183,27 +184,22 @@ class ForumManager extends Ab_ModuleManager {
 		}
 		return $list;
 	}
-	
-	/**
-	 * Если текущий пользователь модератор и выше или этот пользователь автор сообщения, то вернет истину
-	 * @param array $msg
-	 */
-	public function TopicAccess($msg){
-		if (!$this->IsViewRole() || empty($msg)){
-			return false;
-		}
-		if ($this->IsModerRole()){
-			return true;
-		}
-	
-		if ($msg['prt'] == 1 && $this->userid != $msg['uid']){
-			return false;
-		}
-	
-		return true;
-	}
-	
+
+	private $_cacheTopicCID;
 	private $_cacheTopic;
+	
+	private function _TopicInitCache($clearCache){
+		if ($clearCache){
+			$this->_cacheTopic = null;
+			$this->_cacheTopicCID = null;
+		}
+			if (!is_array($this->_cacheTopic)){
+			$this->_cacheTopic = array();
+		}
+		if (!is_array($this->_cacheTopicCID)){
+			$this->_cacheTopicCID = array();
+		}
+	}
 	
 	/**
 	 * Тема форума
@@ -215,12 +211,7 @@ class ForumManager extends Ab_ModuleManager {
 	public function Topic($topicid, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
 		
-		if ($clearCache){
-			$this->_cacheTopic = null;
-		}
-		if (!is_array($this->_cacheTopic)){
-			$this->_cacheTopic = array();
-		}
+		$this->_TopicInitCache($clearCache);
 		
 		if (!empty($this->_cacheTopic[$topicid])){
 			return $this->_cacheTopic[$topicid];
@@ -234,9 +225,38 @@ class ForumManager extends Ab_ModuleManager {
 		$topic = $this->_cacheTopic[$topicid] = $list->GetByIndex(0);
 		if (empty($topic)){ return null; }
 		
+		$this->_cacheTopicCID[$topic->detail->contentid] = $topic;
+		
 		return $topic;
 	}
 	
+	/**
+	 * Тема форума по глобальному идентификатору контента
+	 * @param integer $contentid
+	 * @param boolean $clearCache
+	 */
+	public function TopicByContentId($contentid, $clearCache = false){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$this->_TopicInitCache($clearCache);
+		
+		if (!empty($this->_cacheTopicCID[$contentid])){
+			return $this->_cacheTopicCID[$contentid];
+		}
+		
+		$cfg = new ForumTopicListConfig();
+		$cfg->contentIds = array($contentid);
+		$cfg->withDetail = true;
+		
+		$list = $this->TopicList($cfg);
+		$topic = $list->GetByIndex(0);
+		if (empty($topic)){ return null; }
+		
+		$this->_cacheTopic[$topic->id] = 
+			$this->_cacheTopicCID[$contentid] = $topic;
+		
+		return $topic;
+	}
 	
 	/**
 	 * Список сообщений
@@ -308,10 +328,7 @@ class ForumManager extends Ab_ModuleManager {
 		$parserFull = Abricos::TextParser(true);
 		$utmanager = Abricos::TextParser();
 		$sd->tl = $parserFull->Parser($sd->tl);
-		if (!$this->IsAdminRole()){
-			// порезать теги у описания
-			$sd->bd = $utmanager->Parser($sd->bd);
-		}
+		$sd->bd = $utmanager->Parser($sd->bd);
 		
 		$sendNewNotify = false;
 		
@@ -322,15 +339,8 @@ class ForumManager extends Ab_ModuleManager {
 			
 			$sendNewNotify = true;
 		}else{
-			$info = $this->Topic($sd->id);
-			if (!$this->TopicAccess($info)){
-				return null;
-			}
-			
-			if ($info['st'] == ForumTopic::ST_CLOSED ||
-				$info['st'] == ForumTopic::ST_REMOVED ){ 
-				return null; 
-			}
+			$topic = $this->Topic($sd->id);
+			if (empty($topic) || !$topic->IsWrite()){ return null; }
 			
 			ForumQuery::TopicUpdate($this->db, $sd, $this->userid);
 		}
@@ -366,14 +376,14 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$topicid = $sd->id;
 		
-		$topic = $this->Topic($topicid);
+		$topic = $this->Topic($topicid, true);
 		
 		if ($sendNewNotify){
 			// Отправить уведомление всем модераторам
 			
 			$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 			$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-			$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic['id']."/";
+			$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic->id."/";
 			
 			$rows = ForumQuery::ModeratorList($this->db);
 			while (($user = $this->db->fetch_array($rows))){
@@ -383,13 +393,13 @@ class ForumManager extends Ab_ModuleManager {
 				if (empty($email)){ continue; }
 				
 				$subject = Brick::ReplaceVarByData($brick->param->var['newprojectsubject'], array(
-					"tl" => $topic['tl']
+					"tl" => $topic->title
 				));
 				$body = Brick::ReplaceVarByData($brick->param->var['newprojectbody'], array(
-					"tl" => $topic['tl'],
+					"tl" => $topic->title,
 					"plnk" => $plnk,
 					"unm" => $this->UserNameBuild($this->user->info),
-					"prj" => $topic['bd'],
+					"prj" => $topic->detail->body,
 					"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 				));
 				Abricos::Notify()->SendMail($email, $subject, $body);
@@ -400,26 +410,33 @@ class ForumManager extends Ab_ModuleManager {
 	}
 	
 	////////////////////////////// комментарии /////////////////////////////
-	public function CommentList(){
+	/**
+	 * Есть ли разрешение на вывод списка комментариев
+	 *  
+	 * Метод запрашивает модуль Comment
+	 * 
+	 * @param integer $contentid
+	 */
+	public function Comment_IsViewList($contentid){
 		if (!$this->IsViewRole()){ return null; }
-		
-		$rows = ForumQuery::CommentList($this->db, $this->userid);
-		return $this->ToArrayId($rows);
+	
+		$topic = $this->TopicByContentId($contentid);
+		return !empty($topic);
 	}
 	
-	public function IsCommentList($contentid){
-		if (!$this->IsViewRole()){ return null; }
-		$topic = ForumQuery::TopicByContentId($this->db, $contentid, true);
-		return $this->TopicAccess($topic);
-	}
-	
-	public function IsCommentAppend($contentid){
-		$topic = ForumQuery::TopicByContentId($this->db, $contentid, true);
-		if (!$this->TopicAccess($topic)){ return false; }
-		if ($topic['st'] == ForumTopic::ST_CLOSED || $topic['st'] == ForumTopic::ST_REMOVED){ return false; }
+	/**
+	 * Есть ли разрешение на добавление комментария к топику?
+	 *
+	 * Метод запрашивает модуль Comment
+	 *
+	 * @param integer $contentid
+	 */
+	public function Comment_IsWrite($contentid){
+		$topic = $this->TopicByContentId($contentid);
+		if (empty($topic)){ return false; }
 		
-		return true;
-	}
+		return $topic->IsCommentWrite();
+	}	
 	
 	private function UserNameBuild($user){
 		$firstname = !empty($user['fnm']) ? $user['fnm'] : $user['firstname']; 
@@ -433,7 +450,7 @@ class ForumManager extends Ab_ModuleManager {
 	 * 
 	 * @param object $data
 	 */
-	public function CommentSendNotify($data){
+	public function Comment_SendNotify($data){
 		if (!$this->IsViewRole()){ return; }
 
 		// данные по комментарию:
@@ -443,16 +460,17 @@ class ForumManager extends Ab_ModuleManager {
 		// $data->bd	- текст комментария
 		// $data->cid	- идентификатор контента
 
-		$topic = ForumQuery::TopicByContentId($this->db, $data->cid, true);
-		if (!$this->TopicAccess($topic)){ return; }
+		$topic = $this->TopicByContentId($data->cid);
+		
+		if (empty($topic) || !$topic->IsCommentWrite()){ return; }
 		
 		// комментарий добавлен, необходимо обновить инфу
-		ForumQuery::TopicCommentInfoUpdate($this->db, $topic['id']);
+		ForumQuery::TopicCommentInfoUpdate($this->db, $topic->id);
 		
 		
 		$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-		$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic['id']."/";
+		$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic->id."/";
 
 
 		$emails = array();
@@ -466,10 +484,10 @@ class ForumManager extends Ab_ModuleManager {
 				if (!empty($email)){
 					$emails[$email] = true;
 					$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlanssubject'], array(
-						"tl" => $topic['tl']
+						"tl" => $topic->title
 					));
 					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlansbody'], array(
-						"tl" => $topic['tl'],
+						"tl" => $topic->title,
 						"plnk" => $plnk,
 						"unm" => $this->UserNameBuild($this->user->info),
 						"cmt1" => $parent['bd']." ",
@@ -482,16 +500,16 @@ class ForumManager extends Ab_ModuleManager {
 		}
 		
 		// уведомление автору
-		if ($topic['uid'] != $this->userid){
-			$autor = UserQuery::User($this->db, $topic['uid']);
+		if ($topic->userid != $this->userid){
+			$autor = UserQuery::User($this->db, $topic->userid);
 			$email = $autor['email'];
 			if (!empty($email) && !$emails[$email]){
 				$emails[$email] = true;
 				$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
-					"tl" => $topic['tl']
+					"tl" => $topic->title
 				));
 				$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
-					"tl" => $topic['tl'],
+					"tl" => $topic->title,
 					"plnk" => $plnk,
 					"unm" => $this->UserNameBuild($this->user->info),
 					"cmt" => $data->bd." ",
@@ -511,10 +529,10 @@ class ForumManager extends Ab_ModuleManager {
 			}
 			$emails[$email] = true;
 			$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
-				"tl" => $topic['tl']
+				"tl" => $topic->title
 			));
 			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
-				"tl" => $topic['tl'],
+				"tl" => $topic->title,
 				"plnk" => $plnk,
 				"unm" => $this->UserNameBuild($this->user->info),
 				"cmt" => $data->bd." ",
@@ -532,8 +550,8 @@ class ForumManager extends Ab_ModuleManager {
 	public function TopicClose($topicid){
 		if (!$this->IsModerRole()){ return null; }
 		
-		$msg = $this->Topic($topicid);
-		if ($msg['st'] != ForumTopic::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
+		$topic = $this->Topic($topicid);
+		if (empty($topic) || !$topic->IsWrite()){ return null; }
 		
 		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_CLOSED, $this->userid);
 		
@@ -548,9 +566,9 @@ class ForumManager extends Ab_ModuleManager {
 	public function TopicRemove($topicid){
 		if (!$this->IsModerRole()){ return null; }
 		
-		$msg = $this->Topic($topicid);
-		if ($msg['st'] != ForumTopic::ST_OPENED){ return null; } // закрыть можно только открытое сообщение
-		
+		$topic = $this->Topic($topicid);
+		if (empty($topic) || !$topic->IsWrite()){ return null; }
+				
 		ForumQuery::TopicSetStatus($this->db, $topicid, ForumTopic::ST_REMOVED, $this->userid);
 		
 		return $this->Topic($topicid);

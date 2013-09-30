@@ -108,15 +108,22 @@ class ForumQuery {
 			";
 		}
 		
-		if (is_array($cfg->topicIds) && count($cfg->topicIds)){
+			if (is_array($cfg->topicIds) && count($cfg->topicIds)){
 			$limit = 1;
 			$aWh = array();
 			for ($i=0; $i<count($cfg->topicIds); $i++){
 				array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
 			}
-			$sql .= "
-				AND (".implode(" OR ", $aWh).")
-			";
+			$sql .= " AND (".implode(" OR ", $aWh).") ";
+		}
+		
+		if (is_array($cfg->contentIds) && count($cfg->contentIds)){
+			$limit = 1;
+			$aWh = array();
+			for ($i=0; $i<count($cfg->contentIds); $i++){
+				array_push($aWh, "m.contentid=".bkint($cfg->contentIds[$i]));
+			}
+			$sql .= " AND (".implode(" OR ", $aWh).") ";
 		}
 		
 		$sql .="
@@ -192,7 +199,7 @@ class ForumQuery {
 	}
 	
 	
-	public static function CommentList(Ab_Database $db, $userid, $isModer){
+	public static function CommentList(Ab_Database $db, $userid){
 		$sql = "
 			SELECT 
 				a.commentid as id,

@@ -368,7 +368,7 @@ class ForumManager extends Ab_ModuleManager {
 			
 			$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 			$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-			$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic->id."/";
+			$plnk = "http://".$host.$topic->URI();
 			
 			$rows = ForumQuery::ModeratorList($this->db);
 			while (($user = $this->db->fetch_array($rows))){
@@ -517,7 +517,7 @@ class ForumManager extends Ab_ModuleManager {
 		
 		$brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
 		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-		$plnk = "http://".$host."/bos/#app=forum/topicview/showTopicViewPanel/".$topic->id."/";
+		$plnk = "http://".$host.$topic->URI();
 
 
 		$emails = array();

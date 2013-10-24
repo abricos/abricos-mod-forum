@@ -114,6 +114,7 @@ class ForumTopic extends AbricosItem {
 	public function ToAJAX(){
 		$ret = parent::ToAJAX();
 		$ret->tl = $this->title;
+		$ret->uid = $this->userid;
 		$ret->dl = $this->dateline;
 		$ret->upd = $this->upddate;
 		$ret->cmt = $this->commentCount;

@@ -86,7 +86,7 @@ class ForumModule extends Ab_Module {
             $msg = $mList->GetByIndex($i);
 
             $item = new RSSItem($msg->title, $msg->URI(), "", $msg->dateline);
-            $item->modTitle = $i18n['modtitle'];
+            $item->modTitle = $i18n['title'];
             array_push($ret, $item);
         }
         return $ret;

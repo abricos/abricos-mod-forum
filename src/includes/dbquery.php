@@ -1,14 +1,14 @@
 <?php
+
 /**
  * @package Abricos
  * @subpackage Forum
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
-
 class ForumQuery {
-	
-	public static function ForumAppend(Ab_Database $db, $d){
-		$sql = "
+
+    public static function ForumAppend(Ab_Database $db, $d) {
+        $sql = "
 			INSERT INTO ".$db->prefix."frm_forum 
 				(title, descript, dateline, upddate, language) VALUES (
 				'".bkstr($d->tl)."',
@@ -18,14 +18,14 @@ class ForumQuery {
 				'".bkstr(Abricos::$LNG)."'
 			)
 		";
-		$db->query_write($sql);
-		return $db->insert_id();
-	}
-	
-	public static function TopicAppend(Ab_Database $db, $d, $pubkey){
-		$contentid = Ab_CoreQuery::ContentAppend($db, $d->bd, 'forum');
-		
-		$sql = "
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function TopicAppend(Ab_Database $db, $d, $pubkey) {
+        $contentid = Ab_CoreQuery::ContentAppend($db, $d->bd, 'forum');
+
+        $sql = "
 			INSERT INTO ".$db->prefix."frm_topic (
 				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
 				".bkint($d->uid).",
@@ -39,13 +39,13 @@ class ForumQuery {
 				'".bkstr(Abricos::$LNG)."'
 			)
 		";
-		$db->query_write($sql);
-		return $db->insert_id();
-	}
-	
-	public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid){
-		Ab_CoreQuery::ContentUpdate($db, $topic->detail->contentid, $d->bd);
-		$sql = "
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid) {
+        Ab_CoreQuery::ContentUpdate($db, $topic->detail->contentid, $d->bd);
+        $sql = "
 			UPDATE ".$db->prefix."frm_topic
 			SET
 				title='".bkstr($d->tl)."',
@@ -53,11 +53,11 @@ class ForumQuery {
 			WHERE topicid=".bkint($d->id)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicFields (Ab_Database $db){
-		return "
+        $db->query_write($sql);
+    }
+
+    public static function TopicFields(Ab_Database $db) {
+        return "
 			m.topicid as id,
 			m.userid as uid,
 			m.title as tl,
@@ -71,76 +71,76 @@ class ForumQuery {
 			m.cmtdate as cmtdl,
 			m.cmtuserid as cmtuid 
 		";
-	}
-	
-	public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg){
-		
-		$lastupdate = bkint($cfg->lastUpdate);
-		$limit = $cfg->limit;
+    }
 
-		$sql = "
+    public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg) {
+
+        $lastupdate = bkint($cfg->lastUpdate);
+        $limit = $cfg->limit;
+
+        $sql = "
 			SELECT ".ForumQuery::TopicFields($db)."
 		";
-		if ($cfg->withDetail){
-			$sql .= ",
+        if ($cfg->withDetail) {
+            $sql .= ",
 				c.body as bd,
 				c.contentid as ctid
 			";
-		}
-		$sql .= "
+        }
+        $sql .= "
 			FROM ".$db->prefix."frm_topic m
 		";
-		if ($cfg->withDetail){
-			$sql .= "
+        if ($cfg->withDetail) {
+            $sql .= "
 				INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
 			";
-		}
-		$sql .="
+        }
+        $sql .= "
 			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
 				AND language='".bkstr(Abricos::$LNG)."'
 		";
-		if (!ForumManager::$instance->IsModerRole()){
-			// приватные темы доступны только авторам и модераторам
-			$sql .= " 
+        if (!ForumManager::$instance->IsModerRole()) {
+            // приватные темы доступны только авторам и модераторам
+            $sql .= "
 				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id).")) 
 				AND m.status != ".ForumTopic::ST_REMOVED."
 			";
-		}
-		
-			if (is_array($cfg->topicIds) && count($cfg->topicIds)){
-			$limit = 1;
-			$aWh = array();
-			for ($i=0; $i<count($cfg->topicIds); $i++){
-				array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
-			}
-			$sql .= " AND (".implode(" OR ", $aWh).") ";
-		}
-		
-		if (is_array($cfg->contentIds) && count($cfg->contentIds)){
-			$limit = 1;
-			$aWh = array();
-			for ($i=0; $i<count($cfg->contentIds); $i++){
-				array_push($aWh, "m.contentid=".bkint($cfg->contentIds[$i]));
-			}
-			$sql .= " AND (".implode(" OR ", $aWh).") ";
-		}
-		
-		$sql .="
+        }
+
+        if (is_array($cfg->topicIds) && count($cfg->topicIds)) {
+            $limit = 1;
+            $aWh = array();
+            for ($i = 0; $i < count($cfg->topicIds); $i++) {
+                array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
+            }
+            $sql .= " AND (".implode(" OR ", $aWh).") ";
+        }
+
+        if (is_array($cfg->contentIds) && count($cfg->contentIds)) {
+            $limit = 1;
+            $aWh = array();
+            for ($i = 0; $i < count($cfg->contentIds); $i++) {
+                array_push($aWh, "m.contentid=".bkint($cfg->contentIds[$i]));
+            }
+            $sql .= " AND (".implode(" OR ", $aWh).") ";
+        }
+
+        $sql .= "
 			ORDER BY m.upddate DESC
 			LIMIT ".bkint($limit)."
 		";
-		
-		return $db->query_read($sql);
-	}
-	
-	public static function UserList(Ab_Database $db, $uids){
-		$aWh = array();
-		array_push($aWh, "u.userid=0");
-		foreach ($uids as $uid){
-			array_push($aWh, "u.userid=".bkint($uid));
-		}
-		
-		$sql = "
+
+        return $db->query_read($sql);
+    }
+
+    public static function UserList(Ab_Database $db, $uids) {
+        $aWh = array();
+        array_push($aWh, "u.userid=0");
+        foreach ($uids as $uid) {
+            array_push($aWh, "u.userid=".bkint($uid));
+        }
+
+        $sql = "
 			SELECT
 				DISTINCT
 				u.userid as id,
@@ -151,12 +151,12 @@ class ForumQuery {
 			FROM ".$db->prefix."user u
 			WHERE ".implode(" OR ", $aWh)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid){
-		
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid) {
+
+        $sql = "
 			SELECT
 				(
 					SELECT count(*) as cmt
@@ -183,9 +183,9 @@ class ForumQuery {
 			WHERE m.topicid=".bkint($topicid)." 
 			LIMIT 1
 		";
-		$row = $db->query_first($sql);
-				
-		$sql = "
+        $row = $db->query_first($sql);
+
+        $sql = "
 			UPDATE ".$db->prefix."frm_topic
 			SET
 				cmtcount=".bkint($row['cmt']).",
@@ -194,12 +194,12 @@ class ForumQuery {
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	
-	public static function CommentList(Ab_Database $db, $userid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+
+    public static function CommentList(Ab_Database $db, $userid) {
+        $sql = "
 			SELECT 
 				a.commentid as id,
 				a.parentcommentid as pid,
@@ -223,11 +223,11 @@ class ForumQuery {
 			ORDER BY a.commentid DESC  
 			LIMIT 15
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function ModeratorList(Ab_Database $db){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function ModeratorList(Ab_Database $db) {
+        $sql = "
 			SELECT 
 				u.userid as id,
 				u.username as unm,
@@ -239,25 +239,25 @@ class ForumQuery {
 			LEFT JOIN ".$db->prefix."user u ON ug.userid = u.userid
 			WHERE g.groupkey='".ForumGroup::MODERATOR."'
 		";
-		return $db->query_read($sql);
-	}
+        return $db->query_read($sql);
+    }
 
-	/**
-	 * Список файлов топика
-	 * 
-	 * @param Ab_Database $db
-	 * @param array|integer $tids
-	 */
-	public static function TopicFileList(Ab_Database $db, $tids){
-		if (!is_array($tids)){
-			$tids = array(intval($tids));
-		}
-		$aWh = array();
-		foreach ($tids as $tid){
-			array_push($aWh, "bf.topicid=".bkint($tid));
-		}
-		
-		$sql = "
+    /**
+     * Список файлов топика
+     *
+     * @param Ab_Database $db
+     * @param array|integer $tids
+     */
+    public static function TopicFileList(Ab_Database $db, $tids) {
+        if (!is_array($tids)) {
+            $tids = array(intval($tids));
+        }
+        $aWh = array();
+        foreach ($tids as $tid) {
+            array_push($aWh, "bf.topicid=".bkint($tid));
+        }
+
+        $sql = "
 			SELECT 
 				bf.filehash as id,
 				bf.topicid as tid,
@@ -270,11 +270,11 @@ class ForumQuery {
 			WHERE ".implode(" OR ", $aWh)."
 			ORDER BY tid
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid) {
+        $sql = "
 			INSERT INTO ".$db->prefix."frm_file (topicid, filehash, userid) VALUES
 			(
 				".bkint($topicid).",
@@ -282,19 +282,19 @@ class ForumQuery {
 				".bkint($userid)."
 			)
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash) {
+        $sql = "
 			DELETE FROM ".$db->prefix."frm_file
 			WHERE topicid=".bkint($topicid)." AND filehash='".bkstr($filehash)."' 
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid) {
+        $sql = "
 			UPDATE ".$db->prefix."frm_topic
 			SET
 				status=".bkint($status).",
@@ -302,47 +302,12 @@ class ForumQuery {
 				statdate=".TIMENOW."
 			WHERE topicid=".bkint($topicid)."
 		";
-		$db->query_write($sql);
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+        $db->query_write($sql);
+    }
 
-	
 
-	
-	public static function MyUserData(Ab_Database $db, $userid, $retarray = false){
-		$sql = "
+    public static function MyUserData(Ab_Database $db, $userid, $retarray = false) {
+        $sql = "
 			SELECT
 				DISTINCT
 				u.userid as id,
@@ -354,28 +319,28 @@ class ForumQuery {
 			WHERE u.userid=".bkint($userid)."
 			LIMIT 1
 		";
-		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
-	}
-	
-/*
-	public static function TopicUnsetStatus(Ab_Database $db, $topicid){
-		$sql = "
-			UPDATE ".$db->prefix."frm_topic
-			SET status=".ForumTopic::ST_DRAW_OPEN.", statuserid=0, statdate=0
-			WHERE topicid=".bkint($topicid)."
-		";
-		$db->query_write($sql);
-	}
-	/**/
-	
-	/**
-	 * Список участников проекта
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $topicid
-	 */
-	public static function TopicUserList(Ab_Database $db, $topicid){
-		$sql = "
+        return $retarray ? $db->query_first($sql) : $db->query_read($sql);
+    }
+
+    /*
+        public static function TopicUnsetStatus(Ab_Database $db, $topicid){
+            $sql = "
+                UPDATE ".$db->prefix."frm_topic
+                SET status=".ForumTopic::ST_DRAW_OPEN.", statuserid=0, statdate=0
+                WHERE topicid=".bkint($topicid)."
+            ";
+            $db->query_write($sql);
+        }
+        /**/
+
+    /**
+     * Список участников проекта
+     *
+     * @param Ab_Database $db
+     * @param integer $topicid
+     */
+    public static function TopicUserList(Ab_Database $db, $topicid) {
+        $sql = "
 			SELECT 
 				p.userid as id,
 				u.username as unm,
@@ -385,17 +350,17 @@ class ForumQuery {
 			INNER JOIN ".$db->prefix."user u ON p.userid=u.userid
 			WHERE p.topicid=".bkint($topicid)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	/**
-	 * Список участников проекта с расшириными полями для служебных целей (отправка уведомлений и т.п.)
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $topicid
-	 */
-	public static function TopicUserListForNotify(Ab_Database $db, $topicid){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    /**
+     * Список участников проекта с расшириными полями для служебных целей (отправка уведомлений и т.п.)
+     *
+     * @param Ab_Database $db
+     * @param integer $topicid
+     */
+    public static function TopicUserListForNotify(Ab_Database $db, $topicid) {
+        $sql = "
 			SELECT 
 				p.userid as id,
 				u.username as unm,
@@ -406,11 +371,9 @@ class ForumQuery {
 			INNER JOIN ".$db->prefix."user u ON p.userid=u.userid
 			WHERE p.topicid=".bkint($topicid)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	
-	
+        return $db->query_read($sql);
+    }
+
 
 }
 

@@ -14,40 +14,40 @@ $man = ForumModule::$instance->GetManager();
 
 $mList = $man->TopicList();
 
-if ($mList->Count() == 0){
-	$brick->content = "";
-	return;
+if ($mList->Count() == 0) {
+    $brick->content = "";
+    return;
 }
 
 $userList = $man->UserList($mList->userIds);
 
 $lst = "";
-for ($i=0; $i<$mList->Count(); $i++){
-	$msg = $mList->GetByIndex($i);
-	
-	$user = $userList->Get($msg->lastUserId);
-	if (empty($user)){
-		$user = $userList->Get($msg->userid);
-	}
+for ($i = 0; $i < $mList->Count(); $i++) {
+    $msg = $mList->GetByIndex($i);
 
-	$lst .= Brick::ReplaceVarByData($v['row'], array(
-		"removed" => $msg->IsRemoved() ? "removed" : "",
-		"closed" => $msg->IsClosed() ? "closed" : "",
-		"uri" => $msg->URI(),
-		"tl" => $msg->title,
-		"cmtdate" => rusDateTime($msg->lastCommentDate ? $msg->lastCommentDate : $msg->dateline),
-		"cmt" => $msg->commentCount,
-		"cmtuser" => Brick::ReplaceVarByData($v['user'], array(
-			"uid" => $user->id,
-			"unm" => $user->GetUserName(),
-			"url" => $user->URL()
-		))
-	));
+    $user = $userList->Get($msg->lastUserId);
+    if (empty($user)) {
+        $user = $userList->Get($msg->userid);
+    }
+
+    $lst .= Brick::ReplaceVarByData($v['row'], array(
+        "removed" => $msg->IsRemoved() ? "removed" : "",
+        "closed" => $msg->IsClosed() ? "closed" : "",
+        "uri" => $msg->URI(),
+        "tl" => $msg->title,
+        "cmtdate" => rusDateTime($msg->lastCommentDate ? $msg->lastCommentDate : $msg->dateline),
+        "cmt" => $msg->commentCount,
+        "cmtuser" => Brick::ReplaceVarByData($v['user'], array(
+            "uid" => $user->id,
+            "unm" => $user->GetUserName(),
+            "url" => $user->URL()
+        ))
+    ));
 }
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	"result" => Brick::ReplaceVarByData($v['table'], array(
-		"rows" => $lst
-	))
+    "result" => Brick::ReplaceVarByData($v['table'], array(
+        "rows" => $lst
+    ))
 ));
 ?>

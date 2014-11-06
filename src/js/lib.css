@@ -1,21 +1,27 @@
-.clear { clear: both;}
+.clear {
+    clear: both;
+}
 
 .aw-forum table.maintable {
-	width: 100%;
+    width: 100%;
 }
+
 .aw-forum table.maintable td.leftcol {
-	width: 90%;
+    width: 90%;
 }
+
 .aw-forum table.maintable td.leftcol .colbody {
-	padding-right: 0.7em;
+    padding-right: 0.7em;
 }
+
 .aw-forum table.maintable td.rightcol {
-	background-color: #F2F2F1;
-	vertical-align: top;
+    background-color: #F2F2F1;
+    vertical-align: top;
 }
+
 .aw-forum table.maintable td.rightcol .colbody {
-	padding: 0 0.6em;
-	width: 220px;
+    padding: 0 0.6em;
+    width: 220px;
 }
 
 .aw-forum .baddmsg {
@@ -27,72 +33,83 @@
 }
 
 .aw-forum .sepline {
-	height: 5px;
-	background-color: #CEDC8D;
+    height: 5px;
+    background-color: #CEDC8D;
 }
 
 .aw-forum .navigate {
-	font-size: 1.5em;
-	margin-bottom: 0.6em;
-}
-.aw-forum .navigate .first .arrow {
-	display: none;
-}
-.aw-forum .navigate .current a {
-	color: #666666;
+    font-size: 1.5em;
+    margin-bottom: 0.6em;
 }
 
+.aw-forum .navigate .first .arrow {
+    display: none;
+}
+
+.aw-forum .navigate .current a {
+    color: #666666;
+}
 
 .aw-forum .gbmenu a {
-	text-decoration: none;
-	font-size: 1.2em;
-	color: #000;
+    text-decoration: none;
+    font-size: 1.2em;
+    color: #000;
 }
+
 .aw-forum .gbmenu .gbitems {
-	margin-left: 10px;
+    margin-left: 10px;
 }
+
 .aw-forum .gbmenu .gbitem {
-	background-color: #F4F4EE;
-	text-align: center;
-	width: 100px;
-	cursor: pointer;
-	float: left;
-	margin: 0 1px;
-	padding: 5px 15px; 
+    background-color: #F4F4EE;
+    text-align: center;
+    width: 100px;
+    cursor: pointer;
+    float: left;
+    margin: 0 1px;
+    padding: 5px 15px;
 }
+
 .aw-forum .gbmenu .gbitem:hover {
-	text-decoration: underline;	
+    text-decoration: underline;
 }
+
 .aw-forum .gbmenu .current {
-	background-color: #E3E3D7;
+    background-color: #E3E3D7;
 }
+
 .aw-forum .gbmenu .current:hover {
-	text-decoration: none;	
+    text-decoration: none;
 }
+
 .aw-forum .gbmenu .line {
     background: url("/modules/forum/images/gmshadow.png") repeat-x scroll 0 0 transparent;
-	height: 16px;
+    height: 16px;
 }
 
 .aw-forum .ui-form dl {
     margin: 0 0 0.5em 0;
     padding: 0;
 }
+
 .aw-forum .ui-form dt {
     clear: left;
     float: left;
     padding: 0.5em 0 0.5em 0.5em;
     width: 10em;
 }
+
 .aw-forum .ui-form dd {
     float: none;
     margin-left: 10em;
     padding: 0.5em 2em;
 }
+
 .aw-forum .ui-form .font-large {
-	font-size: 140%;
+    font-size: 140%;
 }
+
 .aw-forum .ui-form .input-text {
-	border: 1px solid #CCCCCC;	
+    border: 1px solid #CCCCCC;
 }
 

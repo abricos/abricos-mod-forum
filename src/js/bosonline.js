@@ -32,7 +32,7 @@ Component.entryPoint = function(NS){
                     'tl': di['tl']
                 });
             }
-            var isRSS = Brick.Permission.check('rss', '10') == 1,
+            var isRSS = Brick.AppRoles.check('rss', '10'),
                 sRSS = !isRSS ? '' : TM.replace('rss');
 
             container.innerHTML = TM.replace('widget', {

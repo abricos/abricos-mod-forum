@@ -656,6 +656,19 @@ class ForumManager extends Ab_ModuleManager {
         }
     }
 
+    public function Bos_MenuData() {
+        $i18n = $this->module->GetI18n();
+        return array(
+            array(
+                "name" => "forum",
+                "title" => $i18n['title'],
+                "role" => ForumAction::VIEW,
+                "icon" => "/modules/forum/images/app_icon.png",
+                "url" => "forum/board/showBoardPanel"
+            )
+        );
+    }
+
 }
 
 ?>

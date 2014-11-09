@@ -7,7 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'sys', files: ['container.js', 'editor.js']},
-        {name: 'forum', files: ['lib.js', 'roles.js']},
+        {name: 'forum', files: ['lib.js']},
         {name: 'filemanager', files: ['attachment.js']}
     ]
 };
@@ -106,7 +106,7 @@ Component.entryPoint = function(NS){
                 width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
             });
 
-            if (Brick.Permission.check('filemanager', '30') == 1){
+            if (Brick.AppRoles.check('filemanager', '30')){
                 this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), topic.detail.files);
             } else {
                 this.filesWidget = null;

@@ -92,6 +92,14 @@ class ForumModule extends Ab_Module {
         return $ret;
     }
 
+    /**
+     * This module added menu item in BOS Panel
+     *
+     * @return bool
+     */
+    public function Bos_IsMenu() {
+        return true;
+    }
 }
 
 

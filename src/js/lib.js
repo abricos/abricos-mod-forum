@@ -8,15 +8,19 @@ Component.requires = {
     mod: [
         {name: 'widget', files: ['lib.js']},
         {name: 'uprofile', files: ['users.js']},
-        {name: 'sys', files: ['item.js', 'date.js']},
-        {name: 'forum', files: ['roles.js']}
+        {name: 'sys', files: ['item.js', 'date.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+    NS.roles = new Brick.AppRoles('{C#MODNAME}', {
+        isAdmin: 50,
+        isModer: 40,
+        isWrite: 30,
+        isView: 10
+    });
+
+    var L = YAHOO.lang,
         R = NS.roles;
 
     var NSys = Brick.mod.sys;

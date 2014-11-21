@@ -663,7 +663,7 @@ class ForumManager extends Ab_ModuleManager {
                 "name" => "forum",
                 "title" => $i18n['title'],
                 "role" => ForumAction::VIEW,
-                "icon" => "/modules/forum/images/app_icon.png",
+                "icon" => "/modules/forum/images/forum-24.png",
                 "url" => "forum/board/showBoardPanel"
             )
         );

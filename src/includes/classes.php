@@ -217,7 +217,7 @@ class ForumTopicList extends AbricosList {
     }
 
     public function AddUserId($userid) {
-        if ($this->_checkUsers[$userid]) {
+        if (isset($this->_checkUsers[$userid]) && $this->_checkUsers[$userid]) {
             return;
         }
         $this->_checkUsers[$userid] = true;
@@ -334,6 +334,15 @@ class ForumUser extends AbricosItem {
     public $email;
 
     public function __construct($d) {
+        $d = array_merge(array(
+            "uid" => 0,
+            "unm" => "",
+            "avt" => "",
+            "fnm" => "",
+            "lnm" => "",
+            "eml" => ""
+        ), $d);
+
         $this->id = intval($d['uid']) > 0 ? $d['uid'] : $d['id'];
         $this->userName = strval($d['unm']);
         $this->avatar = strval($d['avt']);

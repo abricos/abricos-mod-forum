@@ -7,13 +7,12 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'sys', files: ['data.js', 'container.js']},
-        {name: 'forum', files: ['topiclist.js', 'lib.js']}
+        {name: '{C#MODNAME}', files: ['topiclist.js', 'lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
     var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
         L = YAHOO.lang;
 
     var R = NS.roles;

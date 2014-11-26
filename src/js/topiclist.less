@@ -1,0 +1,209 @@
+.aw-forum .topiclist {
+  table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table th {
+    background-color: #F4F4EE;
+    font-weight: normal;
+    padding: 0;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  th a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  th a:hover {
+    text-decoration: underline;
+  }
+
+  th ul {
+    height: 2.1em;
+  }
+
+  th li {
+    margin-top: 0.4em;
+    float: left;
+  }
+
+  th .sort-asc,
+  th .sort-desc,
+  th .sortstr-asc,
+  th .sortstr-desc,
+  th .sortdate-asc,
+  th .sortdate-desc {
+    display: none;
+    margin-top: 2px;
+    margin-left: 2px;
+    height: 13px;
+    background: url("/modules/forum/images/icons.png") no-repeat 0 0 transparent;
+  }
+
+  th .sort-asc,
+  th .sort-desc {
+    width: 3px;
+    background-position: 0 -11px;
+  }
+
+  th .sort-desc {
+    background-position: -4px -11px;
+  }
+
+  th .sortstr-asc {
+    width: 9px;
+    background-position: -7px -11px;
+  }
+
+  th .sortstr-desc {
+    width: 9px;
+    background-position: -16px -11px;
+  }
+
+  th .sortdate-asc {
+    width: 22px;
+    background-position: -25px -11px;
+  }
+
+  th .sortdate-desc {
+    width: 22px;
+    background-position: -47px -11px;
+  }
+
+  th ul.sa .sort-asc,
+  th ul.sa .sortstr-asc,
+  th ul.sa .sortdate-asc {
+    display: inherit;
+  }
+
+  th ul.sb .sort-desc,
+  th ul.sb .sortstr-desc,
+  th ul.sb .sortdate-desc {
+    display: inherit;
+  }
+
+  table td a {
+    text-decoration: none;
+  }
+
+  tr.topicrow td {
+    padding: 0.5em 0.3em 0.6em 0.3em;
+  }
+
+  table th.tname {
+    width: 70%;
+  }
+
+  table th.tname .tl {
+    margin-left: 30px;
+  }
+
+  .tname .ch-ico {
+    float: left;
+    height: 15px;
+  }
+
+  div.ch-btn {
+    background: url("/modules/forum/images/icons.png") no-repeat scroll -1000px -1000px transparent;
+    margin-top: 2px;
+    margin-left: 4px;
+    width: 11px;
+    height: 11px;
+  }
+
+  .closed div.ch-btn {
+    background-position: -69px -11px;
+  }
+
+  .tname .ch-tl {
+    margin-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow.png") repeat-y scroll 0 0 transparent;
+    height: 1.3em;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+  }
+
+  tr.row:hover .tname .ch-tl .shadow,
+  tr.row-hover .tname .ch-tl .shadow {
+    background: url("/modules/forum/images/shadow-row.png") repeat-y scroll 0 0 transparent;
+  }
+
+  /* колонка кол-ва комментарий */
+  table th.tcmtcount {
+    width: 10em;
+  }
+
+  table td.tcmtcount {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  table th.tcmtcount .tl {
+    margin-left: 1em;
+  }
+
+  /* колонка последний комментарий */
+  table th.tlastcmt {
+    width: 14em;
+  }
+
+  tr.row td.tlastcmt {
+    padding: 0.1em 0.3em 0.1em 0.3em;
+    font-size: .8em;
+  }
+
+  tr.row td.tlastcmt .cmtdate {
+    color: #839097;
+  }
+
+  table .removed td,
+  table .removed td .prtclr,
+  table .removed td a,
+  table .removed td.tprt .tl {
+    color: #839097;
+    text-decoration: line-through;
+  }
+
+  tr.row:hover,
+  tr.row-hover {
+    background: none repeat scroll 0 0 #FFF0C6;
+  }
+
+  .tlmenu {
+    margin-left: 10px;
+  }
+
+  .tlitem {
+    cursor: pointer;
+    float: left;
+    background-color: #E3E3D7;
+    margin: 0 1px;
+    padding: 5px 15px;
+  }
+
+  .tlitem:hover {
+    text-decoration: underline;
+
+  }
+
+  .current {
+    background-color: #F4F4EE;
+  }
+
+  .ttable {
+    clear: both;
+  }
+
+}

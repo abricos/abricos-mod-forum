@@ -50,7 +50,6 @@ class ForumManager extends Ab_ModuleManager {
         return $this->IsRoleEnable(ForumAction::VIEW);
     }
 
-
     public function AJAX($d) {
         switch ($d->do) {
             case 'topiclist':
@@ -239,7 +238,7 @@ class ForumManager extends Ab_ModuleManager {
             return null;
         }
 
-        $topicid = intval($topicid);
+        $contentid = intval($contentid);
 
         $this->_TopicInitCache($clearCache);
 

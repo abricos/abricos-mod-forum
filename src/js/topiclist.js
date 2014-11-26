@@ -13,9 +13,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+    var L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 

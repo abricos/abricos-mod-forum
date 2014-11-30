@@ -306,19 +306,4 @@ Component.entryPoint = function(NS){
         }
     };
 
-    var GlobalMenuWidget = function(container, page){
-        this.init(container, page);
-    };
-    GlobalMenuWidget.prototype = {
-        init: function(container, page){
-            buildTemplate(this, 'gbmenu');
-
-            container.innerHTML = this._TM.replace('gbmenu', {
-                'list': page == 'list' ? 'current' : '',
-                'config': page == 'config' ? 'current' : ''
-            });
-        }
-    };
-    NS.GlobalMenuWidget = GlobalMenuWidget;
-
 };

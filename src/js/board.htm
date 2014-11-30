@@ -1,13 +1,27 @@
-<!--{panel}--><div class='hd'>{#mod.forum.board.panel.1}</div>
+<!--{panel}-->
+<div class='hd'>{#mod.forum.board.panel.1}</div>
 <div class='bd aw-forum'>
 
-	<div id="{i#gmenu}"></div>
-	
-	<div class="board" id="{i#id}">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <a href="#app=forum/board/showBoardPanel" class="navbar-brand">
+                Форум
+            </a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a id="{i#baddmsg}" class="baddmsg" href="#app=forum/topiceditor/showCreateTopicPanel/" style="display: none;">{#mod.forum.board.panel.2}</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="board" id="{i#id}">
 	
 		<a id="{i#baddfrm}" class="baddmsg" href="#app=forum/frmeditor/showCreateForumPanel/" style="display: none;">Создать форум</a>
-		<a id="{i#baddmsg}" class="baddmsg" href="#app=forum/topiceditor/showCreateTopicPanel/" style="display: none;">{#mod.forum.board.panel.2}</a>
-		
+
 		<div id="{i#list}" class="list">
 			{#mod.forum.board.panel.3}
 		</div>

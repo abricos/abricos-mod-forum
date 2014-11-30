@@ -19,17 +19,14 @@ Component.entryPoint = function(NS){
 
     var LNG = this.language;
 
-    var TopicListWidget = function(container, cfg){
-        cfg = L.merge({}, cfg || {});
+    var TopicListWidget = function(container){
 
         TopicListWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget,table,row,user'
-        }, cfg);
+        });
     };
     YAHOO.extend(TopicListWidget, BW, {
-        init: function(cfg){
-            this.cfg = cfg;
-
+        init: function(){
             this.list = null;
         },
 

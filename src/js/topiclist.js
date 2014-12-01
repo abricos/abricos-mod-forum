@@ -13,40 +13,32 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        BW = Brick.mod.widget.Widget;
+    var Y = Brick.YUI,
+        L = Y.Lang,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
     var LNG = this.language;
 
-    var TopicListWidget = function(container){
+    NS.TopicListWidget = Y.Base.create('topicListWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance, options){
+            this.set('waiting', true);
 
-        TopicListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget,table,row,user'
-        });
-    };
-    YAHOO.extend(TopicListWidget, BW, {
-        init: function(){
-            this.list = null;
+            this.get('appInstance').topicList(function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.set('topicList', result.topicList);
+                }
+                this.renderTopicList();
+            }, this);
         },
-
-        onLoad: function(cfg){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.topicListLoad(function(list){
-                    __self.renderList(list);
-                });
-            });
-        },
-
-        renderList: function(list){
-            this.list = list;
-
-            var TM = this._TM,
-                lst = "";
-
+        renderTopicList: function(){
+            var topicList = this.get('topicList');
+            if (!topicList){
+                return;
+            }
             var arr = [];
-            this.list.foreach(function(topic){
+            topicList.foreach(function(topic){
                 arr[arr.length] = topic;
             });
             arr = arr.sort(function(m1, m2){
@@ -67,31 +59,45 @@ Component.entryPoint = function(NS){
                 }
                 return 0;
             });
-            for (var i = 0; i < arr.length; i++){
-                var topic = arr[i];
 
-                var user = NS.manager.users.get(topic.userid);
-                var d = {
+            var appInstance = this.get('appInstance'),
+                tp = this.template, lst = "",
+                topic, user, d;
+
+            for (var i = 0; i < arr.length; i++){
+                topic = arr[i];
+                user = appInstance.users.get(topic.userid);
+
+                d = {
                     'id': topic.id,
                     'tl': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
                     'cmt': topic.cmt,
-                    'cmtuser': TM.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
+                    'cmtuser': tp.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
                     'cmtdate': Brick.dateExt.convert(topic.updDate),
                     'closed': topic.isClosed() ? 'closed' : '',
                     'removed': topic.isRemoved() ? 'removed' : ''
                 };
                 if (topic.cmt > 0){
-                    var user = NS.manager.users.get(topic.cmtUserId);
-                    d['cmtuser'] = TM.replace('user', {'uid': user.id, 'unm': user.getUserName()});
+                    user = appInstance.users.get(topic.cmtUserId);
+                    d['cmtuser'] = tp.replace('user', {'uid': user.id, 'unm': user.getUserName()});
                     d['cmtdate'] = Brick.dateExt.convert(topic.cmtDate);
                 }
 
-                lst += TM.replace('row', d);
+                lst += tp.replace('row', d);
             }
-            TM.getEl('widget.table').innerHTML = TM.replace('table', {'rows': lst});
+            tp.gel('table').innerHTML = tp.replace('table', {'rows': lst});
+        }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'widget,table,row,user'
+            },
+            topicList: {
+                value: null
+            }
         }
     });
-    NS.TopicListWidget = TopicListWidget;
-
-
 };

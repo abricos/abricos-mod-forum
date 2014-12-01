@@ -1,23 +1,24 @@
 <!--{widget}-->
-<div id="{i#id}" class="wspace">
+<div class="app-workspace">
 
     <nav class="navbar navbar-default" role="navigation">
         <div class="navbar-header">
-            <a href="{v#urltopiclist}" class="navbar-brand">
-                Форум
-            </a>
+            <a href="#" data-url="user.list" class="navbar-brand">Форум</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="{v#urlgrouplist}">Группы</a>
+                    <a href="#" data-url="group.list">Создать тему</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div id="{i#loading}" class="ws-loading">
-        <img src="/images/loading.gif"/> Идет загрузка данных <br/>Пожалуйста, подождите...
+    <div data-wait="show" class="text-center">
+        <img src="/images/loading.gif"/>
+        <p>Идет загрузка данных</p>
+        <p>Пожалуйста, подождите...</p>
     </div>
-    <div id="{i#board}" class="board" style="display: none"></div>
+
+    <div class="app-workspace-page" data-wait="hide"></div>
 </div>

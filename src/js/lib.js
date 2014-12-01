@@ -8,7 +8,8 @@ Component.requires = {
     mod: [
         {name: 'widget', files: ['lib.js']},
         {name: 'uprofile', files: ['users.js']},
-        {name: 'sys', files: ['item.js', 'date.js']}
+        {name: 'sys', files: ['application.js', 'form.js', 'item.js', 'date.js']},
+        {name: '{C#MODNAME}', files: ['model.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -20,12 +21,34 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
+    var Y = Brick.YUI,
+
+        L = Y.Lang,
+
+        COMPONENT = this,
+
+        SYS = Brick.mod.sys;
+
+    NS.navigator = {
+        'ws': "#app={C#MODNAMEURI}/",
+        'home': function(){
+            return NS.navigator.ws + 'board/showBoardPanel';
+        },
+        'topic': {
+            'view': function(id){
+                return NS.navigator.ws + 'topicview/showTopicViewPanel/' + id + '/';
+            }
+        },
+        /**
+         * @deprecated
+         */
+        'go': function(url){
+            Brick.Page.reload(url);
+        }
+    };
+
     var L = YAHOO.lang,
         R = NS.roles;
-
-    var NSys = Brick.mod.sys;
-    NS.Item = NSys.Item;
-    NS.ItemList = NSys.ItemList;
 
     NS.lif = function(f){
         return L.isFunction(f) ? f : function(){
@@ -40,124 +63,27 @@ Component.entryPoint = function(NS){
     buildTemplate({});
 
 
-    NS.navigator = {
-        'WS': "#app={C#MODNAMEURI}/",
-        'home': function(){
-            return NS.navigator.WS + 'board/showBoardPanel';
-        },
-        'topic': {
-            'view': function(id){
-                return NS.navigator.WS + 'topicview/showTopicViewPanel/' + id + '/';
+    SYS.Application.build(COMPONENT, {
+        topicList: {
+            response: function(d){
+                return new NS.TopicList(d.list);
             }
-        },
-        'go': function(url){
-            Brick.Page.reload(url);
         }
-    };
+    }, {
+        initializer: function(){
+            this.forums = new NS.ForumList();
+            this.users = Brick.mod.uprofile.viewer.users;
 
-    var Forum = function(d){
-        d = L.merge({
-            'tl': '',
-            'dsc': ''
-        }, d || {});
-        Forum.superclass.constructor.call(this, d);
-    };
-    YAHOO.extend(Forum, NSys.Item, {
-        update: function(d){
-            this.title = d['tl'];
-            this.descript = d['dsc'];
-        }
-    });
-    NS.Forum = Forum;
-
-    var ForumList = function(d){
-        ForumList.superclass.constructor.call(this, d, Forum);
-    };
-    YAHOO.extend(ForumList, NSys.ItemList, {});
-    NS.ForumList = ForumList;
-
-    var TopicStatus = {
-        'OPENED': 0,	// открыта
-        'CLOSED': 1,	// закрыта
-        'REMOVED': 2		// удалена
-    };
-    NS.TopicStatus = TopicStatus;
-
-    var Topic = function(d){
-        d = L.merge({
-            'fmid': 0,
-            'tl': '',
-            'dl': 0,
-            'upd': 0,
-            'cmt': null,
-            'cmtdl': 0,
-            'cmtuid': null,
-            'st': 0,
-            'stuid': 0,
-            'stdl': 0,
-            'uid': Brick.env.user.id,
-            'dtl': null
-        }, d || {});
-        Topic.superclass.constructor.call(this, d);
-    };
-    YAHOO.extend(Topic, NSys.Item, {
-        init: function(d){
-            this.detail = null;
-
-            Topic.superclass.init.call(this, d);
+            this.initCallbackFire();
         },
-        update: function(d){
-            this.title = d['tl'];								// заголовок
-            this.userid = d['uid'];								// идентификатор автора
-            this.forumid = d['fmid'];
-            this.date = NSys.dateToClient(d['dl']); 				// дата создания
-
-            this.updDate = NSys.dateToClient(d['upd']); 			// дата создания
-
-            this.cmt = (L.isNull(d['cmt']) ? 0 : d['cmt']) * 1;	// кол-во сообщений
-            this.cmtDate = NSys.dateToClient(d['cmtdl']);			// дата последнего сообщения
-            this.cmtUserId = L.isNull(d['cmtuid']) ? 0 : d['cmtuid'];	// дата последнего сообщения
-
-            this.status = d['st'] * 1;
-            this.stUserId = d['stuid'];
-            this.stDate = NSys.dateToClient(d['stdl']);
-
-            if (L.isValue(d['dtl'])){
-                this.detail = new NS.TopicDetail(d['dtl']);
+        ajaxParseResponse: function(data, ret){
+            if (data.userList){
+                this.users.update(data.userList.list);
             }
-        },
-        isRemoved: function(){
-            return this.status * 1 == TopicStatus.REMOVED;
-        },
-        isClosed: function(){
-            return this.status * 1 == TopicStatus.CLOSED;
         }
     });
-    NS.Topic = Topic;
 
-    var TopicDetail = function(d){
-        d = L.merge({
-            'bd': '',
-            'ctid': 0,
-            'files': []
-        }, d || {});
-        TopicDetail.superclass.constructor.call(this, d);
-    };
-    YAHOO.extend(TopicDetail, NS.Item, {
-        update: function(d){
-            this.body = d['bd'];
-            this.contentid = d['ctid'];
-            this.files = d['files'];
-        }
-    });
-    NS.TopicDetail = TopicDetail;
-
-    var TopicList = function(d){
-        TopicList.superclass.constructor.call(this, d, Topic);
-    };
-    YAHOO.extend(TopicList, NSys.ItemList, {});
-    NS.TopicList = TopicList;
-
+    /*
     var Manager = function(callback){
         this.init(callback);
     };
@@ -165,46 +91,9 @@ Component.entryPoint = function(NS){
         init: function(callback){
             NS.manager = this;
 
-            this.forums = new ForumList();
-            this.users = Brick.mod.uprofile.viewer.users;
 
             R.load(function(){
                 NS.life(callback, NS.manager);
-            });
-        },
-
-        ajax: function(data, callback){
-            data = data || {};
-
-            Brick.ajax('{C#MODNAME}', {
-                'data': data,
-                'event': function(request){
-                    NS.life(callback, request.data);
-                }
-            });
-        },
-
-        _updateUserList: function(d){
-            if (!L.isValue(d) || !L.isValue(d['users']) || !L.isValue(d['users']['list'])){
-                return null;
-            }
-            this.users.update(d['users']['list']);
-        },
-
-        _updateTopicList: function(d){
-            if (!L.isValue(d) || !L.isValue(d['topics']) || !L.isValue(d['topics']['list'])){
-                return null;
-            }
-            this._updateUserList(d);
-            return new NS.TopicList(d['topics']['list']);
-        },
-        topicListLoad: function(callback){
-            var __self = this;
-            this.ajax({
-                'do': 'topiclist'
-            }, function(d){
-                var list = __self._updateTopicList(d);
-                NS.life(callback, list);
             });
         },
 
@@ -232,7 +121,7 @@ Component.entryPoint = function(NS){
             };
             var __self = this;
 
-            d = L.merge({
+            d = Y.merge({
                 'id': 0, 'title': '',
                 'body': '',
                 'files': {}
@@ -278,7 +167,7 @@ Component.entryPoint = function(NS){
             };
             var __self = this;
 
-            d = L.merge({'id': 0, 'title': '', 'body': ''}, d || {});
+            d = Y.merge({'id': 0, 'title': '', 'body': ''}, d || {});
 
             var dforum = {
                 'id': forum.id,
@@ -305,5 +194,5 @@ Component.entryPoint = function(NS){
             NS.life(callback, NS.manager);
         }
     };
-
+    /**/
 };

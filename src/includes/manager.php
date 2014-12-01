@@ -52,7 +52,7 @@ class ForumManager extends Ab_ModuleManager {
 
     public function AJAX($d) {
         switch ($d->do) {
-            case 'topiclist':
+            case 'topicList':
                 return $this->TopicListToAJAX();
             case 'topic':
                 return $this->TopicToAJAX($d->topicid);
@@ -271,7 +271,7 @@ class ForumManager extends Ab_ModuleManager {
         $ret->topic = $topic->ToAJAX();
 
         $userList = $this->UserList($topic->userid);
-        $ret->users = $userList->ToAJAX();
+        $ret->userList = $userList->ToAJAX();
 
         return $ret;
     }
@@ -330,8 +330,8 @@ class ForumManager extends Ab_ModuleManager {
         $userList = $this->UserList($list->userIds);
 
         $ret = new stdClass();
-        $ret->topics = $list->ToAJAX();
-        $ret->users = $userList->ToAJAX();
+        $ret->topicList = $list->ToAJAX();
+        $ret->userList = $userList->ToAJAX();
 
         return $ret;
     }

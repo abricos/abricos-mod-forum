@@ -75,7 +75,8 @@ Component.entryPoint = function(NS){
                     'cmtuser': tp.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
                     'cmtdate': Brick.dateExt.convert(topic.updDate),
                     'closed': topic.isClosed() ? 'closed' : '',
-                    'removed': topic.isRemoved() ? 'removed' : ''
+                    'removed': topic.isRemoved() ? 'removed' : '',
+                    'urltopicview': NS.URL.topic.view(topic.id)
                 };
                 if (topic.cmt > 0){
                     user = appInstance.users.get(topic.cmtUserId);

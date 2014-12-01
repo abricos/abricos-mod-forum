@@ -1,11 +1,3 @@
-<!--{panel}-->
-<div class='hd'>{#mod.forum.topicview.panel.1}</div>
-<div class='bd aw-forum'>
-    <div id="{i#gmenu}"></div>
-
-    <div id="{i#widget}"></div>
-</div>
-
 <!--{widget}-->
 <div class="topicview" id="{i#id}">
 
@@ -31,7 +23,6 @@
                     </div>
 
                     <ul id="{i#files}" class="dfiles" style="display: none">
-                        <li class="tl">{#mod.forum.topicview.panel.2}:</li>
                         <li id="{i#ftable}"></li>
                     </ul>
                     <div class="clearfix"></div>
@@ -63,41 +54,43 @@
 
             <div class="manbuttons" id="{i#manbuttons}">
                 <div id="{i#buttons}">
-                    <a id="{i#bopen}" style="display: none;" class="bsetexec btkbt" href="#"
-                       title="{#mod.forum.topicview.panel.3}">{#mod.forum.topicview.panel.3}</a>
-                    <a id="{i#bclose}" style="display: none;" class="bsetexec btkbt" href="#"
-                       title="{#mod.forum.topicview.panel.4}">{#mod.forum.topicview.panel.4}</a>
+                    <a id="{i#bopen}" class="hide bsetexec btkbt" href="#"
+                       title="{##3}">{##3}</a>
 
-                    <a id="{i#beditor}" class="beditor btkbt"
-                       href="#app=forum/topiceditor/showTopicEditorPanel/{v#id}/">{#mod.forum.topicview.panel.5}</a>
-                    <a id="{i#bremove}" class="bremove btkbt" href="#">Удалить</a>
+                    <a id="{i#bclose}" data-click="topic-close" class="hide bsetexec btkbt" href="#"
+                       title="{##4}">{##4}</a>
+
+                    <a id="{i#beditor}" class="hide beditor btkbt"
+                       href="#app=forum/topiceditor/showTopicEditorPanel/{v#id}/">{##5}</a>
+
+                    <a id="{i#bremove}" data-click="topic-remove" class="hide bremove btkbt" href="#">Удалить</a>
                 </div>
                 <img id="{i#bloading}" src="/images/loading.gif" style="display: none;"/>
             </div>
 
-            <div id="{i#dialogclose}" class="dialog alarm" style="display: none;">
-                <h4>{#mod.forum.topicview.panel.6}</h4>
+            <div id="{i#dialogclose}" class="hide dialog alarm">
+                <h4>{##6}</h4>
 
                 <p>
-                    {#mod.forum.topicview.panel.7}
+                    {##7}
                 </p>
 
                 <div class="dbtns">
-                    <a id="{i#bcloseyes}" class="yes" href="#">{#mod.forum.topicview.panel.10}</a>
-                    <a id="{i#bcloseno}" class="no" href="#">{#mod.forum.topicview.panel.8}</a>
+                    <a id="{i#bcloseyes}" data-click="topic-close-yes" class="yes" href="#">{##10}</a>
+                    <a id="{i#bcloseno}" data-click="topic-close-no" class="no" href="#">{##8}</a>
                 </div>
             </div>
 
-            <div id="{i#dialogremove}" class="dialog alarm" style="display: none;">
-                <h4>{#mod.forum.topicview.panel.9}</h4>
+            <div id="{i#dialogremove}" class="hide dialog alarm">
+                <h4>{##9}</h4>
 
                 <p>
-                    {#mod.forum.topicview.panel.11}
+                    {##11}
                 </p>
 
                 <div class="dbtns">
-                    <a id="{i#bremoveyes}" class="yes" href="#">{#mod.forum.topicview.panel.12}</a>
-                    <a id="{i#bremoveno}" class="no" href="#">{#mod.forum.topicview.panel.13}</a>
+                    <a id="{i#bremoveyes}"  data-click="topic-remove-yes"  class="yes" href="#">{##12}</a>
+                    <a id="{i#bremoveno}" data-click="topic-remove-no" class="no" href="#">{##13}</a>
                 </div>
             </div>
 
@@ -117,5 +110,5 @@
 </div>
 
 <!--{frow}-->
-<div class="file"><a href="{v#src}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#src}" target="_blank">{#mod.forum.topicview.frow.1}</a>)
+<div class="file"><a href="{v#src}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#src}" target="_blank">{##1}</a>)
 </div>

@@ -29,29 +29,23 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    NS.navigator = {
-        'ws': "#app={C#MODNAMEURI}/",
-        'home': function(){
-            return NS.navigator.ws + 'board/showBoardPanel';
-        },
-        'topic': {
-            'view': function(id){
-                return NS.navigator.ws + 'topicview/showTopicViewPanel/' + id + '/';
+    NS.URL = {
+        ws: "#app={C#MODNAMEURI}/wspace/ws/",
+        topic: {
+            list: function(){
+                return NS.URL.ws + 'topiclist/TopicListWidget/'
+            },
+            create: function(){
+                return NS.URL.ws + 'topiclist/TopicListWidget/'
+            },
+            view: function(id){
+                return NS.URL.ws + 'topicview/TopicViewWidget/' + id + '/'
             }
-        },
-        /**
-         * @deprecated
-         */
-        'go': function(url){
-            Brick.Page.reload(url);
         }
     };
 
-    var L = YAHOO.lang,
-        R = NS.roles;
-
     NS.lif = function(f){
-        return L.isFunction(f) ? f : function(){
+        return Y.Lang.isFunction(f) ? f : function(){
         };
     };
     NS.life = function(f, p1, p2, p3, p4, p5, p6, p7){
@@ -64,6 +58,12 @@ Component.entryPoint = function(NS){
 
 
     SYS.Application.build(COMPONENT, {
+        topic: {
+            args: ['topicid'],
+            response: function(d){
+                return new NS.Topic(d);
+            }
+        },
         topicList: {
             response: function(d){
                 return new NS.TopicList(d.list);
@@ -74,7 +74,10 @@ Component.entryPoint = function(NS){
             this.forums = new NS.ForumList();
             this.users = Brick.mod.uprofile.viewer.users;
 
-            this.initCallbackFire();
+            var instance = this;
+            NS.roles.load(function(){
+                instance.initCallbackFire();
+            });
         },
         ajaxParseResponse: function(data, ret){
             if (data.userList){
@@ -100,7 +103,7 @@ Component.entryPoint = function(NS){
         _updateTopic: function(d){
             var topic = null;
             if (L.isValue(d) && L.isValue(d['topic'])){
-                topic = new NS.Topic(d['topic']);
+                topic =
                 this._updateUserList(d);
             }
             return topic;

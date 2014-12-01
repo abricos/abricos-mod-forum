@@ -14,16 +14,14 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+    var Y = Brick.YUI,
+        L = Y.Lang,
+        COMPONENT = this,
         R = NS.roles,
-        BW = Brick.mod.widget.Widget;
+        SYS = Brick.mod.sys;
 
-    var LNG = this.language,
-        TST = NS.TopicStatus;
+    var LNG = this.language;
 
-    var buildTemplate = this.buildTemplate;
 
     var aTargetBlank = function(el){
         if (el.tagName == 'A'){
@@ -40,88 +38,46 @@ Component.entryPoint = function(NS){
         }
     };
 
-    var TopicViewPanel = function(topicid){
-        this.topicid = topicid;
-
-        TopicViewPanel.superclass.constructor.call(this, {
-            fixedcenter: true, width: '790px', height: '400px',
-            overflow: false,
-            controlbox: 1
-        });
-    };
-    YAHOO.extend(TopicViewPanel, Brick.widget.Panel, {
-        initTemplate: function(){
-            var TM = buildTemplate(this, 'panel');
-
-            return TM.replace('panel', {
-                'id': this.topicid
-            });
-        },
-        onLoad: function(){
-            this.gmenu = new NS.GlobalMenuWidget(this._TM.getEl('panel.gmenu'), 'list');
-
-            this.widget = new NS.TopicViewWidget(this._TM.getEl('panel.widget'), this.topicid, {
-                'onTopicClosed': function(){
-                    Brick.Page.reload(NS.navigator.home());
-                },
-                'onTopicRemoved': function(){
-                    Brick.Page.reload(NS.navigator.home());
-                }
-            });
-        }
-    });
-    NS.TopicViewPanel = TopicViewPanel;
-
-    var TopicViewWidget = function(container, topicid, cfg){
-        cfg = L.merge({
-            'onTopicClosed': null,
-            'onTopicRemoved': null
-        }, cfg || {});
-
-        TopicViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget,user,frow,empttitle'
-        }, topicid, cfg);
-    };
-    YAHOO.extend(TopicViewWidget, BW, {
-        init: function(topicid, cfg){
-            this.topicid = topicid;
-            this.cfg = cfg;
-            this.firstLoad = true;
-        },
-        buildTData: function(topicid, cfg){
+    NS.TopicViewWidget = Y.Base.create('TopicViewWidget', SYS.AppWidget, [], {
+        buildTData: function(){
             return {
-                'id': topicid
+                'id': this.get('topicId') | 0
             };
         },
-        onLoad: function(topicid, cfg){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.topicLoad(topicid, function(topic){
-                    __self.onTopicLoad(topic);
-                });
-            });
+        onInitAppWidget: function(err, appInstance, options){
+            this.set('waiting', true);
+            var topicId = this.get('topicId');
+
+            this.get('appInstance').topic(topicId, function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.set('topic', result.topic);
+                }
+                this.renderTopic();
+            }, this);
         },
-        onTopicLoad: function(topic){
-            this.topic = topic;
-            if (!L.isValue(this.topic)){
+        renderTopic: function(){
+            var topic = this.get('topic');
+            if (!topic){
                 return;
             }
             // TODO: если this.topic=null необходимо показать "либо нет прав, либо проект удален"
 
-            var TM = this._TM;
+            var appInstance = this.get('appInstance'),
+                tp = this.template;
 
-            if (this.firstLoad){ // первичная рендер
-                this.firstLoad = false;
+            if (!this.flagFirstTopicRender){ // первичная рендер
+                this.flagFirstTopicRender = true;
 
                 // Инициализировать менеджер комментариев
-                Brick.ff('comment', 'comment', function(){
-                    Brick.mod.comment.API.buildCommentTree({
-                        'container': TM.getEl('widget.comments'),
+                Brick.use('comment', 'comment', function(err, ns){
+                    ns.API.buildCommentTree({
+                        'container': tp.gel('comments'),
                         'dbContentId': topic.detail.contentid,
                         'config': {
                             'onLoadComments': function(){
-                                aTargetBlank(TM.getEl('widget.topicbody'));
-                                aTargetBlank(TM.getEl('widget.comments'));
+                                aTargetBlank(tp.gel('topicbody'));
+                                aTargetBlank(tp.gel('comments'));
                             },
                             'readOnly': (topic.isRemoved() || topic.isClosed())
                             // ,'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
@@ -132,17 +88,17 @@ Component.entryPoint = function(NS){
                 });
             }
 
-            var elColInfo = this.gel('colinfo');
-            for (var i = 1; i <= 5; i++){
-                Dom.removeClass(elColInfo, 'status' + i);
-            }
-            Dom.addClass(elColInfo, 'status' + topic.status);
-
             // Автор
-            var user = NS.manager.users.get(topic.userid);
+            var user = appInstance.users.get(topic.userid);
 
-            this.elSetHTML({
-                'author': TM.replace('user', {
+            var elSetHTML = function(d){
+                for (var n in d){
+                    tp.gel(n).innerHTML = d[n];
+                }
+            };
+
+            elSetHTML({
+                'author': tp.replace('user', {
                     'uid': user.id, 'unm': user.getUserName()
                 }),
                 'dl': Brick.dateExt.convert(topic.date, 3, true),
@@ -152,22 +108,35 @@ Component.entryPoint = function(NS){
                 'topicbody': topic.detail.body
             });
 
+            var elHide = function(els){
+                var a = els.split(',');
+                for (var i = 0; i < a.length; i++){
+                    Y.one(tp.gel(a[i])).addClass('hide');
+                }
+            };
+            var elShow = function(els){
+                var a = els.split(',');
+                for (var i = 0; i < a.length; i++){
+                    Y.one(tp.gel(a[i])).removeClass('hide');
+                }
+            };
+
             // закрыть все кнопки, открыть по ролям
-            this.elHide('bopen,bclose,beditor,bremove');
+            elHide('bopen,bclose,beditor,bremove');
 
             var isMyTopic = user.id * 1 == Brick.env.user.id * 1;
-            if (topic.status == TST.OPENED){
+            if (topic.status == NS.TopicStatus.OPENED){
                 if (R['isModer']){
-                    this.elShow('beditor,bremove,bclose');
+                    elShow('beditor,bremove,bclose');
                 } else if (isMyTopic){
-                    this.elHide('panel.beditor,bremove');
+                    elHide('beditor,bremove');
                 }
             }
 
             // показать прикрепленные файлы
             var fs = topic.detail.files;
             if (fs.length > 0){
-                this.elShow('files');
+                elShow('files');
 
                 var alst = [], lst = "";
                 for (var i = 0; i < fs.length; i++){
@@ -183,59 +152,42 @@ Component.entryPoint = function(NS){
                     });
                 }
                 lst = alst.join('');
-                this.gel('ftable').innerHTML = lst;
+                tp.gel('ftable').innerHTML = lst;
             } else {
-                this.elHide('files');
+                elHide('files');
             }
-
         },
-        onClick: function(el, tp){
-            switch (el.id) {
-
-                // case tp['beditor']: this.topicEditorShow(); return true;
-
-                case tp['bclose']:
-                case tp['bclosens']:
+        onClick: function(e){
+            switch (e.dataClick) {
+                case 'topic-close':
                     this.topicClose();
                     return true;
-                case tp['bcloseno']:
+                case 'topic-close-no':
                     this.topicCloseCancel();
                     return true;
-                case tp['bcloseyes']:
+                case 'topic-close-yes':
                     this.topicCloseMethod();
                     return true;
-
-                case tp['bremove']:
+                case 'topic-remove':
                     this.topicRemove();
                     return true;
-                case tp['bremoveno']:
+                case 'topic-remove-no':
                     this.topicRemoveCancel();
                     return true;
-                case tp['bremoveyes']:
+                case 'topic-remove-yes':
                     this.topicRemoveMethod();
                     return true;
             }
-            return false;
         },
-        _shLoading: function(show){
-            if (show){
-                this.elShow('bloading');
-                this.elHide('buttons');
-            } else {
-                this.elHide('bloading');
-                this.elShow('buttons');
-            }
-        },
-
-
-        // закрыть сообщение
         topicClose: function(){
-            this.elHide('manbuttons');
-            this.elShow('dialogclose');
+            var tp = this.template;
+            Y.one(tp.gel('manbuttons')).addClass('hide');
+            Y.one(tp.gel('dialogclose')).removeClass('hide');
         },
         topicCloseCancel: function(){
-            this.elShow('manbuttons');
-            this.elHide('dialogclose');
+            var tp = this.template;
+            Y.one(tp.gel('manbuttons')).removeClass('hide');
+            Y.one(tp.gel('dialogclose')).addClass('hide');
         },
         topicCloseMethod: function(){
             this.topicCloseCancel();
@@ -264,19 +216,78 @@ Component.entryPoint = function(NS){
                 NS.life(__self.cfg['onTopicRemoved']);
             });
         }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'widget,user,frow,empttitle'
+            },
+            topicId: {
+                value: 0
+            }
+        }
+    });
+
+    NS.TopicViewWidget.parseURLParam = function(args){
+        return {
+            topicId: args[0] | 0
+        };
+    };
+
+    return; // **************************************************
+
+    var Dom = YAHOO.util.Dom,
+        L = YAHOO.lang,
+        BW = Brick.mod.widget.Widget;
+
+    var LNG = this.language,
+        TST = NS.TopicStatus;
+
+    var buildTemplate = this.buildTemplate;
+
+    var TopicViewWidget = function(container, topicid, cfg){
+        cfg = L.merge({
+            'onTopicClosed': null,
+            'onTopicRemoved': null
+        }, cfg || {});
+
+        TopicViewWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': ''
+        }, topicid, cfg);
+    };
+    YAHOO.extend(TopicViewWidget, BW, {
+        init: function(topicid, cfg){
+            this.topicid = topicid;
+            this.cfg = cfg;
+            this.firstLoad = true;
+        },
+
+        onClick: function(el, tp){
+            switch (el.id) {
+
+                // case tp['beditor']: this.topicEditorShow(); return true;
+
+
+            }
+            return false;
+        },
+        _shLoading: function(show){
+            if (show){
+                this.elShow('bloading');
+                this.elHide('buttons');
+            } else {
+                this.elHide('bloading');
+                this.elShow('buttons');
+            }
+        }
+
+
+        // закрыть сообщение
+
     });
     NS.TopicViewWidget = TopicViewWidget;
 
-    var activePanel = null;
-    NS.API.showTopicViewPanel = function(topicid, ptopicid){
-        if (L.isValue(activePanel) && !activePanel.isDestroy()){
-            activePanel.close();
-            activePanel = null;
-        }
-        if (L.isNull(activePanel) || activePanel.isDestroy()){
-            activePanel = new TopicViewPanel(topicid, ptopicid);
-        }
-        return activePanel;
-    };
 
 };

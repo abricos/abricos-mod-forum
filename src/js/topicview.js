@@ -200,12 +200,14 @@ Component.entryPoint = function(NS){
         },
 
         topicRemove: function(){
-            this.elHide('manbuttons');
-            this.elShow('dialogremove');
+            var tp = this.template;
+            Y.one(tp.gel('manbuttons')).addClass('hide');
+            Y.one(tp.gel('dialogremove')).removeClass('hide');
         },
         topicRemoveCancel: function(){
-            this.elShow('manbuttons');
-            this.elHide('dialogremove');
+            var tp = this.template;
+            Y.one(tp.gel('manbuttons')).removeClass('hide');
+            Y.one(tp.gel('dialogremove')).addClass('hide');
         },
         topicRemoveMethod: function(){
             this.topicRemoveCancel();

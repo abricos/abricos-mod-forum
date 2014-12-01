@@ -1,5 +1,5 @@
 <!--{widget}-->
-<div class="topicview" id="{i#id}">
+<div class="topicview">
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -17,7 +17,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-8">
-                    
+
                     <div id="{i#topicbody}" class="topicbody aw-page-content">
                         <img src="/images/loading.gif"/>
                     </div>
@@ -30,71 +30,101 @@
                 </div>
                 <div class="col-sm-4">
 
-                    <div class="colbody colinfo">
-                        <div id="{i#status}" class="cirow status">&nbsp;</div>
+                    <div class="topicinfo panel panel-info">
 
-                        <div class="cirow author">
-                            <div class="tl">Автор</div>
-                            <div id="{i#author}" class="vl"></div>
-                            <div class="clearfix"></div>
+                        <div class="panel-heading status text-center">
+                            <span id="{i#status}" class="">&nbsp;</span>
                         </div>
+                        <div class="panel-body">
 
-                        <div class="cirow dl nobline">
-                            <div class="tl">Создано</div>
-                            <div class="vl">
-                                <div class="dt vi" id="{i#dl}"></div>
-                                <div class="tm vi" id="{i#dlt}"></div>
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <label>Автор</label>
+                                    </td>
+                                    <td class="text-right">
+                                        <div id="{i#author}"></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label>Создано</label>
+                                    </td>
+                                    <td class="text-right">
+                                        <span class="date" id="{i#dl}"></span>,
+                                        <span class="time" id="{i#dlt}"></span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="{i#manbuttons}" class="text-center">
+                                <div id="{i#buttons}" class="btn-toolbar">
+
+                                    <a id="{i#bopen}" class="hide btn btn-primary"
+                                       href="#" title="{##3}">
+                                        {##3}
+                                    </a>
+
+                                    <a id="{i#bclose}" data-click="topic-close"
+                                       class="hide btn btn-close btn-default btn-sm" href="#"
+                                       title="{##4}">
+                                        {##4}
+                                    </a>
+
+                                    <a id="{i#beditor}" class="hide btn btn-edit btn-default btn-sm"
+                                       href="#app=forum/topiceditor/showTopicEditorPanel/{v#id}/">
+                                        {##5}
+                                    </a>
+
+                                    <a id="{i#bremove}" data-click="topic-remove"
+                                       class="hide btn btn-remove btn-default btn-sm" href="#">
+                                        Удалить
+                                    </a>
+                                </div>
+                                <img id="{i#bloading}" src="/images/loading.gif" style="display: none;"/>
                             </div>
-                            <div class="clearfix"></div>
+
+                            <div id="{i#dialogclose}" class="hide alert alert-danger">
+                                <p>{##7}</p>
+
+                                <div class="text-center btn-toolbar">
+                                    <a id="{i#bcloseyes}" data-click="topic-close-yes"
+                                       class="btn btn-yes btn-danger btn-xs" href="#">
+                                        {##10}
+                                    </a>
+                                    <a id="{i#bcloseno}" data-click="topic-close-no"
+                                       class="btn btn-no btn-default btn-xs" href="#">
+                                        {##8}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div id="{i#dialogremove}" class="hide alert alert-danger">
+                                <p>{##11}</p>
+
+                                <div class="text-center btn-toolbar">
+                                    <a id="{i#bremoveyes}" data-click="topic-remove-yes"
+                                       class="btn btn-yes btn-danger btn-xs" href="#">
+                                        {##12}
+                                    </a>
+                                    <a id="{i#bremoveno}" data-click="topic-remove-no"
+                                       class="btn btn-no btn-default btn-xs" href="#">
+                                        {##13}
+                                    </a>
+                                </div>
+                            </div>
+
+
                         </div>
 
                     </div>
                 </div>
             </div>
 
-            <div class="manbuttons" id="{i#manbuttons}">
-                <div id="{i#buttons}">
-                    <a id="{i#bopen}" class="hide bsetexec btkbt" href="#"
-                       title="{##3}">{##3}</a>
 
-                    <a id="{i#bclose}" data-click="topic-close" class="hide bsetexec btkbt" href="#"
-                       title="{##4}">{##4}</a>
-
-                    <a id="{i#beditor}" class="hide beditor btkbt"
-                       href="#app=forum/topiceditor/showTopicEditorPanel/{v#id}/">{##5}</a>
-
-                    <a id="{i#bremove}" data-click="topic-remove" class="hide bremove btkbt" href="#">Удалить</a>
-                </div>
-                <img id="{i#bloading}" src="/images/loading.gif" style="display: none;"/>
-            </div>
-
-            <div id="{i#dialogclose}" class="hide dialog alarm">
-                <h4>{##6}</h4>
-
-                <p>
-                    {##7}
-                </p>
-
-                <div class="dbtns">
-                    <a id="{i#bcloseyes}" data-click="topic-close-yes" class="yes" href="#">{##10}</a>
-                    <a id="{i#bcloseno}" data-click="topic-close-no" class="no" href="#">{##8}</a>
-                </div>
-            </div>
-
-            <div id="{i#dialogremove}" class="hide dialog alarm">
-                <h4>{##9}</h4>
-
-                <p>
-                    {##11}
-                </p>
-
-                <div class="dbtns">
-                    <a id="{i#bremoveyes}"  data-click="topic-remove-yes"  class="yes" href="#">{##12}</a>
-                    <a id="{i#bremoveno}" data-click="topic-remove-no" class="no" href="#">{##13}</a>
-                </div>
-            </div>
-
-            <hr />
+            <hr/>
 
             <div class="comments" id="{i#comments}"></div>
 

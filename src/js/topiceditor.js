@@ -7,40 +7,94 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'sys', files: ['container.js', 'editor.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']},
-        {name: 'filemanager', files: ['attachment.js']}
+        {name: 'filemanager', files: ['attachment.js']},
+        {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
+    var Y = Brick.YUI,
+
+        COMPONENT = this,
+
+        SYS = Brick.mod.sys;
+
+    NS.TopicEditorWidget = Y.Base.create('topicEditorWidget', SYS.AppWidget, [
+
+    ], {
+
+        onInitAppWidget: function(err, appInstance, options){
+            var topicId = this.get('topicId');
+
+            if (topicId | 0 === 0){
+                var topic = new NS.Topic({'dtl': {'bd': ''}});
+                this.set('topic', topic);
+                this.renderTopic();
+            } else {
+                this.set('waiting', true);
+                this.get('appInstance').topic(topicId, function(err, result){
+                    this.set('waiting', false);
+                    if (!err){
+                        this.set('topic', result.topic);
+                    }
+                    this.renderTopic();
+                }, this);
+            }
+        },
+        renderTopic: function(){
+            var topic = this.get('topic');
+
+            if (!topic){
+                return;
+            }
+
+            var tp = this.template;
+            Y.one(tp.gel('tl' + (topic.id * 1 > 0 ? 'new' : 'edit'))).hide();
+
+            Y.one(tp.gel('tl')).set('value', topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+            Y.one(tp.gel('editor')).setHTML(topic.detail.body);
+
+            var Editor = Brick.widget.Editor;
+            this.editor = new Editor(tp.gel('editor'), {
+                width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
+            });
+
+            if (Brick.AppRoles.check('filemanager', '30')){
+                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), topic.detail.files);
+            } else {
+                this.filesWidget = null;
+                Y.one(tp.gel('rfiles')).hide()
+            }
+        }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'widget'
+            },
+            topicId: {
+                value: 0
+            }
+        }
+    });
+
+    NS.TopicEditorWidget.parseURLParam = function(args){
+        return {
+            topicId: args[0] | 0
+        };
+    };
+
+    return;
+    /* * * * * OLD * * * * */
+
     var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
         L = YAHOO.lang,
-        R = NS.roles,
         BW = Brick.mod.widget.Widget;
 
     var buildTemplate = this.buildTemplate;
 
-    var TopicEditorPanel = function(topicid){
-
-        this.topicid = topicid || 0;
-
-        TopicEditorPanel.superclass.constructor.call(this, {fixedcenter: true});
-    };
-    YAHOO.extend(TopicEditorPanel, Brick.widget.Panel, {
-        initTemplate: function(){
-            buildTemplate(this, 'panel');
-
-            return this._TM.replace('panel');
-        },
-        onLoad: function(){
-            var TM = this._TM;
-            this.gmenu = new NS.GlobalMenuWidget(TM.getEl('panel.gmenu'), 'list');
-
-            this.editorWidget = new NS.TopicEditorWidget(TM.getEl('panel.widget'), this.topicid);
-        }
-    });
-    NS.TopicEditorPanel = TopicEditorPanel;
 
     var TopicEditorWidget = function(container, topicid, cfg){
         cfg = L.merge({
@@ -67,52 +121,7 @@ Component.entryPoint = function(NS){
         }, topicid, cfg);
     };
     YAHOO.extend(TopicEditorWidget, BW, {
-        init: function(topicid, cfg){
-            TopicEditorWidget.active = this;
 
-            this.topicid = topicid;
-            this.cfg = cfg;
-        },
-        onLoad: function(topicid, cfg){
-            var __self = this;
-            NS.initManager(function(){
-                if (topicid == 0){
-                    __self.onTopicLoad(new NS.Topic({'dtl': {'bd': ''}}));
-                } else {
-                    NS.manager.topicLoad(topicid, function(topic){
-                        __self.onTopicLoad(topic);
-                    });
-                }
-            });
-        },
-        onTopicLoad: function(topic){
-            this.topic = topic;
-
-            if (L.isNull(topic)){
-                return;
-            }
-
-            Dom.setStyle(this.gel('tl' + (topic.id * 1 > 0 ? 'new' : 'edit')), 'display', 'none');
-
-            this.elSetValue({
-                'tl': topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<')
-            });
-            this.elSetHTML({
-                'editor': topic.detail.body
-            });
-
-            var Editor = Brick.widget.Editor;
-            this.editor = new Editor(this.gel('editor'), {
-                width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
-            });
-
-            if (Brick.AppRoles.check('filemanager', '30')){
-                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), topic.detail.files);
-            } else {
-                this.filesWidget = null;
-                this.elHide('rfiles');
-            }
-        },
         destroy: function(){
             this.editor.destroy();
             TopicEditorPanel.active = null;

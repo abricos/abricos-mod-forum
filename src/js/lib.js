@@ -36,7 +36,7 @@ Component.entryPoint = function(NS){
                 return NS.URL.ws + 'topiclist/TopicListWidget/'
             },
             create: function(){
-                return NS.URL.ws + 'topiclist/TopicListWidget/'
+                return NS.URL.ws + 'topiceditor/TopicEditorWidget/'
             },
             view: function(id){
                 return NS.URL.ws + 'topicview/TopicViewWidget/' + id + '/'

@@ -38,7 +38,7 @@ Component.entryPoint = function(NS){
         }
     };
 
-    NS.TopicViewWidget = Y.Base.create('TopicViewWidget', SYS.AppWidget, [], {
+    NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
         buildTData: function(){
             return {
                 'id': this.get('topicId') | 0

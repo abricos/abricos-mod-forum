@@ -16,10 +16,9 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         L = Y.Lang;
 
-
-    var NSys = Brick.mod.sys;
-    NS.Item = NSys.Item;
-    NS.ItemList = NSys.ItemList;
+    var SYS = Brick.mod.sys;
+    NS.Item = SYS.Item;
+    NS.ItemList = SYS.ItemList;
 
     var Forum = function(d){
         d = Y.merge({
@@ -28,7 +27,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         Forum.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(Forum, NSys.Item, {
+    YAHOO.extend(Forum, SYS.Item, {
         update: function(d){
             this.title = d['tl'];
             this.descript = d['dsc'];
@@ -39,7 +38,7 @@ Component.entryPoint = function(NS){
     var ForumList = function(d){
         ForumList.superclass.constructor.call(this, d, Forum);
     };
-    YAHOO.extend(ForumList, NSys.ItemList, {});
+    YAHOO.extend(ForumList, SYS.ItemList, {});
     NS.ForumList = ForumList;
 
     var TopicStatus = {
@@ -66,7 +65,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         Topic.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(Topic, NSys.Item, {
+    YAHOO.extend(Topic, SYS.Item, {
         init: function(d){
             this.detail = null;
 
@@ -76,17 +75,17 @@ Component.entryPoint = function(NS){
             this.title = d['tl'];								// заголовок
             this.userid = d['uid'];								// идентификатор автора
             this.forumid = d['fmid'];
-            this.date = NSys.dateToClient(d['dl']); 				// дата создания
+            this.date = SYS.dateToClient(d['dl']); 				// дата создания
 
-            this.updDate = NSys.dateToClient(d['upd']); 			// дата создания
+            this.updDate = SYS.dateToClient(d['upd']); 			// дата создания
 
             this.cmt = (L.isNull(d['cmt']) ? 0 : d['cmt']) * 1;	// кол-во сообщений
-            this.cmtDate = NSys.dateToClient(d['cmtdl']);			// дата последнего сообщения
+            this.cmtDate = SYS.dateToClient(d['cmtdl']);			// дата последнего сообщения
             this.cmtUserId = L.isNull(d['cmtuid']) ? 0 : d['cmtuid'];	// дата последнего сообщения
 
             this.status = d['st'] * 1;
             this.stUserId = d['stuid'];
-            this.stDate = NSys.dateToClient(d['stdl']);
+            this.stDate = SYS.dateToClient(d['stdl']);
 
             if (L.isValue(d['dtl'])){
                 this.detail = new NS.TopicDetail(d['dtl']);
@@ -121,7 +120,7 @@ Component.entryPoint = function(NS){
     var TopicList = function(d){
         TopicList.superclass.constructor.call(this, d, Topic);
     };
-    YAHOO.extend(TopicList, NSys.ItemList, {});
+    YAHOO.extend(TopicList, SYS.ItemList, {});
     NS.TopicList = TopicList;
 
 };

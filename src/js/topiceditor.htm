@@ -1,72 +1,56 @@
 <!--{widget}-->
-<div class="panel panel-default">
+<div class="panel panel-default topiceditor">
     <div class="panel-heading">
 
         <div class="panel-title pull-left">
-            <span data-flag="edit">Создание новой темы форума</span>
-            <span id="{i#tledit}">Редактор темы форума</span>
+            <span data-isedit="hide">Создание новой темы форума</span>
+            <span data-isedit="show">Редактирование темы форума</span>
 
             <span data-wait="show">
                 <img src="/images/loading.gif"/> Загрузка...
             </span>
         </div>
 
+        <div class="pull-right btn-toolbar">
+            <button data-click="save" class="btn btn-xs btn-default" data-wait="disable" type="button">
+                <span data-isedit="hide">Создать</span>
+                <span data-isedit="show">Сохранить</span>
+            </button>
 
+            <button data-click="cancel" class="btn btn-xs btn-default" data-wait="disable" type="button">
+                Отмена
+            </button>
+        </div>
+
+        <div class="clearfix"></div>
     </div>
     <div class="panel-body">
+        <div class="form-group">
+            <label for="{i#title}">Заголовок</label>
+            <input id="{i#title}" name="title" type="text" class="form-control" data-wait="disable">
+        </div>
 
-        <div class="topiceditor">
+        <div class="form-group">
+            <label>Текст сообщения</label>
+            <textarea id="{i#editor}" style="width: 600px; height: 300px"></textarea>
+        </div>
 
-            <div class="navigate">
-		<span class="item {v#first}">
-			<a href="#app=forum/board/showBoardPanel">Сообщения</a>
-		</span>
-		<span class="item {v#current}">
-			<span class="arrow"> → </span>
+        <div class="form-group" id="{i#rfiles}">
+            <label>Файлы</label>
+            <div id="{i#files}"></div>
+        </div>
+    </div>
 
-		</span>
-            </div>
+    <div class="panel-footer">
+        <div class="text-right btn-toolbar">
+            <button data-click="save" class="btn btn-sm btn-default" data-wait="disable" type="button">
+                <span data-isedit="hide">Создать</span>
+                <span data-isedit="show">Сохранить</span>
+            </button>
 
-            <dl class="sel">
-                <dt>
-                    <label for="{i#tl}">Заголовок</label>
-                </dt>
-                <dd>
-                    <input id="{i#tl}" type="text" class="input-text font-large" style="width: 90%;"/>
-                </dd>
-            </dl>
-
-            <dl>
-                <dt>
-                    <label>Текст сообщения</label>
-                </dt>
-                <dd>
-                    <textarea id="{i#editor}" style="width: 560px; height: 300px"></textarea>
-                </dd>
-            </dl>
-
-            <dl id="{i#rfiles}">
-                <dt>
-                    <label>Файлы</label>
-                </dt>
-                <dd>
-                    <div id="{i#files}"></div>
-                </dd>
-            </dl>
-
-            <dl>
-                <dt></dt>
-                <dd>
-                    <div class="field">
-                        <div class="buttons">
-                            <input type="button" value="Сохранить" id="{i#bsave}" class="btn"/>
-                            <input type="button" value="Отмена" id="{i#bcancel}" class="btn"/>
-                            <img src="/images/loading.gif" id="{i#loading}" style="display: none;"/>
-                        </div>
-                    </div>
-                </dd>
-            </dl>
-
+            <button data-click="cancel" class="btn btn-sm btn-default" data-wait="disable" type="button">
+                Отмена
+            </button>
         </div>
     </div>
 </div>

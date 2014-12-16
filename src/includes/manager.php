@@ -56,8 +56,8 @@ class ForumManager extends Ab_ModuleManager {
                 return $this->TopicListToAJAX();
             case 'topic':
                 return $this->TopicToAJAX($d->topicid);
-            case 'topicsave':
-                return $this->TopicSaveToAJAX($d->savedata);
+            case 'topicSave':
+                return $this->TopicSaveToAJAX($d->topic);
             case 'topicclose':
                 return $this->TopicCloseToAJAX($d->topicid);
             case 'topicremove':
@@ -127,10 +127,10 @@ class ForumManager extends Ab_ModuleManager {
 
         $sd->id = intval($sd->id);
 
-        $parserFull = Abricos::TextParser(true);
-        $utmanager = Abricos::TextParser();
-        $sd->tl = $parserFull->Parser($sd->tl);
-        $sd->bd = $utmanager->Parser($sd->bd);
+        $utmf = Abricos::TextParser(true);
+        $utm = Abricos::TextParser();
+        $sd->tl = $utmf->Parser($sd->tl);
+        $sd->bd = $utm->Parser($sd->bd);
 
         if ($sd->id == 0) {
             $sd->uid = $this->userid;
@@ -346,12 +346,15 @@ class ForumManager extends Ab_ModuleManager {
             return null;
         }
 
-        $sd->id = intval($sd->id);
+        $sd->id = isset($sd->id) ? intval($sd->id) : 0;
 
-        $parserFull = Abricos::TextParser(true);
-        $utmanager = Abricos::TextParser();
-        $sd->tl = $parserFull->Parser($sd->tl);
-        $sd->bd = $utmanager->Parser($sd->bd);
+        $utmf = Abricos::TextParser(true);
+        $utm = Abricos::TextParser();
+        
+        $sd->tl = $utmf->Parser($sd->title);
+        $sd->bd = $utm->Parser($sd->body);
+
+        $sd->prt = 0;
 
         $sendNewNotify = false;
 
@@ -390,7 +393,7 @@ class ForumManager extends Ab_ModuleManager {
                 }
             }
             if (!$find) {
-                ForumQuery::TopicFileRemove($this->db, $sd->id, $rFileId);
+                ForumQuery::TopicFileRemove($this->db, $sd->id, $cFile->id);
             }
         }
         foreach ($arr as $file) {

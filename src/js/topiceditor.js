@@ -20,9 +20,16 @@ Component.entryPoint = function(NS){
         SYS = Brick.mod.sys;
 
     NS.TopicEditorWidget = Y.Base.create('topicEditorWidget', SYS.AppWidget, [
-
+        SYS.WidgetEditorStatus
     ], {
-
+        initializer: function(){
+            this.publish('editorSaved', {
+                defaultFn: this._defEditorSaved
+            });
+            this.publish('editorCancel', {
+                defaultFn: this._defEditorCancel
+            });
+        },
         onInitAppWidget: function(err, appInstance, options){
             var topicId = this.get('topicId');
 
@@ -49,9 +56,8 @@ Component.entryPoint = function(NS){
             }
 
             var tp = this.template;
-            Y.one(tp.gel('tl' + (topic.id * 1 > 0 ? 'new' : 'edit'))).hide();
 
-            Y.one(tp.gel('tl')).set('value', topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+            Y.one(tp.gel('title')).set('value', topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
             Y.one(tp.gel('editor')).setHTML(topic.detail.body);
 
             var Editor = Brick.widget.Editor;
@@ -59,12 +65,49 @@ Component.entryPoint = function(NS){
                 width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
             });
 
-            if (Brick.AppRoles.check('filemanager', '30')){
-                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), topic.detail.files);
+            if (Brick.mod.filemanager.roles.isWrite){
+                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), topic.detail.files);
             } else {
                 this.filesWidget = null;
                 Y.one(tp.gel('rfiles')).hide()
             }
+        },
+        topicSave: function(){
+            var topic = this.get('topic'), tp = this.template;
+
+            var newdata = {
+                'title': tp.gel('title').value,
+                'body': this.editor.getContent(),
+                'files': Y.Lang.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
+            };
+
+            this.set('waiting', true);
+            this.get('appInstance').topicSave(newdata, function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.set('topic', result.topic);
+                    this.set('topicId', result.topic.id);
+                    this.fire('editorSaved');
+                }
+            }, this);
+        },
+        onClick: function(e){
+            switch (e.dataClick) {
+                case 'save':
+                    this.topicSave();
+                    return true;
+                case 'cancel':
+                    this.fire('editorCancel');
+                    return true;
+            }
+        },
+        _defEditorCancel: function(){
+            Brick.Page.reload(NS.URL.topic.list());
+        },
+        _defEditorSaved: function(){
+            var topicId = this.get('topicId');
+
+            Brick.Page.reload(NS.URL.topic.view(topicId));
         }
     }, {
         ATTRS: {
@@ -76,6 +119,11 @@ Component.entryPoint = function(NS){
             },
             topicId: {
                 value: 0
+            },
+            isEdit: {
+                getter: function(){
+                    return this.get('topicId') | 0 > 0;
+                }
             }
         }
     });
@@ -88,13 +136,6 @@ Component.entryPoint = function(NS){
 
     return;
     /* * * * * OLD * * * * */
-
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
-        BW = Brick.mod.widget.Widget;
-
-    var buildTemplate = this.buildTemplate;
-
 
     var TopicEditorWidget = function(container, topicid, cfg){
         cfg = L.merge({
@@ -122,22 +163,7 @@ Component.entryPoint = function(NS){
     };
     YAHOO.extend(TopicEditorWidget, BW, {
 
-        destroy: function(){
-            this.editor.destroy();
-            TopicEditorPanel.active = null;
-            TopicEditorPanel.superclass.destroy.call(this);
-        },
-        onClick: function(el, tp){
-            switch (el.id) {
-                case tp['bsave']:
-                    this.saveTopic();
-                    return true;
-                case tp['bcancel']:
-                    this.cancel();
-                    return true;
-            }
-            return false;
-        },
+
         cancel: function(){
             NS.life(this.cfg['onCancelClick']);
         },
@@ -160,20 +186,4 @@ Component.entryPoint = function(NS){
     });
     NS.TopicEditorWidget = TopicEditorWidget;
 
-    // создать сообщение
-    NS.API.showCreateTopicPanel = function(){
-        return NS.API.showTopicEditorPanel(0);
-    };
-
-    var activePanel = null;
-    NS.API.showTopicEditorPanel = function(topicid, ptopicid){
-        if (L.isValue(activePanel) && !activePanel.isDestroy()){
-            activePanel.close();
-            activePanel = null;
-        }
-        if (L.isNull(activePanel) || activePanel.isDestroy()){
-            activePanel = new TopicEditorPanel(topicid, ptopicid);
-        }
-        return activePanel;
-    };
 };

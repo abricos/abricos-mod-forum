@@ -3,17 +3,17 @@
 [mcss=forum]forum.css[/mcss]
 
 [v=files]
-	<ul class="dfiles">
-		<li class="tl">Прикрепленные файлы:</li>
-		<li>{v#rows}</li>
-	</ul>
+	<div class="dfiles">
+		Прикрепленные файлы:
+		{v#rows}
+	</div>
 [/v]
+
 [v=file]
 	<div class="file">
 		<a href="{v#url}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#url}" target="_blank">скачать</a>)
 	</div>
 [/v]
-
 
 [v=mtitle]
 	{v#title} / Форум / {v#sitename}
@@ -27,51 +27,57 @@
 	
 [*]-->
 <div class="topicview">
-	<h3><a href="/forum/">Форум</a> → {v#tl}</h3>
+    <h3><a href="/forum/">Форум</a> → {v#tl}</h3>
 
-	<table class="maintable"><tbody><tr>
-	<td class="leftcol">
-		<div class="colbody">
-		
-			<div class="topicbody aw-page-content">
-				{v#body}
-			</div>
-			
-			{v#files}
-			
-			<div class="clear"></div>
-		</div>
-	</td>
-	<td class="rightcol">
-	
-		<div class="colbody colinfo">
-			<div class="cirow status">{v#status}</div>
+    <div class="row">
+        <div class="col-xs-8">
 
-			<div class="cirow author">
-				<div class="tl">Автор</div>
-				<div class="vl">
-					<div class="user vi">
-						<a href="{v#userurl}">{v#unm}</a>
-					</div>					
-				</div>
-				<div class="clear"></div>
-			</div>
+            <div class="topicbody">
+                {v#body}
+            </div>
+            <div class="clearfix"></div>
 
-			<div class="cirow dl nobline">
-				<div class="tl">Создано</div>
-				<div class="vl">
-					<div class="dt vi">{v#dl}</div>
-					<div class="tm vi">{v#dlt}</div>
-				</div>
-				<div class="clear"></div>
-			</div>
-			
-		</div>
-	
-	</td>
-	</tr></tbody></table>
-	
-	<div class="comments">
-		[mod]comment:page[/mod]
-	</div>
+            {v#files}
+            <div class="clearfix"></div>
+
+        </div>
+        <div class="col-xs-4">
+            <div class="topicinfo panel panel-info">
+
+                <div class="panel-heading status text-center">
+                    <span>{v#status}</span>
+                </div>
+                <div class="panel-body">
+
+                    <table class="table table-hover">
+                        <tbody>
+                        <tr>
+                            <td>
+                                <label>Автор</label>
+                            </td>
+                            <td class="text-right">
+                                <a href="{v#userurl}">{v#unm}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Создано</label>
+                            </td>
+                            <td class="text-right">
+                                <span class="date">{v#dl}</span>,
+                                <span class="time">{v#dlt}</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="comments">
+        [mod]comment:page[/mod]
+    </div>
 </div>		

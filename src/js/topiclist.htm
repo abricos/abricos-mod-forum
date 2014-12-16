@@ -1,38 +1,53 @@
 <!--{widget}-->
-<div class="topiclist" id="{i#id}">
-	<div id="{i#table}"></div>
+<div class="topiclist">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Сообщения
+        </div>
+
+        <div class="panel-body">
+            <div id="{i#table}"></div>
+        </div>
+
+    </div>
+
+</div>
 </div>
 
 <!--{table}-->
 <table id="{i#id}" class="table table-hover">
-	<thead>
+    <thead>
     <tr>
-		<th class="tname">
-            {#mod.forum.topiclist.table.1}
-		</th>
-		<th class="tcmtcount">
-            {#mod.forum.topiclist.table.3}
-		</th>
-		<th class="tlastcmt">
-            {#mod.forum.topiclist.table.4}
-		</th>
-	</tr></thead>
-	<tbody>{v#rows}</tbody>
+        <th class="tname">
+            Тема
+        </th>
+        <th class="tcmtcount">
+            Ответов
+        </th>
+        <th class="tlastcmt">
+            Последний ответ
+        </th>
+    </tr>
+    </thead>
+    <tbody>{v#rows}</tbody>
 </table>
 
 <!--{row}-->
 <tr id="{i#id}-{v#id}" class="topicrow {v#removed} {v#closed}">
-	<td class="tname">
+    <td class="tname">
         <a href="{v#urltopicview}" title="{v#tl}">{v#tl}</a>
-	</td>
-	<td class="tcmtcount">
-		{v#cmt}
-	</td>
-	<td class="tlastcmt">
-		<div class="cmtuser">{v#cmtuser}</div>
-		<div class="cmtdate">{v#cmtdate}</div>
-	</td>
+    </td>
+    <td class="tcmtcount">
+        {v#cmt}
+    </td>
+    <td class="tlastcmt">
+        <div class="cmtuser">{v#cmtuser}</div>
+        <div class="cmtdate">{v#cmtdate}</div>
+    </td>
 </tr>
-<!--{user}--><div class="user vi">
-	<a href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
+
+<!--{user}-->
+<div class="user vi">
+    <a href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
 </div>

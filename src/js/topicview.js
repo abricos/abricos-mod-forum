@@ -155,7 +155,7 @@ Component.entryPoint = function(NS){
                         'id': f['id'],
                         'name': f['nm']
                     });
-                    alst[alst.length] = TM.replace('frow', {
+                    alst[alst.length] = tp.replace('frow', {
                         'fid': f['id'],
                         'nm': f['nm'],
                         'src': lnk.getSrc()
@@ -163,6 +163,7 @@ Component.entryPoint = function(NS){
                 }
                 lst = alst.join('');
                 tp.gel('ftable').innerHTML = lst;
+                console.log(tp.gel('ftable'));
             } else {
                 elHide('files');
             }

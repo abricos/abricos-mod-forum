@@ -31,6 +31,7 @@ Component.entryPoint = function(NS){
             });
         },
         onInitAppWidget: function(err, appInstance, options){
+
             var topicId = this.get('topicId') | 0;
 
             if (topicId === 0){

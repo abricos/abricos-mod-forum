@@ -153,6 +153,7 @@ class ForumManager extends Ab_ModuleManager {
 
     /**
      * Получить список пользователей
+     *
      * @param ForumTopic|array|integer $uids
      */
     public function UserList($uids) {
@@ -230,6 +231,7 @@ class ForumManager extends Ab_ModuleManager {
 
     /**
      * Тема форума по глобальному идентификатору контента
+     *
      * @param integer $contentid
      * @param boolean $clearCache
      */
@@ -350,7 +352,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $utmf = Abricos::TextParser(true);
         $utm = Abricos::TextParser();
-        
+
         $sd->tl = $utmf->Parser($sd->title);
         $sd->bd = $utm->Parser($sd->body);
 
@@ -640,7 +642,7 @@ class ForumManager extends Ab_ModuleManager {
         while (($user = $this->db->fetch_array($rows))) {
             $email = $user['eml'];
 
-            if (empty($email) || $emails[$email] || $user['id'] == $this->userid) {
+            if (empty($email) || isset($emails[$email]) || $user['id'] == $this->userid) {
                 continue;
             }
             $emails[$email] = true;

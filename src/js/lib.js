@@ -34,13 +34,16 @@ Component.entryPoint = function(NS){
         ws: "#app={C#MODNAMEURI}/wspace/ws/",
         topic: {
             list: function(){
-                return NS.URL.ws + 'topiclist/TopicListWidget/'
+                return NS.URL.ws + 'topiclist/TopicListWidget/';
             },
             create: function(){
-                return NS.URL.ws + 'topiceditor/TopicEditorWidget/'
+                return NS.URL.ws + 'topiceditor/TopicEditorWidget/';
+            },
+            edit: function(id){
+                return NS.URL.ws + 'topiceditor/TopicEditorWidget/' + id + '/';
             },
             view: function(id){
-                return NS.URL.ws + 'topicview/TopicViewWidget/' + id + '/'
+                return NS.URL.ws + 'topicview/TopicViewWidget/' + id + '/';
             }
         }
     };

@@ -39,6 +39,16 @@ Component.entryPoint = function(NS){
     };
 
     NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
+
+        initializer: function(){
+            this.publish('topicClosed', {
+                defaultFn: this._defTopicClosed
+            });
+            this.publish('topicRemoved', {
+                defaultFn: this._defTopicRemoved
+            });
+        },
+
         buildTData: function(){
             return {
                 'id': this.get('topicId') | 0
@@ -191,12 +201,11 @@ Component.entryPoint = function(NS){
         },
         topicCloseMethod: function(){
             this.topicCloseCancel();
-            var __self = this;
-            this._shLoading(true);
-            NS.manager.topicClose(this.topic.id, function(topic){
-                __self._shLoading(false);
-                NS.life(__self.cfg['onTopicClosed']);
-            });
+            this.set('waiting', true);
+            this.get('appInstance').topicClose(this.get('topicId'), function(err, result){
+                this.set('waiting', false);
+                this.fire('topicClosed');
+            }, this);
         },
 
         topicRemove: function(){
@@ -211,12 +220,18 @@ Component.entryPoint = function(NS){
         },
         topicRemoveMethod: function(){
             this.topicRemoveCancel();
-            var __self = this;
-            this._shLoading(true);
-            NS.manager.topicRemove(this.topic.id, function(topic){
-                __self._shLoading(false);
-                NS.life(__self.cfg['onTopicRemoved']);
-            });
+
+            this.set('waiting', true);
+            this.get('appInstance').topicRemove(this.get('topicId'), function(err, result){
+                this.set('waiting', false);
+                this.fire('topicRemoved');
+            }, this);
+        },
+        _defTopicClosed: function(){
+            Brick.Page.reload(NS.URL.topic.list());
+        },
+        _defTopicRemoved: function(){
+            Brick.Page.reload(NS.URL.topic.list());
         }
     }, {
         ATTRS: {
@@ -237,59 +252,5 @@ Component.entryPoint = function(NS){
             topicId: args[0] | 0
         };
     };
-
-    return; // **************************************************
-
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
-        BW = Brick.mod.widget.Widget;
-
-    var LNG = this.language,
-        TST = NS.TopicStatus;
-
-    var buildTemplate = this.buildTemplate;
-
-    var TopicViewWidget = function(container, topicid, cfg){
-        cfg = L.merge({
-            'onTopicClosed': null,
-            'onTopicRemoved': null
-        }, cfg || {});
-
-        TopicViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': ''
-        }, topicid, cfg);
-    };
-    YAHOO.extend(TopicViewWidget, BW, {
-        init: function(topicid, cfg){
-            this.topicid = topicid;
-            this.cfg = cfg;
-            this.firstLoad = true;
-        },
-
-        onClick: function(el, tp){
-            switch (el.id) {
-
-                // case tp['beditor']: this.topicEditorShow(); return true;
-
-
-            }
-            return false;
-        },
-        _shLoading: function(show){
-            if (show){
-                this.elShow('bloading');
-                this.elHide('buttons');
-            } else {
-                this.elHide('bloading');
-                this.elShow('buttons');
-            }
-        }
-
-
-        // закрыть сообщение
-
-    });
-    NS.TopicViewWidget = TopicViewWidget;
-
 
 };

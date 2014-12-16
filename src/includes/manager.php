@@ -58,9 +58,9 @@ class ForumManager extends Ab_ModuleManager {
                 return $this->TopicToAJAX($d->topicid);
             case 'topicSave':
                 return $this->TopicSaveToAJAX($d->topic);
-            case 'topicclose':
+            case 'topicClose':
                 return $this->TopicCloseToAJAX($d->topicid);
-            case 'topicremove':
+            case 'topicRemove':
                 return $this->TopicRemoveToAJAX($d->topicid);
         }
         return null;

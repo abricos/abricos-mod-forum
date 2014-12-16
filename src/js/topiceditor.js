@@ -31,9 +31,9 @@ Component.entryPoint = function(NS){
             });
         },
         onInitAppWidget: function(err, appInstance, options){
-            var topicId = this.get('topicId');
+            var topicId = this.get('topicId') | 0;
 
-            if (topicId | 0 === 0){
+            if (topicId === 0){
                 var topic = new NS.Topic({'dtl': {'bd': ''}});
                 this.set('topic', topic);
                 this.renderTopic();
@@ -58,7 +58,7 @@ Component.entryPoint = function(NS){
             var tp = this.template;
 
             Y.one(tp.gel('title')).set('value', topic.title.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
-            Y.one(tp.gel('editor')).setHTML(topic.detail.body);
+            tp.gel('editor').innerHTML = topic.detail.body;
 
             var Editor = Brick.widget.Editor;
             this.editor = new Editor(tp.gel('editor'), {
@@ -76,6 +76,7 @@ Component.entryPoint = function(NS){
             var topic = this.get('topic'), tp = this.template;
 
             var newdata = {
+                id: this.get('topicId'),
                 'title': tp.gel('title').value,
                 'body': this.editor.getContent(),
                 'files': Y.Lang.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
@@ -134,56 +135,5 @@ Component.entryPoint = function(NS){
         };
     };
 
-    return;
-    /* * * * * OLD * * * * */
-
-    var TopicEditorWidget = function(container, topicid, cfg){
-        cfg = L.merge({
-            'onTopicSave': function(topic){
-                setTimeout(function(){
-                    if (!L.isValue(topic)){
-                        Brick.Page.reload(NS.navigator.home());
-                    } else {
-                        Brick.Page.reload(NS.navigator.topic.view(topic.id));
-                    }
-                }, 100);
-            },
-            'onCancelClick': function(){
-                if (topicid > 0){
-                    Brick.Page.reload(NS.navigator.topic.view(topicid));
-                } else {
-                    Brick.Page.reload(NS.navigator.home());
-                }
-            }
-        }, cfg || {});
-
-        TopicEditorWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget,frow'
-        }, topicid, cfg);
-    };
-    YAHOO.extend(TopicEditorWidget, BW, {
-
-
-        cancel: function(){
-            NS.life(this.cfg['onCancelClick']);
-        },
-        saveTopic: function(){
-            var topic = this.topic;
-
-            this.elHide('bsave,bcancel');
-            this.elShow('loading');
-
-            var newdata = {
-                'title': this.gel('tl').value,
-                'body': this.editor.getContent(),
-                'files': L.isNull(this.filesWidget) ? topic.files : this.filesWidget.files
-            };
-            var __self = this;
-            NS.manager.topicSave(topic, newdata, function(nTopic){
-                NS.life(__self.cfg['onTopicSave'], nTopic);
-            });
-        }
-    });
-    NS.TopicEditorWidget = TopicEditorWidget;
 
 };

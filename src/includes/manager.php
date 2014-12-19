@@ -422,12 +422,12 @@ class ForumManager extends Ab_ModuleManager {
             $plnk = "http://".$host.$topic->URI();
 
             $rows = ForumQuery::ModeratorList($this->db);
-            while (($user = $this->db->fetch_array($rows))) {
-                if ($user['id'] == $this->userid) {
+            while (($userData = $this->db->fetch_array($rows))) {
+                if ($userData['id'] == $this->userid) {
                     continue;
                 }
 
-                $email = $user['eml'];
+                $email = $userData['eml'];
                 if (empty($email)) {
                     continue;
                 }
@@ -438,7 +438,7 @@ class ForumManager extends Ab_ModuleManager {
                 $body = Brick::ReplaceVarByData($brick->param->var['newprojectbody'], array(
                     "tl" => $topic->title,
                     "plnk" => $plnk,
-                    "unm" => $this->UserNameBuild($this->user->info),
+                    "unm" => Abricos::$user->FullName(),
                     "prj" => $topic->detail->body,
                     "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
                 ));
@@ -552,13 +552,6 @@ class ForumManager extends Ab_ModuleManager {
         return $topic->IsCommentWrite();
     }
 
-    private function UserNameBuild($user) {
-        $firstname = !empty($user['fnm']) ? $user['fnm'] : $user['firstname'];
-        $lastname = !empty($user['lnm']) ? $user['lnm'] : $user['lastname'];
-        $username = !empty($user['unm']) ? $user['unm'] : $user['username'];
-        return (!empty($firstname) && !empty($lastname)) ? $firstname." ".$lastname : $username;
-    }
-
     /**
      * Отправить уведомление о новом комментарии.
      *
@@ -590,6 +583,7 @@ class ForumManager extends Ab_ModuleManager {
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
         $plnk = "http://".$host.$topic->URI();
 
+        $userManager = UserModule::$instance->GetManager();
 
         $emails = array();
 
@@ -597,8 +591,10 @@ class ForumManager extends Ab_ModuleManager {
         if ($data->pid > 0) {
             $parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
             if (!empty($parent) && $parent['uid'] != $this->userid) {
-                $user = UserQuery::User($this->db, $parent['uid']);
-                $email = $user['email'];
+
+                $user = $userManager->User($parent['uid']);
+
+                $email = $user->email;
                 if (!empty($email)) {
                     $emails[$email] = true;
                     $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlanssubject'], array(
@@ -607,7 +603,7 @@ class ForumManager extends Ab_ModuleManager {
                     $body = Brick::ReplaceVarByData($brick->param->var['cmtemlansbody'], array(
                         "tl" => $topic->title,
                         "plnk" => $plnk,
-                        "unm" => $this->UserNameBuild($this->user->info),
+                        "unm" => Abricos::$user->FullName(),
                         "cmt1" => $parent['bd']." ",
                         "cmt2" => $data->bd." ",
                         "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
@@ -619,9 +615,9 @@ class ForumManager extends Ab_ModuleManager {
 
         // уведомление автору
         if ($topic->userid != $this->userid) {
-            $autor = UserQuery::User($this->db, $topic->userid);
-            $email = $autor['email'];
-            if (!empty($email) && !$emails[$email]) {
+            $autor = $userManager->User($topic->userid);
+            $email = $autor->email;
+            if (!empty($email) && !isset($emails[$email])) {
                 $emails[$email] = true;
                 $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
                     "tl" => $topic->title
@@ -629,7 +625,7 @@ class ForumManager extends Ab_ModuleManager {
                 $body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
                     "tl" => $topic->title,
                     "plnk" => $plnk,
-                    "unm" => $this->UserNameBuild($this->user->info),
+                    "unm" => Abricos::$user->FullName(),
                     "cmt" => $data->bd." ",
                     "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
                 ));
@@ -639,10 +635,11 @@ class ForumManager extends Ab_ModuleManager {
 
         // уведомление модераторам
         $rows = ForumQuery::ModeratorList($this->db);
-        while (($user = $this->db->fetch_array($rows))) {
-            $email = $user['eml'];
+        while (($userData = $this->db->fetch_array($rows))) {
+            $user = $userManager->User($userData['id']);
+            $email = $user->email;
 
-            if (empty($email) || isset($emails[$email]) || $user['id'] == $this->userid) {
+            if (empty($email) || isset($emails[$email]) || $user->id == $this->userid) {
                 continue;
             }
             $emails[$email] = true;
@@ -652,7 +649,7 @@ class ForumManager extends Ab_ModuleManager {
             $body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
                 "tl" => $topic->title,
                 "plnk" => $plnk,
-                "unm" => $this->UserNameBuild($this->user->info),
+                "unm" => Abricos::$user->FullName(),
                 "cmt" => $data->bd." ",
                 "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
             ));

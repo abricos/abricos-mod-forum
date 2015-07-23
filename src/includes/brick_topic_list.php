@@ -14,7 +14,7 @@ $man = ForumModule::$instance->GetManager();
 
 $mList = $man->TopicList();
 
-if ($mList->Count() == 0) {
+if ($mList->Count() == 0){
     $brick->content = "";
     return;
 }
@@ -22,11 +22,11 @@ if ($mList->Count() == 0) {
 $userList = $man->UserList($mList->userIds);
 
 $lst = "";
-for ($i = 0; $i < $mList->Count(); $i++) {
+for ($i = 0; $i < $mList->Count(); $i++){
     $msg = $mList->GetByIndex($i);
 
     $user = $userList->Get($msg->lastUserId);
-    if (empty($user)) {
+    if (empty($user)){
         $user = $userList->Get($msg->userid);
     }
 

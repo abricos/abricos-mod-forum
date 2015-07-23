@@ -11,7 +11,7 @@ $p = &$brick->param->param;
 $v = &$brick->param->var;
 
 $topic = ForumModule::$instance->currentTopic;
-if (empty($topic)) {
+if (empty($topic)){
     $brick->content = "";
     return;
 }
@@ -23,9 +23,9 @@ $user = $userList->Get($topic->userid);
 
 $dl = $topic->dateline;
 $tpFiles = "";
-if ($topic->detail->fileList->Count() > 0) {
+if ($topic->detail->fileList->Count() > 0){
     $lstFile = "";
-    for ($i = 0; $i < $topic->detail->fileList->Count(); $i++) {
+    for ($i = 0; $i < $topic->detail->fileList->Count(); $i++){
         $file = $topic->detail->fileList->GetByIndex($i);
         $lstFile .= Brick::ReplaceVarByData($v['file'], array(
             'url' => $file->URL(),

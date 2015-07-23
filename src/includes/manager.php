@@ -20,38 +20,38 @@ class ForumManager extends Ab_ModuleManager {
      */
     public static $instance = null;
 
-    public function __construct(ForumModule $module) {
+    public function __construct(ForumModule $module){
         parent::__construct($module);
         ForumManager::$instance = $this;
     }
 
-    public function IsAdminRole() {
+    public function IsAdminRole(){
         return $this->IsRoleEnable(ForumAction::ADMIN);
     }
 
-    public function IsModerRole() {
-        if ($this->IsAdminRole()) {
+    public function IsModerRole(){
+        if ($this->IsAdminRole()){
             return true;
         }
         return $this->IsRoleEnable(ForumAction::MODER);
     }
 
-    public function IsWriteRole() {
-        if ($this->IsModerRole()) {
+    public function IsWriteRole(){
+        if ($this->IsModerRole()){
             return true;
         }
         return $this->IsRoleEnable(ForumAction::WRITE);
     }
 
-    public function IsViewRole() {
-        if ($this->IsWriteRole()) {
+    public function IsViewRole(){
+        if ($this->IsWriteRole()){
             return true;
         }
         return $this->IsRoleEnable(ForumAction::VIEW);
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case 'topicList':
                 return $this->TopicListToAJAX();
             case 'topic':
@@ -66,46 +66,46 @@ class ForumManager extends Ab_ModuleManager {
         return null;
     }
 
-    public function ToArrayId($rows, $field = "id") {
+    public function ToArrayId($rows, $field = "id"){
         $ret = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $ret[$row[$field]] = $row;
         }
         return $ret;
     }
 
-    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = '') {
+    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
         $ret = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             array_push($ret, $row);
-            if (is_array($ids1)) {
+            if (is_array($ids1)){
                 $ids1[$row[$fnids1]] = $row[$fnids1];
             }
-            if (is_array($ids2)) {
+            if (is_array($ids2)){
                 $ids2[$row[$fnids2]] = $row[$fnids2];
             }
-            if (is_array($ids3)) {
+            if (is_array($ids3)){
                 $ids3[$row[$fnids3]] = $row[$fnids3];
             }
         }
         return $ret;
     }
 
-    public function ParamToObject($o) {
-        if (is_array($o)) {
+    public function ParamToObject($o){
+        if (is_array($o)){
             $ret = new stdClass();
-            foreach ($o as $key => $value) {
+            foreach ($o as $key => $value){
                 $ret->$key = $value;
             }
             return $ret;
-        } else if (!is_object($o)) {
+        } else if (!is_object($o)){
             return new stdClass();
         }
         return $o;
     }
 
-    public function Bos_OnlineData() {
-        if (!$this->IsViewRole()) {
+    public function Bos_OnlineData(){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -113,15 +113,15 @@ class ForumManager extends Ab_ModuleManager {
         $cfg->limit = 15;
 
         $list = $this->TopicList($cfg);
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
         $ret = $list->ToAJAX();
         return $ret->list;
     }
 
-    public function ForumSave($sd) {
-        if (!$this->IsAdminRole()) {
+    public function ForumSave($sd){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -132,7 +132,7 @@ class ForumManager extends Ab_ModuleManager {
         $sd->tl = $utmf->Parser($sd->tl);
         $sd->bd = $utm->Parser($sd->bd);
 
-        if ($sd->id == 0) {
+        if ($sd->id == 0){
             $sd->uid = $this->userid;
             $sd->id = ForumQuery::ForumAppend($this->db, $sd);
         } else {
@@ -142,8 +142,8 @@ class ForumManager extends Ab_ModuleManager {
         return $this->ForumList();
     }
 
-    public function ForumList() {
-        if (!$this->IsViewRole()) {
+    public function ForumList(){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -156,23 +156,23 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param ForumTopic|array|integer $uids
      */
-    public function UserList($uids) {
-        if (!$this->IsViewRole()) {
+    public function UserList($uids){
+        if (!$this->IsViewRole()){
             return null;
         }
 
-        if ($uids instanceof ForumTopic) {
+        if ($uids instanceof ForumTopic){
             $uids = array(
                 $uids->userid,
                 $uids->lastUserId
             );
-        } else if (!is_array($uids)) {
+        } else if (!is_array($uids)){
             $uids = array(intval($uids));
         }
 
         $list = new ForumUserList();
         $rows = ForumQuery::UserList($this->db, $uids);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $list->Add(new ForumUser($d));
         }
         return $list;
@@ -181,15 +181,15 @@ class ForumManager extends Ab_ModuleManager {
     private $_cacheTopicCID;
     private $_cacheTopic;
 
-    private function _TopicInitCache($clearCache) {
-        if ($clearCache) {
+    private function _TopicInitCache($clearCache){
+        if ($clearCache){
             $this->_cacheTopic = null;
             $this->_cacheTopicCID = null;
         }
-        if (!is_array($this->_cacheTopic)) {
+        if (!is_array($this->_cacheTopic)){
             $this->_cacheTopic = array();
         }
-        if (!is_array($this->_cacheTopicCID)) {
+        if (!is_array($this->_cacheTopicCID)){
             $this->_cacheTopicCID = array();
         }
     }
@@ -201,8 +201,8 @@ class ForumManager extends Ab_ModuleManager {
      * @param boolean $clearCache
      * @return ForumTopic
      */
-    public function Topic($topicid, $clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function Topic($topicid, $clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -210,7 +210,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $this->_TopicInitCache($clearCache);
 
-        if (!empty($this->_cacheTopic[$topicid])) {
+        if (!empty($this->_cacheTopic[$topicid])){
             return $this->_cacheTopic[$topicid];
         }
 
@@ -220,7 +220,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $list = $this->TopicList($cfg);
         $topic = $this->_cacheTopic[$topicid] = $list->GetByIndex(0);
-        if (empty($topic)) {
+        if (empty($topic)){
             return null;
         }
 
@@ -235,8 +235,8 @@ class ForumManager extends Ab_ModuleManager {
      * @param integer $contentid
      * @param boolean $clearCache
      */
-    public function TopicByContentId($contentid, $clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function TopicByContentId($contentid, $clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -244,7 +244,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $this->_TopicInitCache($clearCache);
 
-        if (!empty($this->_cacheTopicCID[$contentid])) {
+        if (!empty($this->_cacheTopicCID[$contentid])){
             return $this->_cacheTopicCID[$contentid];
         }
 
@@ -254,7 +254,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $list = $this->TopicList($cfg);
         $topic = $list->GetByIndex(0);
-        if (empty($topic)) {
+        if (empty($topic)){
             return null;
         }
 
@@ -263,9 +263,9 @@ class ForumManager extends Ab_ModuleManager {
         return $topic;
     }
 
-    public function TopicToAJAX($topicid) {
+    public function TopicToAJAX($topicid){
         $topic = $this->Topic($topicid);
-        if (empty($topic)) {
+        if (empty($topic)){
             return null;
         }
 
@@ -284,12 +284,12 @@ class ForumManager extends Ab_ModuleManager {
      * @param ForumTopicListConfig|array|object $cfg
      * @return ForumTopicList
      */
-    public function TopicList($cfg = null) {
-        if (!$this->IsViewRole()) {
+    public function TopicList($cfg = null){
+        if (!$this->IsViewRole()){
             return null;
         }
 
-        if ($cfg instanceof ForumTopicListConfig) {
+        if ($cfg instanceof ForumTopicListConfig){
         } else {
             $cfg = new ForumTopicListConfig($this->ParamToObject($cfg));
         }
@@ -297,35 +297,35 @@ class ForumManager extends Ab_ModuleManager {
         $list = new ForumTopicList();
 
         $rows = ForumQuery::TopicList($this->db, $cfg);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $topic = new ForumTopic($d);
-            if ($cfg->withDetail) {
+            if ($cfg->withDetail){
                 $topic->detail = new ForumTopicDetail($d);
             }
 
             $list->Add($topic);
         }
 
-        if (!$cfg->withDetail || $list->Count() == 0) {
+        if (!$cfg->withDetail || $list->Count() == 0){
             return $list;
         }
 
         $rows = ForumQuery::TopicFileList($this->db, $list->Ids());
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $topic = $list->Get($d['tid']);
             $topic->detail->fileList->Add(new ForumFile($d));
         }
         return $list;
     }
 
-    public function TopicListToAJAX() {
+    public function TopicListToAJAX(){
 
         $cfg = new ForumTopicListConfig();
         $cfg->limit = 50;
 
         $list = $this->TopicList($cfg);
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -343,8 +343,8 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param object $sd
      */
-    public function TopicSave($sd) {
-        if (!$this->IsWriteRole()) {
+    public function TopicSave($sd){
+        if (!$this->IsWriteRole()){
             return null;
         }
 
@@ -361,7 +361,7 @@ class ForumManager extends Ab_ModuleManager {
         $sendNewNotify = false;
 
         $topic = null;
-        if ($sd->id == 0) {
+        if ($sd->id == 0){
             $sd->uid = $this->userid;
             $pubkey = md5(time().$this->userid);
             $sd->id = ForumQuery::TopicAppend($this->db, $sd, $pubkey);
@@ -370,14 +370,14 @@ class ForumManager extends Ab_ModuleManager {
             $topic = $this->Topic($sd->id);
         } else {
             $topic = $this->Topic($sd->id);
-            if (empty($topic) || !$topic->IsWrite()) {
+            if (empty($topic) || !$topic->IsWrite()){
                 return null;
             }
 
             ForumQuery::TopicUpdate($this->db, $topic, $sd, $this->userid);
         }
 
-        if (empty($topic)) {
+        if (empty($topic)){
             return null;
         }
 
@@ -385,36 +385,36 @@ class ForumManager extends Ab_ModuleManager {
         $fileList = $topic->detail->fileList;
         $arr = $sd->files;
 
-        for ($i = 0; $i < $fileList->Count(); $i++) {
+        for ($i = 0; $i < $fileList->Count(); $i++){
             $cFile = $fileList->GetByIndex($i);
             $find = false;
-            foreach ($arr as $file) {
-                if ($file->id == $cFile->id) {
+            foreach ($arr as $file){
+                if ($file->id == $cFile->id){
                     $find = true;
                     break;
                 }
             }
-            if (!$find) {
+            if (!$find){
                 ForumQuery::TopicFileRemove($this->db, $sd->id, $cFile->id);
             }
         }
-        foreach ($arr as $file) {
+        foreach ($arr as $file){
             $find = false;
-            for ($i = 0; $i < $fileList->Count(); $i++) {
+            for ($i = 0; $i < $fileList->Count(); $i++){
                 $cFile = $fileList->GetByIndex($i);
-                if ($file->id == $cFile->id) {
+                if ($file->id == $cFile->id){
                     $find = true;
                     break;
                 }
             }
-            if (!$find) {
+            if (!$find){
                 ForumQuery::TopicFileAppend($this->db, $sd->id, $file->id, $this->userid);
             }
         }
 
         $topic = $this->Topic($sd->id, true);
 
-        if ($sendNewNotify) {
+        if ($sendNewNotify){
             // Отправить уведомление всем модераторам
 
             $brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
@@ -422,13 +422,13 @@ class ForumManager extends Ab_ModuleManager {
             $plnk = "http://".$host.$topic->URI();
 
             $rows = ForumQuery::ModeratorList($this->db);
-            while (($userData = $this->db->fetch_array($rows))) {
-                if ($userData['id'] == $this->userid) {
+            while (($userData = $this->db->fetch_array($rows))){
+                if ($userData['id'] == $this->userid){
                     continue;
                 }
 
                 $email = $userData['eml'];
-                if (empty($email)) {
+                if (empty($email)){
                     continue;
                 }
 
@@ -449,10 +449,10 @@ class ForumManager extends Ab_ModuleManager {
         return $topic->id;
     }
 
-    public function TopicSaveToAJAX($sd) {
+    public function TopicSaveToAJAX($sd){
         $topicid = $this->TopicSave($sd);
 
-        if (empty($topicid)) {
+        if (empty($topicid)){
             return null;
         }
 
@@ -464,13 +464,13 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param integer $topicid
      */
-    public function TopicClose($topicid) {
-        if (!$this->IsModerRole()) {
+    public function TopicClose($topicid){
+        if (!$this->IsModerRole()){
             return null;
         }
 
         $topic = $this->Topic($topicid);
-        if (empty($topic) || !$topic->IsWrite()) {
+        if (empty($topic) || !$topic->IsWrite()){
             return null;
         }
 
@@ -479,9 +479,9 @@ class ForumManager extends Ab_ModuleManager {
         return $topicid;
     }
 
-    public function TopicCloseToAJAX($topicid) {
+    public function TopicCloseToAJAX($topicid){
         $topicid = $this->TopicClose($topicid);
-        if (empty($topicid)) {
+        if (empty($topicid)){
             return null;
         }
 
@@ -493,13 +493,13 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param integer $topicid
      */
-    public function TopicRemove($topicid) {
-        if (!$this->IsModerRole()) {
+    public function TopicRemove($topicid){
+        if (!$this->IsModerRole()){
             return null;
         }
 
         $topic = $this->Topic($topicid);
-        if (empty($topic) || !$topic->IsWrite()) {
+        if (empty($topic) || !$topic->IsWrite()){
             return null;
         }
 
@@ -508,9 +508,9 @@ class ForumManager extends Ab_ModuleManager {
         return $topicid;
     }
 
-    public function TopicRemoveToAJAX($topicid) {
+    public function TopicRemoveToAJAX($topicid){
         $topicid = $this->TopicRemove($topicid);
-        if (empty($topicid)) {
+        if (empty($topicid)){
             return null;
         }
 
@@ -527,8 +527,8 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param integer $contentid
      */
-    public function Comment_IsViewList($contentid) {
-        if (!$this->IsViewRole()) {
+    public function Comment_IsViewList($contentid){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -543,9 +543,9 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param integer $contentid
      */
-    public function Comment_IsWrite($contentid) {
+    public function Comment_IsWrite($contentid){
         $topic = $this->TopicByContentId($contentid);
-        if (empty($topic)) {
+        if (empty($topic)){
             return false;
         }
 
@@ -557,8 +557,8 @@ class ForumManager extends Ab_ModuleManager {
      *
      * @param object $data
      */
-    public function Comment_SendNotify($data) {
-        if (!$this->IsViewRole()) {
+    public function Comment_SendNotify($data){
+        if (!$this->IsViewRole()){
             return;
         }
 
@@ -571,7 +571,7 @@ class ForumManager extends Ab_ModuleManager {
 
         $topic = $this->TopicByContentId($data->cid);
 
-        if (empty($topic) || !$topic->IsCommentWrite()) {
+        if (empty($topic) || !$topic->IsCommentWrite()){
             return;
         }
 
@@ -588,14 +588,14 @@ class ForumManager extends Ab_ModuleManager {
         $emails = array();
 
         // уведомление "комментарий на комментарий"
-        if ($data->pid > 0) {
+        if ($data->pid > 0){
             $parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
-            if (!empty($parent) && $parent['uid'] != $this->userid) {
+            if (!empty($parent) && $parent['uid'] != $this->userid){
 
                 $user = $userManager->User($parent['uid']);
 
                 $email = $user->email;
-                if (!empty($email)) {
+                if (!empty($email)){
                     $emails[$email] = true;
                     $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlanssubject'], array(
                         "tl" => $topic->title
@@ -614,10 +614,10 @@ class ForumManager extends Ab_ModuleManager {
         }
 
         // уведомление автору
-        if ($topic->userid != $this->userid) {
+        if ($topic->userid != $this->userid){
             $autor = $userManager->User($topic->userid);
             $email = $autor->email;
-            if (!empty($email) && !isset($emails[$email])) {
+            if (!empty($email) && !isset($emails[$email])){
                 $emails[$email] = true;
                 $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
                     "tl" => $topic->title
@@ -635,11 +635,11 @@ class ForumManager extends Ab_ModuleManager {
 
         // уведомление модераторам
         $rows = ForumQuery::ModeratorList($this->db);
-        while (($userData = $this->db->fetch_array($rows))) {
+        while (($userData = $this->db->fetch_array($rows))){
             $user = $userManager->User($userData['id']);
             $email = $user->email;
 
-            if (empty($email) || isset($emails[$email]) || $user->id == $this->userid) {
+            if (empty($email) || isset($emails[$email]) || $user->id == $this->userid){
                 continue;
             }
             $emails[$email] = true;
@@ -657,7 +657,7 @@ class ForumManager extends Ab_ModuleManager {
         }
     }
 
-    public function Bos_MenuData() {
+    public function Bos_MenuData(){
         $i18n = $this->module->GetI18n();
         return array(
             array(

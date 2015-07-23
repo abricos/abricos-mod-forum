@@ -15,7 +15,7 @@ class ForumModule extends Ab_Module {
 
     private $_manager = null;
 
-    public function __construct() {
+    public function __construct(){
         ForumModule::$instance = $this;
         $this->version = "0.1.7";
         $this->name = "forum";
@@ -28,8 +28,8 @@ class ForumModule extends Ab_Module {
      *
      * @return ForumManager
      */
-    public function GetManager() {
-        if (empty($this->_manager)) {
+    public function GetManager(){
+        if (empty($this->_manager)){
             require_once 'includes/manager.php';
             $this->_manager = new ForumManager($this);
         }
@@ -41,22 +41,22 @@ class ForumModule extends Ab_Module {
      */
     public $currentTopic;
 
-    public function GetContentName() {
+    public function GetContentName(){
         $cname = 'index';
         $adress = Abricos::$adress;
 
-        if ($adress->level >= 2) {
+        if ($adress->level >= 2){
             $d2 = $adress->dir[1];
-            if ($d2 == 'upload') {
+            if ($d2 == 'upload'){
                 return 'upload';
             }
 
             $a = explode("_", $d2);
 
-            if ($a[0] == 'topic') {
+            if ($a[0] == 'topic'){
 
                 $this->currentTopic = $this->GetManager()->Topic(intval($a[1]));
-                if (empty($this->currentTopic)) {
+                if (empty($this->currentTopic)){
                     return '';
                 }
 
@@ -69,7 +69,7 @@ class ForumModule extends Ab_Module {
         return $cname;
     }
 
-    public function RSS_GetItemList($inBosUI = false) {
+    public function RSS_GetItemList($inBosUI = false){
         $ret = array();
 
         $manager = $this->GetManager();
@@ -82,7 +82,7 @@ class ForumModule extends Ab_Module {
 
         $i18n = $this->GetI18n();
         $mList = $manager->TopicList($cfg);
-        for ($i = 0; $i < $mList->Count(); $i++) {
+        for ($i = 0; $i < $mList->Count(); $i++){
             $msg = $mList->GetByIndex($i);
 
             $item = new RSSItem($msg->title, $msg->URI(), "", $msg->dateline);
@@ -97,7 +97,7 @@ class ForumModule extends Ab_Module {
      *
      * @return bool
      */
-    public function Bos_IsMenu() {
+    public function Bos_IsMenu(){
         return true;
     }
 }
@@ -114,6 +114,7 @@ class ForumGroup {
 
     /**
      * Группа "Модераторы"
+     *
      * @var string
      */
     const MODERATOR = 'forum_moderator';
@@ -121,7 +122,7 @@ class ForumGroup {
 
 class ForumPermission extends Ab_UserPermission {
 
-    public function ForumPermission(ForumModule $module) {
+    public function ForumPermission(ForumModule $module){
         $defRoles = array(
             new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::GUEST),
             new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::REGISTERED),
@@ -138,7 +139,7 @@ class ForumPermission extends Ab_UserPermission {
         parent::__construct($module, $defRoles);
     }
 
-    public function GetRoles() {
+    public function GetRoles(){
         return array(
             ForumAction::VIEW => $this->CheckAction(ForumAction::VIEW),
             ForumAction::WRITE => $this->CheckAction(ForumAction::WRITE),

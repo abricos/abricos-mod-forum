@@ -1,8 +1,3 @@
-/*!
- * Copyright 2014 Alexander Kuzmin <roosit@abricos.org>
- * Licensed under the MIT license
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     mod: [

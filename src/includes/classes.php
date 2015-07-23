@@ -10,7 +10,7 @@ class Forum extends AbricosItem {
 
     public $title;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->title = strval($d['tl']);
     }
@@ -22,14 +22,14 @@ class ForumList extends AbricosList {
     /**
      * @return Forum
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return Forum
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -58,7 +58,7 @@ class ForumTopic extends AbricosItem {
      */
     public $detail = null;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $this->userid = intval($d['uid']);
@@ -75,49 +75,49 @@ class ForumTopic extends AbricosItem {
         $this->_isPrivate = intval($d['prt']) > 0;
     }
 
-    public function IsPrivate() {
+    public function IsPrivate(){
         return $this->_isPrivate;
     }
 
-    public function IsClosed() {
+    public function IsClosed(){
         return $this->status == ForumTopic::ST_CLOSED;
     }
 
-    public function IsRemoved() {
+    public function IsRemoved(){
         return $this->status == ForumTopic::ST_REMOVED;
     }
 
     /**
      * Разрешено ли писать комментарий в тему
      */
-    public function IsCommentWrite() {
+    public function IsCommentWrite(){
         return !$this->IsClosed() && !$this->IsRemoved();
     }
 
     /**
      * Разрешено ли изменять тему
      */
-    public function IsWrite() {
-        if ($this->IsClosed() || $this->IsRemoved()) {
+    public function IsWrite(){
+        if ($this->IsClosed() || $this->IsRemoved()){
             return false;
         }
 
-        if (ForumManager::$instance->IsModerRole()) {
+        if (ForumManager::$instance->IsModerRole()){
             return true;
         }
 
-        if ($this->userid == Abricos::$user->id) {
+        if ($this->userid == Abricos::$user->id){
             return true;
         }
 
         return false;
     }
 
-    public function URI() {
+    public function URI(){
         return "/forum/topic_".$this->id."/";
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->tl = $this->title;
         $ret->uid = $this->userid;
@@ -130,7 +130,7 @@ class ForumTopic extends AbricosItem {
         $ret->stuid = $this->stUserId;
         $ret->stdl = $this->stDate;
 
-        if (!empty($this->detail)) {
+        if (!empty($this->detail)){
             $ret->dtl = $this->detail->ToAJAX();
         }
 
@@ -141,12 +141,14 @@ class ForumTopic extends AbricosItem {
 class ForumTopicDetail {
     /**
      * Тело топика
+     *
      * @var string
      */
     public $body;
 
     /**
      * Идентификатор глобального контента
+     *
      * @var integer
      */
     public $contentid;
@@ -158,14 +160,14 @@ class ForumTopicDetail {
      */
     public $fileList;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->body = strval($d['bd']);
         $this->contentid = intval($d['ctid']);
 
         $this->fileList = new ForumFileList();
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->bd = $this->body;
         $ret->ctid = $this->contentid;
@@ -181,6 +183,7 @@ class ForumTopicList extends AbricosList {
 
     /**
      * Идентификаторы пользователей
+     *
      * @var array
      */
     public $userIds = array();
@@ -188,14 +191,15 @@ class ForumTopicList extends AbricosList {
 
     /**
      * Дата последнего обновления
+     *
      * @var integer
      */
     public $hlid;
 
-    public function __construct() {
+    public function __construct(){
         parent::__construct();
 
-        if (func_num_args() > 0) {
+        if (func_num_args() > 0){
             $this->hlid = intval(func_get_arg(0));
         } else {
             $this->hlid = 0;
@@ -205,19 +209,19 @@ class ForumTopicList extends AbricosList {
     /**
      * @return ForumTopic
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return ForumTopic
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
-    public function AddUserId($userid) {
-        if (isset($this->_checkUsers[$userid]) && $this->_checkUsers[$userid]) {
+    public function AddUserId($userid){
+        if (isset($this->_checkUsers[$userid]) && $this->_checkUsers[$userid]){
             return;
         }
         $this->_checkUsers[$userid] = true;
@@ -226,9 +230,10 @@ class ForumTopicList extends AbricosList {
 
     /**
      * Добавить сообщение в список
+     *
      * @param ForumTopic $item
      */
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
 
         $this->AddUserId($item->userid);
@@ -245,30 +250,35 @@ class ForumTopicListConfig {
 
     /**
      * Лимит записей
+     *
      * @var integer
      */
     public $limit = 50;
 
     /**
      * Все записи с последней даты обновления
+     *
      * @var integer
      */
     public $lastUpdate = 0;
 
     /**
      * Сортировать список по дате создания
+     *
      * @var boolean
      */
     public $orderByDateLine = false;
 
     /**
      * Идентификаторы тем
+     *
      * @var array
      */
     public $topicIds;
 
     /**
      * Глобальные идентификаторы контента
+     *
      * @var array
      */
     public $contentIds;
@@ -282,18 +292,18 @@ class ForumFile extends AbricosItem {
     public $counter;
     public $dateline;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = strval($d['id']);
         $this->name = strval($d['fn']);
         $this->counter = intval($d['cnt']);
         $this->dateline = intval($d['dl']);
     }
 
-    public function URL() {
+    public function URL(){
         return "/filemanager/i/".$this->id."/".$this->name;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->nm = $this->name;
         $ret->cnt = $this->counter;
@@ -307,14 +317,14 @@ class ForumFileList extends AbricosList {
     /**
      * @return ForumFile
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return ForumFile
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -329,11 +339,12 @@ class ForumUser extends AbricosItem {
      * Почта пользователя
      *
      * Для внутреннего использования
+     *
      * @var string
      */
     public $email;
 
-    public function __construct($d) {
+    public function __construct($d){
         $d = array_merge(array(
             "uid" => 0,
             "unm" => "",
@@ -351,7 +362,7 @@ class ForumUser extends AbricosItem {
         $this->email = strval($d['eml']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->unm = $this->userName;
@@ -361,31 +372,31 @@ class ForumUser extends AbricosItem {
         return $ret;
     }
 
-    public function GetUserName() {
-        if (!empty($this->firstName) && !empty($this->lastName)) {
+    public function GetUserName(){
+        if (!empty($this->firstName) && !empty($this->lastName)){
             return $this->firstName." ".$this->lastName;
         }
         return $this->userName;
     }
 
-    public function URL() {
+    public function URL(){
         $mod = Abricos::GetModule('uprofile');
-        if (empty($mod)) {
+        if (empty($mod)){
             return "#";
         }
         return '/uprofile/'.$this->id.'/';
     }
 
-    private function Avatar($size) {
+    private function Avatar($size){
         $url = empty($this->avatar) ? '/modules/uprofile/images/nofoto'.$size.'.gif' : '/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
         return '<img src="'.$url.'">';
     }
 
-    public function Avatar24() {
+    public function Avatar24(){
         return $this->Avatar(24);
     }
 
-    public function Avatar90() {
+    public function Avatar90(){
         return $this->Avatar(90);
     }
 }
@@ -395,14 +406,14 @@ class ForumUserList extends AbricosList {
     /**
      * @return ForumUser
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return ForumUser
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }

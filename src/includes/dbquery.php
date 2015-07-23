@@ -7,7 +7,7 @@
  */
 class ForumQuery {
 
-    public static function ForumAppend(Ab_Database $db, $d) {
+    public static function ForumAppend(Ab_Database $db, $d){
         $sql = "
 			INSERT INTO ".$db->prefix."frm_forum 
 				(title, descript, dateline, upddate, language) VALUES (
@@ -22,7 +22,7 @@ class ForumQuery {
         return $db->insert_id();
     }
 
-    public static function TopicAppend(Ab_Database $db, $d, $pubkey) {
+    public static function TopicAppend(Ab_Database $db, $d, $pubkey){
         $contentid = Ab_CoreQuery::ContentAppend($db, $d->bd, 'forum');
 
         $sql = "
@@ -43,7 +43,7 @@ class ForumQuery {
         return $db->insert_id();
     }
 
-    public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid) {
+    public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid){
         Ab_CoreQuery::ContentUpdate($db, $topic->detail->contentid, $d->bd);
         $sql = "
 			UPDATE ".$db->prefix."frm_topic
@@ -56,7 +56,7 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicFields(Ab_Database $db) {
+    public static function TopicFields(Ab_Database $db){
         return "
 			m.topicid as id,
 			m.userid as uid,
@@ -73,7 +73,7 @@ class ForumQuery {
 		";
     }
 
-    public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg) {
+    public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg){
 
         $lastupdate = bkint($cfg->lastUpdate);
         $limit = $cfg->limit;
@@ -81,7 +81,7 @@ class ForumQuery {
         $sql = "
 			SELECT ".ForumQuery::TopicFields($db)."
 		";
-        if ($cfg->withDetail) {
+        if ($cfg->withDetail){
             $sql .= ",
 				c.body as bd,
 				c.contentid as ctid
@@ -90,7 +90,7 @@ class ForumQuery {
         $sql .= "
 			FROM ".$db->prefix."frm_topic m
 		";
-        if ($cfg->withDetail) {
+        if ($cfg->withDetail){
             $sql .= "
 				INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
 			";
@@ -99,7 +99,7 @@ class ForumQuery {
 			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
 				AND language='".bkstr(Abricos::$LNG)."'
 		";
-        if (!ForumManager::$instance->IsModerRole()) {
+        if (!ForumManager::$instance->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
 				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id).")) 
@@ -107,19 +107,19 @@ class ForumQuery {
 			";
         }
 
-        if (is_array($cfg->topicIds) && count($cfg->topicIds)) {
+        if (is_array($cfg->topicIds) && count($cfg->topicIds)){
             $limit = 1;
             $aWh = array();
-            for ($i = 0; $i < count($cfg->topicIds); $i++) {
+            for ($i = 0; $i < count($cfg->topicIds); $i++){
                 array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
             }
             $sql .= " AND (".implode(" OR ", $aWh).") ";
         }
 
-        if (is_array($cfg->contentIds) && count($cfg->contentIds)) {
+        if (is_array($cfg->contentIds) && count($cfg->contentIds)){
             $limit = 1;
             $aWh = array();
-            for ($i = 0; $i < count($cfg->contentIds); $i++) {
+            for ($i = 0; $i < count($cfg->contentIds); $i++){
                 array_push($aWh, "m.contentid=".bkint($cfg->contentIds[$i]));
             }
             $sql .= " AND (".implode(" OR ", $aWh).") ";
@@ -133,10 +133,10 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
-    public static function UserList(Ab_Database $db, $uids) {
+    public static function UserList(Ab_Database $db, $uids){
         $aWh = array();
         array_push($aWh, "u.userid=0");
-        foreach ($uids as $uid) {
+        foreach ($uids as $uid){
             array_push($aWh, "u.userid=".bkint($uid));
         }
 
@@ -154,7 +154,7 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
-    public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid) {
+    public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid){
 
         $sql = "
 			SELECT
@@ -198,7 +198,7 @@ class ForumQuery {
     }
 
 
-    public static function CommentList(Ab_Database $db, $userid) {
+    public static function CommentList(Ab_Database $db, $userid){
         $sql = "
 			SELECT 
 				a.commentid as id,
@@ -226,7 +226,7 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
-    public static function ModeratorList(Ab_Database $db) {
+    public static function ModeratorList(Ab_Database $db){
         $sql = "
 			SELECT 
 				u.userid as id,
@@ -248,12 +248,12 @@ class ForumQuery {
      * @param Ab_Database $db
      * @param array|integer $tids
      */
-    public static function TopicFileList(Ab_Database $db, $tids) {
-        if (!is_array($tids)) {
+    public static function TopicFileList(Ab_Database $db, $tids){
+        if (!is_array($tids)){
             $tids = array(intval($tids));
         }
         $aWh = array();
-        foreach ($tids as $tid) {
+        foreach ($tids as $tid){
             array_push($aWh, "bf.topicid=".bkint($tid));
         }
 
@@ -273,7 +273,7 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
-    public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid) {
+    public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid){
         $sql = "
 			INSERT INTO ".$db->prefix."frm_file (topicid, filehash, userid) VALUES
 			(
@@ -285,7 +285,7 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash) {
+    public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash){
         $sql = "
 			DELETE FROM ".$db->prefix."frm_file
 			WHERE topicid=".bkint($topicid)." AND filehash='".bkstr($filehash)."' 
@@ -293,7 +293,7 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid) {
+    public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid){
         $sql = "
 			UPDATE ".$db->prefix."frm_topic
 			SET
@@ -306,7 +306,7 @@ class ForumQuery {
     }
 
 
-    public static function MyUserData(Ab_Database $db, $userid, $retarray = false) {
+    public static function MyUserData(Ab_Database $db, $userid, $retarray = false){
         $sql = "
 			SELECT
 				DISTINCT
@@ -339,7 +339,7 @@ class ForumQuery {
      * @param Ab_Database $db
      * @param integer $topicid
      */
-    public static function TopicUserList(Ab_Database $db, $topicid) {
+    public static function TopicUserList(Ab_Database $db, $topicid){
         $sql = "
 			SELECT 
 				p.userid as id,
@@ -359,7 +359,7 @@ class ForumQuery {
      * @param Ab_Database $db
      * @param integer $topicid
      */
-    public static function TopicUserListForNotify(Ab_Database $db, $topicid) {
+    public static function TopicUserListForNotify(Ab_Database $db, $topicid){
         $sql = "
 			SELECT 
 				p.userid as id,

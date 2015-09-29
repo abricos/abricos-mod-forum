@@ -41,10 +41,6 @@ class ForumList extends AbricosList {
 
 class ForumTopic extends AbricosItem {
 
-    const ST_OPENED = 0;
-    const ST_CLOSED = 1;
-    const ST_REMOVED = 2;
-
     public $userid;
     public $title;
     public $dateline;
@@ -118,9 +114,6 @@ class ForumTopic extends AbricosItem {
         return false;
     }
 
-    public function URI(){
-        return "/forum/topic_".$this->id."/";
-    }
 
     public function ToAJAX(){
         $ret = parent::ToAJAX();

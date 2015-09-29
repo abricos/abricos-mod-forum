@@ -7,15 +7,12 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'classes.php';
-require_once 'dbquery.php';
-
+/**
+ * Class ForumManager
+ *
+ * @property ForumModule $module
+ */
 class ForumManager extends Ab_ModuleManager {
-
-    /**
-     * @var ForumModule
-     */
-    public $module = null;
 
     /**
      * @var ForumManager
@@ -52,133 +49,25 @@ class ForumManager extends Ab_ModuleManager {
         return $this->IsRoleEnable(ForumAction::VIEW);
     }
 
-    public function AJAX($d){
-        switch ($d->do){
-            case 'topicList':
-                return $this->TopicListToAJAX();
-            case 'topic':
-                return $this->TopicToAJAX($d->topicid);
-            case 'topicSave':
-                return $this->TopicSaveToAJAX($d->topic);
-            case 'topicClose':
-                return $this->TopicCloseToAJAX($d->topicid);
-            case 'topicRemove':
-                return $this->TopicRemoveToAJAX($d->topicid);
-        }
-        return null;
-    }
-
-    public function ToArrayId($rows, $field = "id"){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            $ret[$row[$field]] = $row;
-        }
-        return $ret;
-    }
-
-    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            array_push($ret, $row);
-            if (is_array($ids1)){
-                $ids1[$row[$fnids1]] = $row[$fnids1];
-            }
-            if (is_array($ids2)){
-                $ids2[$row[$fnids2]] = $row[$fnids2];
-            }
-            if (is_array($ids3)){
-                $ids3[$row[$fnids3]] = $row[$fnids3];
-            }
-        }
-        return $ret;
-    }
-
-    public function ParamToObject($o){
-        if (is_array($o)){
-            $ret = new stdClass();
-            foreach ($o as $key => $value){
-                $ret->$key = $value;
-            }
-            return $ret;
-        } else if (!is_object($o)){
-            return new stdClass();
-        }
-        return $o;
-    }
-
-    public function Bos_OnlineData(){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $cfg = new ForumTopicListConfig();
-        $cfg->limit = 15;
-
-        $list = $this->TopicList($cfg);
-        if (empty($list)){
-            return null;
-        }
-        $ret = $list->ToAJAX();
-        return $ret->list;
-    }
-
-    public function ForumSave($sd){
-        if (!$this->IsAdminRole()){
-            return null;
-        }
-
-        $sd->id = intval($sd->id);
-
-        $utmf = Abricos::TextParser(true);
-        $utm = Abricos::TextParser();
-        $sd->tl = $utmf->Parser($sd->tl);
-        $sd->bd = $utm->Parser($sd->bd);
-
-        if ($sd->id == 0){
-            $sd->uid = $this->userid;
-            $sd->id = ForumQuery::ForumAppend($this->db, $sd);
-        } else {
-            ForumQuery::ForumUpdate($this->db, $sd);
-        }
-
-        return $this->ForumList();
-    }
-
-    public function ForumList(){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $rows = ForumQuery::ForumList($this->db);
-        return $this->ToArray($rows);
-    }
+    private $_forum = null;
 
     /**
-     * Получить список пользователей
-     *
-     * @param ForumTopic|array|integer $uids
+     * @return Forum
      */
-    public function UserList($uids){
-        if (!$this->IsViewRole()){
-            return null;
+    public function GetForum(){
+        if (!is_null($this->_forum)){
+            return $this->_forum;
         }
-
-        if ($uids instanceof ForumTopic){
-            $uids = array(
-                $uids->userid,
-                $uids->lastUserId
-            );
-        } else if (!is_array($uids)){
-            $uids = array(intval($uids));
-        }
-
-        $list = new ForumUserList();
-        $rows = ForumQuery::UserList($this->db, $uids);
-        while (($d = $this->db->fetch_array($rows))){
-            $list->Add(new ForumUser($d));
-        }
-        return $list;
+        require_once 'dbquery.php';
+        require_once 'classes/forum.php';
+        $this->_forum = new Forum($this);
+        return $this->_forum;
     }
+
+    public function AJAX($d){
+        return $this->GetForum()->AJAX($d);
+    }
+
 
     private $_cacheTopicCID;
     private $_cacheTopic;
@@ -196,47 +85,6 @@ class ForumManager extends Ab_ModuleManager {
         }
     }
 
-    /**
-     * Тема форума
-     *
-     * @param integer $topicid
-     * @param boolean $clearCache
-     * @return ForumTopic
-     */
-    public function Topic($topicid, $clearCache = false){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $topicid = intval($topicid);
-
-        $this->_TopicInitCache($clearCache);
-
-        if (!empty($this->_cacheTopic[$topicid])){
-            return $this->_cacheTopic[$topicid];
-        }
-
-        $cfg = new ForumTopicListConfig();
-        $cfg->topicIds = array($topicid);
-        $cfg->withDetail = true;
-
-        $list = $this->TopicList($cfg);
-        $topic = $this->_cacheTopic[$topicid] = $list->GetByIndex(0);
-        if (empty($topic)){
-            return null;
-        }
-
-        $this->_cacheTopicCID[$topic->detail->contentid] = $topic;
-
-        return $topic;
-    }
-
-    /**
-     * Тема форума по глобальному идентификатору контента
-     *
-     * @param integer $contentid
-     * @param boolean $clearCache
-     */
     public function TopicByContentId($contentid, $clearCache = false){
         if (!$this->IsViewRole()){
             return null;
@@ -265,81 +113,6 @@ class ForumManager extends Ab_ModuleManager {
         return $topic;
     }
 
-    public function TopicToAJAX($topicid){
-        $topic = $this->Topic($topicid);
-        if (empty($topic)){
-            return null;
-        }
-
-        $ret = new stdClass();
-        $ret->topic = $topic->ToAJAX();
-
-        $userList = $this->UserList($topic->userid);
-        $ret->userList = $userList->ToAJAX();
-
-        return $ret;
-    }
-
-    /**
-     * Список сообщений
-     *
-     * @param ForumTopicListConfig|array|object $cfg
-     * @return ForumTopicList
-     */
-    public function TopicList($cfg = null){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        if ($cfg instanceof ForumTopicListConfig){
-        } else {
-            $cfg = new ForumTopicListConfig($this->ParamToObject($cfg));
-        }
-
-        $list = new ForumTopicList();
-
-        $rows = ForumQuery::TopicList($this->db, $cfg);
-        while (($d = $this->db->fetch_array($rows))){
-            $topic = new ForumTopic($d);
-            if ($cfg->withDetail){
-                $topic->detail = new ForumTopicDetail($d);
-            }
-
-            $list->Add($topic);
-        }
-
-        if (!$cfg->withDetail || $list->Count() == 0){
-            return $list;
-        }
-
-        $rows = ForumQuery::TopicFileList($this->db, $list->Ids());
-        while (($d = $this->db->fetch_array($rows))){
-            $topic = $list->Get($d['tid']);
-            $topic->detail->fileList->Add(new ForumFile($d));
-        }
-        return $list;
-    }
-
-    public function TopicListToAJAX(){
-
-        $cfg = new ForumTopicListConfig();
-        $cfg->limit = 50;
-
-        $list = $this->TopicList($cfg);
-
-        if (empty($list)){
-            return null;
-        }
-
-        $userList = $this->UserList($list->userIds);
-
-        $ret = new stdClass();
-        $ret->topicList = $list->ToAJAX();
-        $ret->userList = $userList->ToAJAX();
-
-        return $ret;
-    }
-
     /**
      * Сохранить сообщение
      *
@@ -365,11 +138,6 @@ class ForumManager extends Ab_ModuleManager {
         $topic = null;
         if ($sd->id == 0){
             $sd->uid = $this->userid;
-            $pubkey = md5(time().$this->userid);
-            $sd->id = ForumQuery::TopicAppend($this->db, $sd, $pubkey);
-
-            $sendNewNotify = true;
-            $topic = $this->Topic($sd->id);
         } else {
             $topic = $this->Topic($sd->id);
             if (empty($topic) || !$topic->IsWrite()){
@@ -383,82 +151,21 @@ class ForumManager extends Ab_ModuleManager {
             return null;
         }
 
-        // обновить информацию по файлам
-        $fileList = $topic->detail->fileList;
-        $arr = $sd->files;
-
-        for ($i = 0; $i < $fileList->Count(); $i++){
-            $cFile = $fileList->GetByIndex($i);
-            $find = false;
-            foreach ($arr as $file){
-                if ($file->id == $cFile->id){
-                    $find = true;
-                    break;
-                }
-            }
-            if (!$find){
-                ForumQuery::TopicFileRemove($this->db, $sd->id, $cFile->id);
-            }
-        }
-        foreach ($arr as $file){
-            $find = false;
-            for ($i = 0; $i < $fileList->Count(); $i++){
-                $cFile = $fileList->GetByIndex($i);
-                if ($file->id == $cFile->id){
-                    $find = true;
-                    break;
-                }
-            }
-            if (!$find){
-                ForumQuery::TopicFileAppend($this->db, $sd->id, $file->id, $this->userid);
-            }
-        }
 
         $topic = $this->Topic($sd->id, true);
 
-        if ($sendNewNotify){
-            // Отправить уведомление всем модераторам
-
-            $brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
-            $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-            $plnk = "http://".$host.$topic->URI();
-
-            $rows = ForumQuery::ModeratorList($this->db);
-            while (($userData = $this->db->fetch_array($rows))){
-                if ($userData['id'] == $this->userid){
-                    continue;
-                }
-
-                $email = $userData['eml'];
-                if (empty($email)){
-                    continue;
-                }
-
-                $subject = Brick::ReplaceVarByData($brick->param->var['newprojectsubject'], array(
-                    "tl" => $topic->title
-                ));
-                $body = Brick::ReplaceVarByData($brick->param->var['newprojectbody'], array(
-                    "tl" => $topic->title,
-                    "plnk" => $plnk,
-                    "unm" => Abricos::$user->FullName(),
-                    "prj" => $topic->detail->body,
-                    "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
-                ));
-                Abricos::Notify()->SendMail($email, $subject, $body);
-            }
-        }
 
         return $topic->id;
     }
 
-    public function TopicSaveToAJAX($sd){
+    public function TopicSaveToJSON($sd){
         $topicid = $this->TopicSave($sd);
 
         if (empty($topicid)){
             return null;
         }
 
-        return $this->TopicToAJAX($topicid);
+        return $this->TopicToJSON($topicid);
     }
 
     /**
@@ -481,13 +188,13 @@ class ForumManager extends Ab_ModuleManager {
         return $topicid;
     }
 
-    public function TopicCloseToAJAX($topicid){
+    public function TopicCloseToJSON($topicid){
         $topicid = $this->TopicClose($topicid);
         if (empty($topicid)){
             return null;
         }
 
-        return $this->TopicToAJAX($topicid);
+        return $this->TopicToJSON($topicid);
     }
 
     /**
@@ -510,13 +217,13 @@ class ForumManager extends Ab_ModuleManager {
         return $topicid;
     }
 
-    public function TopicRemoveToAJAX($topicid){
+    public function TopicRemoveToJSON($topicid){
         $topicid = $this->TopicRemove($topicid);
         if (empty($topicid)){
             return null;
         }
 
-        return $this->TopicToAJAX($topicid);
+        return $this->TopicToJSON($topicid);
     }
 
 
@@ -660,11 +367,11 @@ class ForumManager extends Ab_ModuleManager {
     }
 
     public function Bos_MenuData(){
-        $i18n = $this->module->GetI18n();
+        $i18n = $this->module->I18n();
         return array(
             array(
                 "name" => "forum",
-                "title" => $i18n['title'],
+                "title" => $i18n->Translate('title'),
                 "role" => ForumAction::VIEW,
                 "icon" => "/modules/forum/images/forum-24.png",
                 "url" => "forum/wspace/ws"

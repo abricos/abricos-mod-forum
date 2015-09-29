@@ -29,17 +29,17 @@ class ForumQuery {
     }
 
     public static function TopicAppend(Ab_Database $db, $d, $pubkey){
-        $contentid = Ab_CoreQuery::ContentAppend($db, $d->bd, 'forum');
+        $contentid = Ab_CoreQuery::ContentAppend($db, $d->body, 'forum');
 
         $sql = "
 			INSERT INTO ".$db->prefix."frm_topic (
 				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
-				".bkint($d->uid).",
-				'".bkstr($d->tl)."',
+				".bkint(Abricos::$user->id).",
+				'".bkstr($d->title)."',
 				'".bkstr($pubkey)."',
 				".$contentid.",
-				".bkint($d->prt).",
-				".ForumTopic::ST_OPENED.",
+				".bkint($d->isprivate).",
+				".Forum::ST_OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'
@@ -62,46 +62,38 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicFields(Ab_Database $db){
-        return "
-			m.topicid as id,
-			m.userid as uid,
-			m.title as tl,
-			m.isprivate as prt,
-			m.dateline as dl,
-			m.status as st,
-			m.statuserid as stuid,
-			m.statdate as stdl,
-			m.upddate as upd,
-			m.cmtcount as cmt,
-			m.cmtdate as cmtdl,
-			m.cmtuserid as cmtuid 
+    public static function Topic(Ab_Database $db, $topicid){
+        $sql = "
+			SELECT m.*
+			FROM ".$db->prefix."frm_topic m
+			WHERE language='".bkstr(Abricos::$LNG)."'
+			    AND topicid=".intval($topicid)."
 		";
+        if (!ForumManager::$instance->IsModerRole()){
+            // приватные темы доступны только авторам и модераторам
+            $sql .= "
+				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id)."))
+				AND m.status != ".ForumTopic::ST_REMOVED."
+			";
+        }
+
+        $sql .= "
+        	LIMIT 1
+		";
+
+        return $db->query_first($sql);
     }
 
-    public static function TopicList(Ab_Database $db, ForumTopicListConfig $cfg){
+    public static function TopicList(Ab_Database $db, $page = 1, $limit = 20){
+        $page = intval($page);
+        $limit = intval($limit);
+        $from = $limit * (max($page, 1) - 1);
 
-        $lastupdate = bkint($cfg->lastUpdate);
-        $limit = $cfg->limit;
+        $lastupdate = 0;
 
         $sql = "
-			SELECT ".ForumQuery::TopicFields($db)."
-		";
-        if ($cfg->withDetail){
-            $sql .= ",
-				c.body as bd,
-				c.contentid as ctid
-			";
-        }
-        $sql .= "
+			SELECT m.*
 			FROM ".$db->prefix."frm_topic m
-		";
-        if ($cfg->withDetail){
-            $sql .= "
-				INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			";
-        }
-        $sql .= "
 			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
 				AND language='".bkstr(Abricos::$LNG)."'
 		";
@@ -113,50 +105,11 @@ class ForumQuery {
 			";
         }
 
-        if (is_array($cfg->topicIds) && count($cfg->topicIds)){
-            $limit = 1;
-            $aWh = array();
-            for ($i = 0; $i < count($cfg->topicIds); $i++){
-                array_push($aWh, "m.topicid=".bkint($cfg->topicIds[$i]));
-            }
-            $sql .= " AND (".implode(" OR ", $aWh).") ";
-        }
-
-        if (is_array($cfg->contentIds) && count($cfg->contentIds)){
-            $limit = 1;
-            $aWh = array();
-            for ($i = 0; $i < count($cfg->contentIds); $i++){
-                array_push($aWh, "m.contentid=".bkint($cfg->contentIds[$i]));
-            }
-            $sql .= " AND (".implode(" OR ", $aWh).") ";
-        }
-
         $sql .= "
 			ORDER BY m.upddate DESC
-			LIMIT ".bkint($limit)."
+			LIMIT ".$from.",".bkint($limit)."
 		";
 
-        return $db->query_read($sql);
-    }
-
-    public static function UserList(Ab_Database $db, $uids){
-        $aWh = array();
-        array_push($aWh, "u.userid=0");
-        foreach ($uids as $uid){
-            array_push($aWh, "u.userid=".bkint($uid));
-        }
-
-        $sql = "
-			SELECT
-				DISTINCT
-				u.userid as id,
-				u.username as unm,
-				u.firstname as fnm,
-				u.lastname as lnm,
-				u.avatar as avt
-			FROM ".$db->prefix."user u
-			WHERE ".implode(" OR ", $aWh)."
-		";
         return $db->query_read($sql);
     }
 

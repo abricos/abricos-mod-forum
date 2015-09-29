@@ -23,8 +23,10 @@ Component.entryPoint = function(NS){
                 value: 'widget'
             },
             defaultPage: {
-                component: 'topiclist',
-                widget: 'TopicListWidget'
+                value: {
+                    component: 'topiclist',
+                    widget: 'TopicListWidget'
+                }
             }
         }
     });

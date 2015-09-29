@@ -3,12 +3,15 @@ Component.requires = {
     mod: [
         {name: 'sys', files: ['application.js', 'form.js', 'item.js', 'date.js']},
         {name: 'widget', files: ['lib.js']},
-        {name: 'uprofile', files: ['users.js']},
+        {name: 'uprofile', files: ['lib.js']},
         {name: 'filemanager', files: ['lib.js']},
         {name: '{C#MODNAME}', files: ['model.js']}
     ]
 };
 Component.entryPoint = function(NS){
+
+    var COMPONENT = this,
+        SYS = Brick.mod.sys;
 
     NS.roles = new Brick.AppRoles('{C#MODNAME}', {
         isAdmin: 50,
@@ -17,60 +20,67 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
-    var Y = Brick.YUI,
-
-        COMPONENT = this,
-
-        SYS = Brick.mod.sys;
-
-    NS.URL = {
-        ws: "#app={C#MODNAMEURI}/wspace/ws/",
-        topic: {
-            list: function(){
-                return NS.URL.ws + 'topiclist/TopicListWidget/';
-            },
-            create: function(){
-                return NS.URL.ws + 'topiceditor/TopicEditorWidget/';
-            },
-            edit: function(id){
-                return NS.URL.ws + 'topiceditor/TopicEditorWidget/' + id + '/';
-            },
-            view: function(id){
-                return NS.URL.ws + 'topicview/TopicViewWidget/' + id + '/';
-            }
-        }
-    };
-
-    SYS.Application.build(COMPONENT, {
-        topic: {
-            args: ['topicid'],
-            response: function(d){
-                return new NS.Topic(d);
-            }
-        },
-        topicSave: {args: ['topic']},
-        topicClose: {args: ['topicid']},
-        topicRemove: {args: ['topicid']},
-        topicList: {
-            response: function(d){
-                return new NS.TopicList(d.list);
-            }
-        }
-    }, {
+    SYS.Application.build(COMPONENT, {}, {
         initializer: function(){
-            this.forums = new NS.ForumList();
-            this.users = Brick.mod.uprofile.viewer.users;
-
             var instance = this;
-            NS.roles.load(function(){
-                Brick.mod.filemanager.roles.load(function(){
-                    instance.initCallbackFire();
+            this.config(function(){
+                NS.roles.load(function(){
+                    Brick.mod.filemanager.roles.load(function(){
+                        Brick.mod.uprofile.initApp({
+                            initCallback: function(err, appInstance){
+                                instance.set('uprofile', appInstance);
+                                instance.initCallbackFire();
+                            }
+                        });
+                    });
                 });
-            });
+            }, this);
+        }
+    }, [], {
+        ATTRS: {
+            isLoadAppStructure: {value: true},
+            uprofile: {},
+            Topic: {value: NS.Topic},
+            TopicList: {value: NS.TopicList},
+            File: {value: NS.File},
+            FileList: {value: NS.FileList},
+            Config: {value: NS.Config}
         },
-        ajaxParseResponse: function(data, ret){
-            if (data.userList){
-                this.users.update(data.userList.list);
+        REQS: {
+            topic: {
+                args: ['topicid'],
+                response: function(d){
+                    return new NS.Topic(d);
+                }
+            },
+            topicSave: {args: ['topic']},
+            topicClose: {args: ['topicid']},
+            topicRemove: {args: ['topicid']},
+            topicList: {
+                args: ['page'],
+                attribute: false,
+                type: 'modelList:TopicList',
+            },
+            config: {
+                attribute: true,
+                type: 'model:Config'
+            }
+        },
+        URLS: {
+            ws: "#app={C#MODNAMEURI}/wspace/ws/",
+            topic: {
+                list: function(){
+                    return this.getURL('ws') + 'topiclist/TopicListWidget/';
+                },
+                create: function(){
+                    return this.getURL('ws') + 'topiceditor/TopicEditorWidget/';
+                },
+                edit: function(id){
+                    return this.getURL('ws') + 'topiceditor/TopicEditorWidget/' + id + '/';
+                },
+                view: function(id){
+                    return this.getURL('ws') + 'topicview/TopicViewWidget/' + id + '/';
+                }
             }
         }
     });

@@ -1,0 +1,17 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "fileid"
+    },
+    "topicid": {
+      "type": "int",
+      "json": "tid"
+    },
+    "filehash": {
+      "type": "string",
+      "json": "fid"
+    }
+  }
+}

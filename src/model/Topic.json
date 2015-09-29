@@ -1,0 +1,57 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "topicid"
+    },
+    "isprivate": {
+      "type": "bool",
+      "json": "prv"
+    },
+    "userid": {
+      "type": "int",
+      "json": "uid"
+    },
+    "title": {
+      "type": "string",
+      "json": "tl"
+    },
+    "body": {
+      "type": "string",
+      "json": "bd"
+    },
+    "stat": {
+      "type": "int",
+      "json": "st"
+    },
+    "statuserid": {
+      "type": "int",
+      "json": "stuid"
+    },
+    "statdate": {
+      "type": "date",
+      "json": "stdt"
+    },
+    "cmtcount": {
+      "type": "int",
+      "json": "cmtcnt"
+    },
+    "cmtuserid": {
+      "type": "int",
+      "json": "cmtuid"
+    },
+    "cmtdate": {
+      "type": "date",
+      "json": "cmtdt"
+    },
+    "upddate": {
+      "type": "date",
+      "json": "upd"
+    },
+    "files": {
+      "type": "list:FileList"
+    }
+  }
+}

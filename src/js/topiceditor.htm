@@ -32,7 +32,7 @@
 
         <div class="form-group">
             <label>Текст сообщения</label>
-            <textarea id="{i#editor}" style="width: 600px; height: 300px"></textarea>
+            <div id="{i#bodyEditor}" data-rows="12"></div>
         </div>
 
         <div class="form-group" id="{i#rfiles}">
@@ -42,7 +42,7 @@
     </div>
 
     <div class="panel-footer">
-        <div class="text-right btn-toolbar">
+        <div class="pull-right btn-toolbar">
             <button data-click="save" class="btn btn-sm btn-default" data-wait="disable" type="button">
                 <span data-isedit="hide">Создать</span>
                 <span data-isedit="show">Сохранить</span>
@@ -52,5 +52,6 @@
                 Отмена
             </button>
         </div>
+        <div class="clearfix"></div>
     </div>
 </div>

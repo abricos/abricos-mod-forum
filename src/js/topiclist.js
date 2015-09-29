@@ -1,7 +1,6 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['container.js']},
         {name: 'uprofile', files: ['users.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
@@ -16,15 +15,24 @@ Component.entryPoint = function(NS){
     var LNG = this.language;
 
     NS.TopicListWidget = Y.Base.create('topicListWidget', SYS.AppWidget, [], {
-        onInitAppWidget: function(err, appInstance, options){
+        onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
-            this.get('appInstance').topicList(function(err, result){
+            var appInstance = this.get('appInstance'),
+                page = 1;
+
+            appInstance.topicList(page, function(err, result){
                 this.set('waiting', false);
                 if (!err){
-                    this.set('topicList', result.topicList);
+                    var topicList = result.topicList,
+                        userIds = topicList.toArray('userid');
+
+                    appInstance.get('uprofile').userListByIds(userIds, function(err, result){
+                        this.set('userList', result.userListByIds);
+                        this.set('topicList', topicList);
+                        this.renderTopicList();
+                    }, this);
                 }
-                this.renderTopicList();
             }, this);
         },
         renderTopicList: function(){
@@ -32,46 +40,44 @@ Component.entryPoint = function(NS){
             if (!topicList){
                 return;
             }
-            var arr = [];
-            topicList.foreach(function(topic){
-                arr[arr.length] = topic;
-            });
-            arr = arr.sort(function(m1, m2){
-                var t1 = m1.updDate.getTime(),
-                    t2 = m2.updDate.getTime();
+            /*
+             var arr = [];
+             arr = arr.sort(function(m1, m2){
+             var t1 = m1.updDate.getTime(),
+             t2 = m2.updDate.getTime();
 
-                if (!L.isNull(m1.cmtDate)){
-                    t1 = Math.max(t1, m1.cmtDate.getTime());
-                }
-                if (!L.isNull(m2.cmtDate)){
-                    t2 = Math.max(t2, m2.cmtDate.getTime());
-                }
-                if (t1 > t2){
-                    return -1;
-                }
-                if (t1 < t2){
-                    return 1;
-                }
-                return 0;
-            });
+             if (!L.isNull(m1.cmtDate)){
+             t1 = Math.max(t1, m1.cmtDate.getTime());
+             }
+             if (!L.isNull(m2.cmtDate)){
+             t2 = Math.max(t2, m2.cmtDate.getTime());
+             }
+             if (t1 > t2){
+             return -1;
+             }
+             if (t1 < t2){
+             return 1;
+             }
+             return 0;
+             });/**/
 
             var appInstance = this.get('appInstance'),
-                tp = this.template, lst = "",
-                topic, user, d;
+                tp = this.template,
+                userList = this.get('userList'),
+                lst = "";
 
-            for (var i = 0; i < arr.length; i++){
-                topic = arr[i];
-                user = appInstance.users.get(topic.userid);
-
-                d = {
+            topicList.each(function(topic){
+                var user = userList.getById(topic.get('userid'));
+console.log(user);
+                var d = {
                     'id': topic.id,
                     'tl': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
                     'cmt': topic.cmt,
-                    'cmtuser': tp.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
-                    'cmtdate': Brick.dateExt.convert(topic.updDate),
-                    'closed': topic.isClosed() ? 'closed' : '',
-                    'removed': topic.isRemoved() ? 'removed' : '',
-                    'urltopicview': NS.URL.topic.view(topic.id)
+                    // 'cmtuser': tp.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
+                    cmtdate: Brick.dateExt.convert(topic.updDate),
+                    closed: topic.isClosed() ? 'closed' : '',
+                    removed: topic.isRemoved() ? 'removed' : '',
+                    // urltopicview: this.getURL('topic.view', topic.get('id'))
                 };
                 if (topic.cmt > 0){
                     user = appInstance.users.get(topic.cmtUserId);
@@ -80,7 +86,8 @@ Component.entryPoint = function(NS){
                 }
 
                 lst += tp.replace('row', d);
-            }
+            }, this);
+
             tp.gel('table').innerHTML = tp.replace('table', {'rows': lst});
         }
     }, {
@@ -91,9 +98,8 @@ Component.entryPoint = function(NS){
             templateBlockName: {
                 value: 'widget,table,row,user'
             },
-            topicList: {
-                value: null
-            }
+            topicList: {},
+            userList: {}
         }
     });
 };

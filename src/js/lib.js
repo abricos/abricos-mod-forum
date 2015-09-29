@@ -19,8 +19,6 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
 
-        L = Y.Lang,
-
         COMPONENT = this,
 
         SYS = Brick.mod.sys;

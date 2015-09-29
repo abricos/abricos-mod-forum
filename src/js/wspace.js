@@ -21,14 +21,13 @@ Component.entryPoint = function(NS){
             },
             templateBlockName: {
                 value: 'widget'
+            },
+            defaultPage: {
+                component: 'topiclist',
+                widget: 'TopicListWidget'
             }
         }
     });
 
-    NS.ws = SYS.AppWorkspace.build('{C#MODNAME}', NS.WorkspaceWidget, {
-        workspacePage: {
-            component: 'topiclist',
-            widget: 'TopicListWidget'
-        }
-    });
+    NS.ws = SYS.AppWorkspace.build('{C#MODNAME}', NS.WorkspaceWidget);
 };

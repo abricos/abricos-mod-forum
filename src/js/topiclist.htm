@@ -34,9 +34,9 @@
 </table>
 
 <!--{row}-->
-<tr id="{i#id}-{v#id}" class="topicrow {v#removed} {v#closed}">
+<tr class="topicrow {v#removed} {v#closed}">
     <td class="tname">
-        <a href="{v#urltopicview}" title="{v#tl}">{v#tl}</a>
+        <a href="#" data-url="topic.view({v#id})">{v#title}</a>
     </td>
     <td class="tcmtcount">
         {v#cmt}
@@ -49,5 +49,5 @@
 
 <!--{user}-->
 <div class="user vi">
-    <a href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
+    <a href="#" data-url="uprofile:profile.view({v#userid})">{v#username}</a>
 </div>

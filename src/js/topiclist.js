@@ -8,11 +8,8 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        L = Y.Lang,
         COMPONENT = this,
         SYS = Brick.mod.sys;
-
-    var LNG = this.language;
 
     NS.TopicListWidget = Y.Base.create('topicListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -25,7 +22,7 @@ Component.entryPoint = function(NS){
                 this.set('waiting', false);
                 if (!err){
                     var topicList = result.topicList,
-                        userIds = topicList.toArray('userid');
+                        userIds = topicList.toArray('userid', {distinct: true});
 
                     appInstance.get('uprofile').userListByIds(userIds, function(err, result){
                         this.set('userList', result.userListByIds);
@@ -67,17 +64,20 @@ Component.entryPoint = function(NS){
                 lst = "";
 
             topicList.each(function(topic){
-                var user = userList.getById(topic.get('userid'));
-console.log(user);
+                var user = userList.getById(topic.get('userid')),
+                    attrs = topic.toJSON();
+
                 var d = {
-                    'id': topic.id,
-                    'tl': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
-                    'cmt': topic.cmt,
-                    // 'cmtuser': tp.replace('user', {'uid': user.id, 'unm': user.getUserName()}),
-                    cmtdate: Brick.dateExt.convert(topic.updDate),
+                    id: attrs.id,
+                    title: topic.getTitle(),
+                    cmt: attrs.cmtcount,
+                    cmtuser: tp.replace('user', {
+                        userid: user.get('id'),
+                        username: user.get('viewName')
+                    }),
+                    cmtdate: Brick.dateExt.convert(attrs.upddate),
                     closed: topic.isClosed() ? 'closed' : '',
-                    removed: topic.isRemoved() ? 'removed' : '',
-                    // urltopicview: this.getURL('topic.view', topic.get('id'))
+                    removed: topic.isRemoved() ? 'removed' : ''
                 };
                 if (topic.cmt > 0){
                     user = appInstance.users.get(topic.cmtUserId);
@@ -89,6 +89,8 @@ console.log(user);
             }, this);
 
             tp.gel('table').innerHTML = tp.replace('table', {'rows': lst});
+
+            this.appURLUpdate();
         }
     }, {
         ATTRS: {

@@ -9,6 +9,8 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         SYS = Brick.mod.sys;
 
+    var LNG = this.language;
+
     NS.TopicStatus = {
         'OPENED': 0,    // открыта
         'CLOSED': 1,    // закрыта
@@ -22,6 +24,10 @@ Component.entryPoint = function(NS){
         },
         isClosed: function(){
             return this.get('status') === NS.TopicStatus.CLOSED;
+        },
+        getTitle: function(){
+            var title = this.get('title');
+            return title === '' ? LNG.get('model.topic.emptyTitle') : title;
         }
     });
 

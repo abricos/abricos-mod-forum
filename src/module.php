@@ -6,7 +6,12 @@
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
- 
+
+$commentModule = Abricos::GetModule('comment');
+if (!$commentModule){
+    return;
+}
+
 /**
  * Class ForumModule
  */
@@ -21,7 +26,7 @@ class ForumModule extends Ab_Module {
 
     public function __construct(){
         ForumModule::$instance = $this;
-        $this->version = "0.1.7";
+        $this->version = "0.1.8";
         $this->name = "forum";
         $this->takelink = "forum";
         $this->permission = new ForumPermission($this);

@@ -10,7 +10,6 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        L = Y.Lang,
         COMPONENT = this,
         R = NS.roles,
         SYS = Brick.mod.sys;
@@ -34,7 +33,6 @@ Component.entryPoint = function(NS){
     };
 
     NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
-
         initializer: function(){
             this.publish('topicClosed', {
                 defaultFn: this._defTopicClosed
@@ -43,7 +41,6 @@ Component.entryPoint = function(NS){
                 defaultFn: this._defTopicRemoved
             });
         },
-
         buildTData: function(){
             return {
                 'id': this.get('topicId') | 0

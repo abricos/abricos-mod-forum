@@ -24,7 +24,7 @@ Component.entryPoint = function(NS){
                     var topicList = result.topicList,
                         userIds = topicList.toArray('userid', {distinct: true});
 
-                    appInstance.get('uprofile').userListByIds(userIds, function(err, result){
+                    appInstance.getApp('uprofile').userListByIds(userIds, function(err, result){
                         this.set('userList', result.userListByIds);
                         this.set('topicList', topicList);
                         this.renderTopicList();
@@ -65,20 +65,21 @@ Component.entryPoint = function(NS){
 
             topicList.each(function(topic){
                 var user = userList.getById(topic.get('userid')),
-                    attrs = topic.toJSON();
+                    stat = topic.get('commentStatistic'),
+                    cmtCount = stat.get('count'),
+                    d = {
+                        id: topic.get('id'),
+                        title: topic.getTitle(),
+                        cmt: cmtCount,
+                        cmtuser: tp.replace('user', {
+                            userid: user.get('id'),
+                            username: user.get('viewName')
+                        }),
+                        cmtdate: Brick.dateExt.convert(topic.get('upddate')),
+                        closed: topic.isClosed() ? 'closed' : '',
+                        removed: topic.isRemoved() ? 'removed' : ''
+                    };
 
-                var d = {
-                    id: attrs.id,
-                    title: topic.getTitle(),
-                    cmt: attrs.cmtcount,
-                    cmtuser: tp.replace('user', {
-                        userid: user.get('id'),
-                        username: user.get('viewName')
-                    }),
-                    cmtdate: Brick.dateExt.convert(attrs.upddate),
-                    closed: topic.isClosed() ? 'closed' : '',
-                    removed: topic.isRemoved() ? 'removed' : ''
-                };
                 if (topic.cmt > 0){
                     user = appInstance.users.get(topic.cmtUserId);
                     d['cmtuser'] = tp.replace('user', {'uid': user.id, 'unm': user.getUserName()});

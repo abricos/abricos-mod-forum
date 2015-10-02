@@ -10,15 +10,11 @@
 require_once 'models.php';
 
 /**
- * Class Forum
+ * Class ForumApp
  *
  * @property ForumManager $manager
  */
-class Forum extends AbricosApplication {
-
-    const ST_OPENED = 0;
-    const ST_CLOSED = 1;
-    const ST_REMOVED = 2;
+class ForumApp extends AbricosApplication {
 
     protected function GetClasses(){
         return array(
@@ -31,6 +27,19 @@ class Forum extends AbricosApplication {
 
     protected function GetStructures(){
         return 'Topic,TopicList,File,FileList';
+    }
+
+    private $_commentApp = null;
+
+    /**
+     * @return CommentApp
+     */
+    public function CommentApp(){
+        if (!is_null($this->_commentApp)){
+            return $this->_commentApp;
+        }
+        $module = Abricos::GetModule('comment');
+        return $this->_commentApp = $module->GetManager()->GetApp();
     }
 
     public function ResponseToJSON($d){
@@ -48,6 +57,21 @@ class Forum extends AbricosApplication {
         }
         return null;
     }
+
+    /*
+    public function AppStructureToJSON(){
+        if (!$this->manager->IsViewRole()){
+            return 403;
+        }
+
+        $ret = $this->ImplodeJSON(
+            $this->CommentApp()->AppStructureToJSON(),
+            parent::AppStructureToJSON()
+        );
+
+        return $ret;
+    }
+    /**/
 
     protected $_cache = array();
 
@@ -215,7 +239,7 @@ class Forum extends AbricosApplication {
             return 403;
         }
 
-        /** @var TopicList $list */
+        /** @var ForumTopicList $list */
         $list = $this->models->InstanceClass('TopicList');
         $list->page = $page;
 
@@ -223,6 +247,12 @@ class Forum extends AbricosApplication {
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($this->models->InstanceClass('Topic', $d));
         }
+
+        $topicids = $list->Ids();
+        $commentApp = $this->CommentApp();
+        $statList = $commentApp->StatisticList('forum', 'topic', $topicids);
+        $list->SetCommentStatistics($statList);
+
         return $this->_cache['TopicList'][$key] = $list;
     }
 }

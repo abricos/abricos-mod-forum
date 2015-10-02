@@ -3,7 +3,6 @@ Component.requires = {
     mod: [
         {name: 'sys', files: ['application.js', 'form.js', 'item.js', 'date.js']},
         {name: 'widget', files: ['lib.js']},
-        {name: 'uprofile', files: ['lib.js']},
         {name: 'filemanager', files: ['lib.js']},
         {name: '{C#MODNAME}', files: ['model.js']}
     ]
@@ -23,23 +22,20 @@ Component.entryPoint = function(NS){
     SYS.Application.build(COMPONENT, {}, {
         initializer: function(){
             var instance = this;
-            this.config(function(){
+            this.appStructure(function(){
                 NS.roles.load(function(){
                     Brick.mod.filemanager.roles.load(function(){
-                        Brick.mod.uprofile.initApp({
-                            initCallback: function(err, appInstance){
-                                instance.set('uprofile', appInstance);
-                                instance.initCallbackFire();
-                            }
-                        });
+                        instance.initCallbackFire();
                     });
                 });
             }, this);
         }
     }, [], {
-        ATTRS: {
-            isLoadAppStructure: {value: true},
+        APPS: {
             uprofile: {},
+            comment: {}
+        },
+        ATTRS: {
             Topic: {value: NS.Topic},
             TopicList: {value: NS.TopicList},
             File: {value: NS.File},

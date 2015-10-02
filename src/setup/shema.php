@@ -205,7 +205,16 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		    AND o.ownerModule='forum' AND o.ownerType='content'
 		SET
 		    o.ownerid=t.topicid,
-		    o.ownerType=''
+		    o.ownerType='topic'
+	");
+
+    $db->query_write("
+		UPDATE ".$pfx."comment_ownerstat o
+		INNER JOIN ".$pfx."frm_topic t ON t.contentid=o.ownerid
+		    AND o.ownerModule='forum' AND o.ownerType='content'
+		SET
+		    o.ownerid=t.topicid,
+		    o.ownerType='topic'
 	");
 
     $db->query_write("DELETE FROM ".$pfx."content WHERE modman='forum'");

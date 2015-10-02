@@ -177,7 +177,7 @@ class ForumTopicDetail {
     }
 }
 
-class ForumTopicList extends AbricosList {
+class old_ForumTopicList extends AbricosList {
 
     /**
      * Идентификаторы пользователей
@@ -204,19 +204,6 @@ class ForumTopicList extends AbricosList {
         }
     }
 
-    /**
-     * @return ForumTopic
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
-
-    /**
-     * @return ForumTopic
-     */
-    public function GetByIndex($i){
-        return parent::GetByIndex($i);
-    }
 
     public function AddUserId($userid){
         if (isset($this->_checkUsers[$userid]) && $this->_checkUsers[$userid]){

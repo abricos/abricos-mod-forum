@@ -13,31 +13,14 @@
  */
 class ForumQuery {
 
-    public static function ForumAppend(Ab_Database $db, $d){
-        $sql = "
-			INSERT INTO ".$db->prefix."frm_forum 
-				(title, descript, dateline, upddate, language) VALUES (
-				'".bkstr($d->tl)."',
-				'".bkstr($d->tl)."',
-				".TIMENOW.",
-				".TIMENOW.",
-				'".bkstr(Abricos::$LNG)."'
-			)
-		";
-        $db->query_write($sql);
-        return $db->insert_id();
-    }
-
     public static function TopicAppend(Ab_Database $db, $d, $pubkey){
-        $contentid = Ab_CoreQuery::ContentAppend($db, $d->body, 'forum');
-
         $sql = "
-			INSERT INTO ".$db->prefix."frm_topic (
-				userid, title, pubkey, contentid, isprivate, status, dateline, upddate, language) VALUES (
+			INSERT INTO ".$db->prefix."forum_topic (
+				userid, title, pubkey, body, isprivate, status, dateline, upddate, language) VALUES (
 				".bkint(Abricos::$user->id).",
 				'".bkstr($d->title)."',
 				'".bkstr($pubkey)."',
-				".$contentid.",
+				'".bkstr($d->body)."',
 				".bkint($d->isprivate).",
 				".Forum::ST_OPENED.",
 				".TIMENOW.",
@@ -50,11 +33,11 @@ class ForumQuery {
     }
 
     public static function TopicUpdate(Ab_Database $db, ForumTopic $topic, $d, $userid){
-        Ab_CoreQuery::ContentUpdate($db, $topic->detail->contentid, $d->bd);
         $sql = "
-			UPDATE ".$db->prefix."frm_topic
+			UPDATE ".$db->prefix."forum_topic
 			SET
-				title='".bkstr($d->tl)."',
+				title='".bkstr($d->title)."',
+				body='".bkstr($d->body)."',
 				upddate=".TIMENOW."
 			WHERE topicid=".bkint($d->id)."
 			LIMIT 1
@@ -64,16 +47,16 @@ class ForumQuery {
 
     public static function Topic(Ab_Database $db, $topicid){
         $sql = "
-			SELECT m.*
-			FROM ".$db->prefix."frm_topic m
+			SELECT t.*
+			FROM ".$db->prefix."forum_topic t
 			WHERE language='".bkstr(Abricos::$LNG)."'
 			    AND topicid=".intval($topicid)."
 		";
         if (!ForumManager::$instance->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
-				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id)."))
-				AND m.status != ".ForumTopic::ST_REMOVED."
+				AND (t.isprivate=0 OR (t.isprivate=1 AND mtuserid=".bkint(Abricos::$user->id)."))
+				AND t.status != ".ForumTopic::ST_REMOVED."
 			";
         }
 
@@ -89,73 +72,35 @@ class ForumQuery {
         $limit = intval($limit);
         $from = $limit * (max($page, 1) - 1);
 
-        $lastupdate = 0;
-
         $sql = "
-			SELECT m.*
-			FROM ".$db->prefix."frm_topic m
-			WHERE (m.upddate > ".$lastupdate." OR m.cmtdate > ".$lastupdate.")
-				AND language='".bkstr(Abricos::$LNG)."'
+			SELECT
+                t.topicid,
+                t.userid,
+                t.title,
+                t.status,
+                t.statuserid,
+                t.statdate,
+                t.isprivate,
+                t.dateline,
+                t.upddate
+			FROM ".$db->prefix."forum_topic t
+			WHERE t.language='".bkstr(Abricos::$LNG)."'
 		";
         if (!ForumManager::$instance->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
-				AND (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint(Abricos::$user->id).")) 
-				AND m.status != ".ForumTopic::ST_REMOVED."
+				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".bkint(Abricos::$user->id)."))
+				AND t.status != ".ForumTopic::ST_REMOVED."
 			";
         }
 
         $sql .= "
-			ORDER BY m.upddate DESC
+			ORDER BY t.upddate DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
 
         return $db->query_read($sql);
     }
-
-    public static function TopicCommentInfoUpdate(Ab_Database $db, $topicid){
-
-        $sql = "
-			SELECT
-				(
-					SELECT count(*) as cmt
-					FROM ".$db->prefix."cmt_comment c
-					WHERE c.contentid=m.contentid
-					GROUP BY c.contentid
-				) as cmt,
-				(
-					SELECT c4.dateedit as cmtdl
-					FROM ".$db->prefix."cmt_comment c4
-					WHERE m.contentid=c4.contentid
-					ORDER BY c4.dateedit DESC
-					LIMIT 1
-				) as cmtdl,
-				(
-					SELECT c5.userid as cmtuid
-					FROM ".$db->prefix."cmt_comment c5
-					WHERE m.contentid=c5.contentid
-					ORDER BY c5.dateedit DESC
-					LIMIT 1
-				) as cmtuid	
-			FROM ".$db->prefix."frm_topic m
-			INNER JOIN ".$db->prefix."content c ON m.contentid=c.contentid
-			WHERE m.topicid=".bkint($topicid)." 
-			LIMIT 1
-		";
-        $row = $db->query_first($sql);
-
-        $sql = "
-			UPDATE ".$db->prefix."frm_topic
-			SET
-				cmtcount=".bkint($row['cmt']).",
-				cmtuserid=".bkint($row['cmtuid']).",
-				cmtdate=".$row['cmtdl']."
-			WHERE topicid=".bkint($topicid)."
-			LIMIT 1
-		";
-        $db->query_write($sql);
-    }
-
 
     public static function CommentList(Ab_Database $db, $userid){
         $sql = "
@@ -175,7 +120,7 @@ class ForumQuery {
 			INNER JOIN (SELECT
 					m.topicid, 
 					m.contentid
-				FROM ".$db->prefix."frm_topic m 
+				FROM ".$db->prefix."forum_topic m 
 				WHERE (m.isprivate=0 OR (m.isprivate=1 AND m.userid=".bkint($userid).")) AND m.language='".bkstr(Abricos::$LNG)."'
 			) t1 ON t1.contentid=a.contentid
 			LEFT JOIN ".$db->prefix."user u ON u.userid = a.userid
@@ -254,7 +199,7 @@ class ForumQuery {
 
     public static function TopicSetStatus(Ab_Database $db, $topicid, $status, $userid){
         $sql = "
-			UPDATE ".$db->prefix."frm_topic
+			UPDATE ".$db->prefix."forum_topic
 			SET
 				status=".bkint($status).",
 				statuserid=".bkint($userid).",
@@ -284,7 +229,7 @@ class ForumQuery {
     /*
         public static function TopicUnsetStatus(Ab_Database $db, $topicid){
             $sql = "
-                UPDATE ".$db->prefix."frm_topic
+                UPDATE ".$db->prefix."forum_topic
                 SET status=".ForumTopic::ST_DRAW_OPEN.", statuserid=0, statdate=0
                 WHERE topicid=".bkint($topicid)."
             ";

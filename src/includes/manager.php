@@ -49,25 +49,25 @@ class ForumManager extends Ab_ModuleManager {
         return $this->IsRoleEnable(ForumAction::VIEW);
     }
 
-    private $_forum = null;
+    private $_app = null;
 
     /**
-     * @return Forum
+     * @return ForumApp
      */
-    public function GetForum(){
-        if (!is_null($this->_forum)){
-            return $this->_forum;
+    public function GetApp(){
+        if (!is_null($this->_app)){
+            return $this->_app;
         }
         require_once 'dbquery.php';
-        require_once 'classes/forum.php';
-        $this->_forum = new Forum($this);
-        return $this->_forum;
+        require_once 'classes/app.php';
+        return $this->_app = new ForumApp($this);
     }
 
     public function AJAX($d){
-        return $this->GetForum()->AJAX($d);
+        return $this->GetApp()->AJAX($d);
     }
 
+    /*
 
     private $_cacheTopicCID;
     private $_cacheTopic;
@@ -113,11 +113,6 @@ class ForumManager extends Ab_ModuleManager {
         return $topic;
     }
 
-    /**
-     * Сохранить сообщение
-     *
-     * @param object $sd
-     */
     public function TopicSave($sd){
         if (!$this->IsWriteRole()){
             return null;
@@ -168,11 +163,7 @@ class ForumManager extends Ab_ModuleManager {
         return $this->TopicToJSON($topicid);
     }
 
-    /**
-     * Закрыть сообщение. Роль модератора
-     *
-     * @param integer $topicid
-     */
+
     public function TopicClose($topicid){
         if (!$this->IsModerRole()){
             return null;
@@ -197,11 +188,6 @@ class ForumManager extends Ab_ModuleManager {
         return $this->TopicToJSON($topicid);
     }
 
-    /**
-     * Удалить сообщение. Роль модератора
-     *
-     * @param integer $topicid
-     */
     public function TopicRemove($topicid){
         if (!$this->IsModerRole()){
             return null;
@@ -229,13 +215,7 @@ class ForumManager extends Ab_ModuleManager {
 
     ////////////////////////////// комментарии /////////////////////////////
 
-    /**
-     * Есть ли разрешение на вывод списка комментариев
-     *
-     * Метод запрашивает модуль Comment
-     *
-     * @param integer $contentid
-     */
+
     public function Comment_IsViewList($contentid){
         if (!$this->IsViewRole()){
             return null;
@@ -245,13 +225,7 @@ class ForumManager extends Ab_ModuleManager {
         return !empty($topic);
     }
 
-    /**
-     * Есть ли разрешение на добавление комментария к топику?
-     *
-     * Метод запрашивает модуль Comment
-     *
-     * @param integer $contentid
-     */
+
     public function Comment_IsWrite($contentid){
         $topic = $this->TopicByContentId($contentid);
         if (empty($topic)){
@@ -261,11 +235,7 @@ class ForumManager extends Ab_ModuleManager {
         return $topic->IsCommentWrite();
     }
 
-    /**
-     * Отправить уведомление о новом комментарии.
-     *
-     * @param object $data
-     */
+
     public function Comment_SendNotify($data){
         if (!$this->IsViewRole()){
             return;
@@ -365,6 +335,7 @@ class ForumManager extends Ab_ModuleManager {
             Abricos::Notify()->SendMail($email, $subject, $body);
         }
     }
+    /**/
 
     public function Bos_MenuData(){
         $i18n = $this->module->I18n();

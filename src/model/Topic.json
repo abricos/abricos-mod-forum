@@ -34,24 +34,16 @@
       "type": "date",
       "json": "stdt"
     },
-    "cmtcount": {
-      "type": "int",
-      "json": "cmtcnt"
-    },
-    "cmtuserid": {
-      "type": "int",
-      "json": "cmtuid"
-    },
-    "cmtdate": {
-      "type": "date",
-      "json": "cmtdt"
+    "commentStatistic": {
+      "type": "model:comment:Statistic",
+      "json": "cmtstat"
     },
     "upddate": {
       "type": "date",
       "json": "upd"
     },
     "files": {
-      "type": "list:FileList"
+      "type": "modelList:FileList"
     }
   }
 }

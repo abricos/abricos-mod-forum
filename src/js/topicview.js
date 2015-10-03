@@ -1,7 +1,6 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['container.js']},
         {name: 'filemanager', files: ['lib.js']},
         {name: 'uprofile', files: ['users.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
@@ -43,14 +42,14 @@ Component.entryPoint = function(NS){
         },
         buildTData: function(){
             return {
-                'id': this.get('topicId') | 0
+                'id': this.get('topicid') | 0
             };
         },
         onInitAppWidget: function(err, appInstance, options){
             this.set('waiting', true);
-            var topicId = this.get('topicId');
+            var topicid = this.get('topicid');
 
-            this.get('appInstance').topic(topicId, function(err, result){
+            this.get('appInstance').topic(topicid, function(err, result){
                 this.set('waiting', false);
                 if (!err){
                     this.set('topic', result.topic);
@@ -63,11 +62,12 @@ Component.entryPoint = function(NS){
             if (!topic){
                 return;
             }
-            // TODO: если this.topic=null необходимо показать "либо нет прав, либо проект удален"
+            // TODO: если this.topic=null необходимо показать "либо нет прав, либо тема удалена"
 
             var appInstance = this.get('appInstance'),
                 tp = this.template;
 
+            /*
             if (!this.flagFirstTopicRender){ // первичная рендер
                 this.flagFirstTopicRender = true;
 
@@ -88,7 +88,7 @@ Component.entryPoint = function(NS){
                         }
                     });
                 });
-            }
+            }/**/
 
             // Автор
             var user = appInstance.users.get(topic.userid);
@@ -195,7 +195,7 @@ Component.entryPoint = function(NS){
         topicCloseMethod: function(){
             this.topicCloseCancel();
             this.set('waiting', true);
-            this.get('appInstance').topicClose(this.get('topicId'), function(err, result){
+            this.get('appInstance').topicClose(this.get('topicid'), function(err, result){
                 this.set('waiting', false);
                 this.fire('topicClosed');
             }, this);
@@ -215,7 +215,7 @@ Component.entryPoint = function(NS){
             this.topicRemoveCancel();
 
             this.set('waiting', true);
-            this.get('appInstance').topicRemove(this.get('topicId'), function(err, result){
+            this.get('appInstance').topicRemove(this.get('topicid'), function(err, result){
                 this.set('waiting', false);
                 this.fire('topicRemoved');
             }, this);
@@ -234,7 +234,7 @@ Component.entryPoint = function(NS){
             templateBlockName: {
                 value: 'widget,user,frow,empttitle'
             },
-            topicId: {
+            topicid: {
                 value: 0
             }
         }
@@ -242,7 +242,7 @@ Component.entryPoint = function(NS){
 
     NS.TopicViewWidget.parseURLParam = function(args){
         return {
-            topicId: args[0] | 0
+            topicid: args[0] | 0
         };
     };
 

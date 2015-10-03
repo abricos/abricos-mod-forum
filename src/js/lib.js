@@ -45,8 +45,19 @@ Component.entryPoint = function(NS){
         REQS: {
             topic: {
                 args: ['topicid'],
-                response: function(d){
-                    return new NS.Topic(d);
+                attribute: false,
+                type: 'model:Topic',
+                onResponse: function(topic){
+                    var userIds = topic.getUserIds();
+                    if (userIds.length === 0){
+                        return;
+                    }
+                    return function(callback, context){
+                        this.getApp('uprofile').userListByIds(userIds, function(err, result){
+                            topic.fillUsers(result.userListByIds);
+                            callback.call(context || null);
+                        }, context);
+                    };
                 }
             },
             topicSave: {args: ['topic']},
@@ -56,6 +67,18 @@ Component.entryPoint = function(NS){
                 args: ['page'],
                 attribute: false,
                 type: 'modelList:TopicList',
+                onResponse: function(topicList){
+                    var userIds = topicList.getUserIds();
+                    if (userIds.length === 0){
+                        return;
+                    }
+                    return function(callback, context){
+                        this.getApp('uprofile').userListByIds(userIds, function(err, result){
+                            topicList.fillUsers(result.userListByIds);
+                            callback.call(context || null);
+                        }, context);
+                    };
+                }
             },
             config: {
                 attribute: true,

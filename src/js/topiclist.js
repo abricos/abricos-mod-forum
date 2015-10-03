@@ -19,44 +19,18 @@ Component.entryPoint = function(NS){
                 page = 1;
 
             appInstance.topicList(page, function(err, result){
-                this.set('waiting', false);
                 if (!err){
-                    var topicList = result.topicList,
-                        userIds = topicList.toArray('userid', {distinct: true});
-
-                    appInstance.getApp('uprofile').userListByIds(userIds, function(err, result){
-                        this.set('userList', result.userListByIds);
-                        this.set('topicList', topicList);
-                        this.renderTopicList();
-                    }, this);
+                    this.set('topicList', result.topicList);
                 }
+                this.renderTopicList();
             }, this);
         },
         renderTopicList: function(){
+            this.set('waiting', false);
             var topicList = this.get('topicList');
             if (!topicList){
                 return;
             }
-            /*
-             var arr = [];
-             arr = arr.sort(function(m1, m2){
-             var t1 = m1.updDate.getTime(),
-             t2 = m2.updDate.getTime();
-
-             if (!L.isNull(m1.cmtDate)){
-             t1 = Math.max(t1, m1.cmtDate.getTime());
-             }
-             if (!L.isNull(m2.cmtDate)){
-             t2 = Math.max(t2, m2.cmtDate.getTime());
-             }
-             if (t1 > t2){
-             return -1;
-             }
-             if (t1 < t2){
-             return 1;
-             }
-             return 0;
-             });/**/
 
             var appInstance = this.get('appInstance'),
                 tp = this.template,
@@ -64,7 +38,7 @@ Component.entryPoint = function(NS){
                 lst = "";
 
             topicList.each(function(topic){
-                var user = userList.getById(topic.get('userid')),
+                var user = topic.get('user'),
                     stat = topic.get('commentStatistic'),
                     cmtCount = stat.get('count'),
                     d = {

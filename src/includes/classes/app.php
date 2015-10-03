@@ -58,21 +58,6 @@ class ForumApp extends AbricosApplication {
         return null;
     }
 
-    /*
-    public function AppStructureToJSON(){
-        if (!$this->manager->IsViewRole()){
-            return 403;
-        }
-
-        $ret = $this->ImplodeJSON(
-            $this->CommentApp()->AppStructureToJSON(),
-            parent::AppStructureToJSON()
-        );
-
-        return $ret;
-    }
-    /**/
-
     protected $_cache = array();
 
     public function CacheClear(){
@@ -209,6 +194,8 @@ class ForumApp extends AbricosApplication {
         }
         /** @var ForumTopic $topic */
         $topic = $this->models->InstanceClass('Topic', $d);
+
+        $topic->commentStatistic = $this->CommentApp()->Statistic('forum', 'topic', $topicid);
 
         $rows = ForumQuery::TopicFileList($this->db, $topicid);
         while (($d = $this->db->fetch_array($rows))){

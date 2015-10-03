@@ -44,7 +44,7 @@ class ForumTopicList extends AbricosModelList {
      * @param CommentStatisticList $list
      */
     public function SetCommentStatistics($list){
-        for ($i = 0; $i < count($list); $i++){
+        for ($i = 0; $i < $list->Count(); $i++){
             $stat = $list->GetByIndex($i);
             $topic = $this->Get($stat->id);
             if (empty($topic)){

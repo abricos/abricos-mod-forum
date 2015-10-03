@@ -55,14 +55,12 @@ class ForumQuery {
         if (!ForumManager::$instance->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
-				AND (t.isprivate=0 OR (t.isprivate=1 AND mtuserid=".bkint(Abricos::$user->id)."))
+				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".bkint(Abricos::$user->id)."))
 				AND t.status != ".ForumTopic::ST_REMOVED."
 			";
         }
 
-        $sql .= "
-        	LIMIT 1
-		";
+        $sql .= " LIMIT 1 ";
 
         return $db->query_first($sql);
     }
@@ -169,7 +167,7 @@ class ForumQuery {
 				f.filesize as sz,
 				f.counter as cnt,
 				f.dateline as dl
-			FROM ".$db->prefix."frm_file bf
+			FROM ".$db->prefix."forum_file bf
 			INNER JOIN ".$db->prefix."fm_file f ON bf.filehash=f.filehash
 			WHERE ".implode(" OR ", $aWh)."
 			ORDER BY tid
@@ -179,7 +177,7 @@ class ForumQuery {
 
     public static function TopicFileAppend(Ab_Database $db, $topicid, $filehash, $userid){
         $sql = "
-			INSERT INTO ".$db->prefix."frm_file (topicid, filehash, userid) VALUES
+			INSERT INTO ".$db->prefix."forum_file (topicid, filehash, userid) VALUES
 			(
 				".bkint($topicid).",
 				'".bkstr($filehash)."',
@@ -191,7 +189,7 @@ class ForumQuery {
 
     public static function TopicFileRemove(Ab_Database $db, $topicid, $filehash){
         $sql = "
-			DELETE FROM ".$db->prefix."frm_file
+			DELETE FROM ".$db->prefix."forum_file
 			WHERE topicid=".bkint($topicid)." AND filehash='".bkstr($filehash)."' 
 		";
         $db->query_write($sql);

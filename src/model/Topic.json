@@ -38,6 +38,10 @@
       "type": "model:comment:Statistic",
       "json": "cmtstat"
     },
+    "dateline": {
+      "type": "date",
+      "json": "dl"
+    },
     "upddate": {
       "type": "date",
       "json": "upd"

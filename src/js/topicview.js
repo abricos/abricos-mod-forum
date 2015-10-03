@@ -2,6 +2,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'filemanager', files: ['lib.js']},
+        {name: 'comment', files: ['commentList.js']},
         {name: 'uprofile', files: ['users.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
@@ -45,7 +46,12 @@ Component.entryPoint = function(NS){
                 'id': this.get('topicid') | 0
             };
         },
-        onInitAppWidget: function(err, appInstance, options){
+        destructor: function(){
+            if (this._commentsWidget){
+                this._commentsWidget.destroy();
+            }
+        },
+        onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
             var topicid = this.get('topicid');
 
@@ -56,6 +62,15 @@ Component.entryPoint = function(NS){
                 }
                 this.renderTopic();
             }, this);
+
+            var tp = this.template;
+
+            this._commentsWidget = new Brick.mod.comment.CommentListWidget({
+                srcNode: tp.one('commentList'),
+                ownerModule: 'forum',
+                ownerType: 'topic',
+                ownerid: topicid
+            });
         },
         renderTopic: function(){
             var topic = this.get('topic');
@@ -91,40 +106,25 @@ Component.entryPoint = function(NS){
             }/**/
 
             // Автор
-            var user = appInstance.users.get(topic.userid);
-
-            var elSetHTML = function(d){
-                for (var n in d){
-                    tp.gel(n).innerHTML = d[n];
-                }
-            };
-
-            elSetHTML({
-                'author': tp.replace('user', {
-                    'uid': user.id, 'unm': user.getUserName()
+            var user = topic.get('user');
+console.log(topic.toJSON(true));
+            tp.setHTML({
+                author: tp.replace('user', {
+                    uid: user.get('id'),
+                    unm: user.get('viewName')
                 }),
-                'dl': Brick.dateExt.convert(topic.date, 3, true),
-                'dlt': Brick.dateExt.convert(topic.date, 4),
+                title: topic.getTitle(),
+                dl: Brick.dateExt.convert(topic.get('dateline'), 3, true),
+                dlt: Brick.dateExt.convert(topic.get('dateline'), 4),
+                topicbody: topic.get('body')
+                /*
                 'status': LNG['status'][topic.status],
-                'title': topic.title == '' ? LNG.get('topic.emptytitle') : topic.title,
-                'topicbody': topic.detail.body
+                /**/
             });
 
-            var elHide = function(els){
-                var a = els.split(',');
-                for (var i = 0; i < a.length; i++){
-                    Y.one(tp.gel(a[i])).addClass('hide');
-                }
-            };
-            var elShow = function(els){
-                var a = els.split(',');
-                for (var i = 0; i < a.length; i++){
-                    Y.one(tp.gel(a[i])).removeClass('hide');
-                }
-            };
 
             // закрыть все кнопки, открыть по ролям
-            elHide('bopen,bclose,beditor,bremove');
+            tp.hide('bopen,bclose,beditor,bremove');
 
             var isMyTopic = user.id * 1 == Brick.env.user.id * 1;
             if (topic.status == NS.TopicStatus.OPENED){
@@ -135,6 +135,7 @@ Component.entryPoint = function(NS){
                 }
             }
 
+            /*
             // показать прикрепленные файлы
             var fs = topic.detail.files;
             if (fs.length > 0){
@@ -159,6 +160,7 @@ Component.entryPoint = function(NS){
             } else {
                 elHide('files');
             }
+            /**/
         },
         onClick: function(e){
             switch (e.dataClick) {

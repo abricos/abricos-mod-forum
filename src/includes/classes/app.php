@@ -242,6 +242,21 @@ class ForumApp extends AbricosApplication {
 
         return $this->_cache['TopicList'][$key] = $list;
     }
+
+    public function Comment_IsList($type, $ownerid){
+        if (!$this->manager->IsViewRole()){
+            return false;
+        }
+        if ($type != 'topic'){
+            return false;
+        }
+        $topic = $this->Topic($ownerid);
+        if (empty($topic)){
+            return false;
+        }
+        // TODO: check for private topic
+        return true;
+    }
 }
 
 ?>

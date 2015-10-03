@@ -5,11 +5,14 @@
         <div class="panel-heading">
             <div class="navigate">
                 <span class="item">
-                    <a data-url="topic.list" href="#">Сообщения</a>
+                    <a data-url="topic.list" href="#">Список тем</a>
                 </span>
                 <span class="item">
                     <span class="arrow"> → </span><span id="{i#title}"></span>
                 </span>
+            </div>
+            <div class="pull-right" data-wait="show">
+                <img src="/images/loading.gif"/>
             </div>
 
         </div>
@@ -18,9 +21,7 @@
             <div class="row">
                 <div class="col-sm-8">
 
-                    <div id="{i#topicbody}" class="topicbody aw-page-content">
-                        <img src="/images/loading.gif"/>
-                    </div>
+                    <div id="{i#topicbody}" class="topicbody"></div>
 
                     <div id="{i#files}" class="dfiles hide">
                         <div id="{i#ftable}"></div>
@@ -128,8 +129,7 @@
 
             <hr/>
 
-            <div class="comments" id="{i#comments}"></div>
-
+            <div class="topicCommentList" id="{i#commentList}"></div>
         </div>
     </div>
 

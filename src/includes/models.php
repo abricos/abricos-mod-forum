@@ -10,10 +10,20 @@
 /**
  * Class ForumTopic
  *
+ * @property bool $isprivate
+ * @property int $userid
+ *
+ * @property int $status
+ * @property int $statuserid
+ * @property int $statdate
+ *
  * @property string $title
  * @property string $body
  * @property ForumFileList $files
  * @property CommentStatistic $commentStatistic
+ * @property int $dateline
+ *
+ * @property ForumApp $app
  */
 class ForumTopic extends AbricosModel {
 
@@ -26,6 +36,38 @@ class ForumTopic extends AbricosModel {
 
     public function URI(){
         return "/forum/topic_".$this->id."/";
+    }
+
+    public function IsPrivate(){
+        return $this->isprivate;
+    }
+
+    public function IsClosed(){
+        return $this->status == ForumTopic::ST_CLOSED;
+    }
+
+    public function IsRemoved(){
+        return $this->status == ForumTopic::ST_REMOVED;
+    }
+
+    public function IsCommentWrite(){
+        return !$this->IsClosed() && !$this->IsRemoved();
+    }
+
+    public function IsWrite(){
+        if ($this->IsClosed() || $this->IsRemoved()){
+            return false;
+        }
+
+        if ($this->app->manager->IsModerRole()){
+            return true;
+        }
+
+        if ($this->userid == Abricos::$user->id){
+            return true;
+        }
+
+        return false;
     }
 }
 

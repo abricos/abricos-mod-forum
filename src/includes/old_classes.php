@@ -76,45 +76,6 @@ class ForumTopic extends AbricosItem {
         $this->_isPrivate = intval($d['prt']) > 0;
     }
 
-    public function IsPrivate(){
-        return $this->_isPrivate;
-    }
-
-    public function IsClosed(){
-        return $this->status == ForumTopic::ST_CLOSED;
-    }
-
-    public function IsRemoved(){
-        return $this->status == ForumTopic::ST_REMOVED;
-    }
-
-    /**
-     * Разрешено ли писать комментарий в тему
-     */
-    public function IsCommentWrite(){
-        return !$this->IsClosed() && !$this->IsRemoved();
-    }
-
-    /**
-     * Разрешено ли изменять тему
-     */
-    public function IsWrite(){
-        if ($this->IsClosed() || $this->IsRemoved()){
-            return false;
-        }
-
-        if (ForumManager::$instance->IsModerRole()){
-            return true;
-        }
-
-        if ($this->userid == Abricos::$user->id){
-            return true;
-        }
-
-        return false;
-    }
-
-
     public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->tl = $this->title;

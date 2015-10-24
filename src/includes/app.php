@@ -8,6 +8,7 @@
  */
 
 require_once 'models.php';
+require_once 'dbquery.php';
 
 /**
  * Class ForumApp
@@ -87,7 +88,7 @@ class ForumApp extends AbricosApplication {
 
         if ($d->id === 0){
             $pubkey = md5(time().Abricos::$user->id);
-            $d->id = ForumQuery::TopicAppend($this->db, $d, $pubkey);
+            $d->id = ForumQuery::TopicAppend($this, $d, $pubkey);
 
             $sendNewNotify = true;
         }
@@ -113,7 +114,7 @@ class ForumApp extends AbricosApplication {
                 }
             }
             if (!$find){
-                ForumQuery::TopicFileRemove($this->db, $d->id, $cFile->id);
+                ForumQuery::TopicFileRemove($this, $d->id, $cFile->id);
             }
         }
         foreach ($arr as $file){
@@ -126,7 +127,7 @@ class ForumApp extends AbricosApplication {
                 }
             }
             if (!$find){
-                ForumQuery::TopicFileAppend($this->db, $d->id, $file->id, $this->userid);
+                ForumQuery::TopicFileAppend($this, $d->id, $file->id, $this->userid);
             }
         }
 
@@ -137,7 +138,7 @@ class ForumApp extends AbricosApplication {
             $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
             $plnk = "http://".$host.$topic->URI();
 
-            $rows = ForumQuery::ModeratorList($this->db);
+            $rows = ForumQuery::ModeratorList($this);
             while (($userData = $this->db->fetch_array($rows))){
                 if ($userData['id'] == Abricos::$user->id){
                     continue;
@@ -188,18 +189,19 @@ class ForumApp extends AbricosApplication {
             return $this->_cache['Topic'][$topicid];
         }
 
-        $d = ForumQuery::Topic($this->db, $topicid);
+        $d = ForumQuery::Topic($this, $topicid);
         if (empty($d)){
             return 404;
         }
         /** @var ForumTopic $topic */
-        $topic = $this->models->InstanceClass('Topic', $d);
+        $topic = $this->InstanceClass('Topic', $d);
 
         $topic->commentStatistic = $this->CommentApp()->Statistic('forum', 'topic', $topicid);
 
-        $rows = ForumQuery::TopicFileList($this->db, $topicid);
+        $topic->files = $this->InstanceClass('FileList');
+        $rows = ForumQuery::TopicFileList($this, $topicid);
         while (($d = $this->db->fetch_array($rows))){
-            $topic->files->Add($this->models->InstanceClass('File', $d));
+            $topic->files->Add($this->InstanceClass('File', $d));
         }
 
         return $this->_cache['Topic'][$topicid] = $topic;
@@ -227,12 +229,12 @@ class ForumApp extends AbricosApplication {
         }
 
         /** @var ForumTopicList $list */
-        $list = $this->models->InstanceClass('TopicList');
+        $list = $this->InstanceClass('TopicList');
         $list->page = $page;
 
-        $rows = ForumQuery::TopicList($this->db, $page, $limit);
+        $rows = ForumQuery::TopicList($this, $page, $limit);
         while (($d = $this->db->fetch_array($rows))){
-            $list->Add($this->models->InstanceClass('Topic', $d));
+            $list->Add($this->InstanceClass('Topic', $d));
         }
 
         $topicids = $list->Ids();
@@ -256,6 +258,25 @@ class ForumApp extends AbricosApplication {
         }
         // TODO: check for private topic
         return true;
+    }
+
+    public function Comment_IsWrite($type, $ownerid){
+        if (!$this->manager->IsViewRole()){
+            return false;
+        }
+        if ($type != 'topic'){
+            return false;
+        }
+        $topic = $this->Topic($ownerid);
+        return $topic->IsCommentWrite();
+    }
+
+    /**
+     * @param $type
+     * @param $ownerid
+     * @param CommentStatistic $statistic
+     */
+    public function Comment_OnStatisticUpdate($type, $ownerid, $statistic){
     }
 }
 

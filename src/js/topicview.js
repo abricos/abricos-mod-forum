@@ -60,17 +60,26 @@ Component.entryPoint = function(NS){
                 if (!err){
                     this.set('topic', result.topic);
                 }
-                this.renderTopic();
+                this.onLoadTopic();
             }, this);
+        },
+        onLoadTopic: function(){
+            var tp = this.template,
+                topic = this.get('topic');
 
-            var tp = this.template;
+            if (!topic){ // TODO: show 404 - topic not found
+                return;
+            }
 
             this._commentsWidget = new Brick.mod.comment.CommentListWidget({
                 srcNode: tp.one('commentList'),
                 ownerModule: 'forum',
                 ownerType: 'topic',
-                ownerid: topicid
+                ownerid: topic.get('id'),
+                readOnly: !R.isWrite || topic.isRemoved() || topic.isClosed()
             });
+
+            this.renderTopic();
         },
         renderTopic: function(){
             var topic = this.get('topic');
@@ -83,31 +92,31 @@ Component.entryPoint = function(NS){
                 tp = this.template;
 
             /*
-            if (!this.flagFirstTopicRender){ // первичная рендер
-                this.flagFirstTopicRender = true;
+             if (!this.flagFirstTopicRender){ // первичная рендер
+             this.flagFirstTopicRender = true;
 
-                // Инициализировать менеджер комментариев
-                Brick.use('comment', 'comment', function(err, ns){
-                    ns.API.buildCommentTree({
-                        'container': tp.gel('comments'),
-                        'dbContentId': topic.detail.contentid,
-                        'config': {
-                            'onLoadComments': function(){
-                                aTargetBlank(tp.gel('topicbody'));
-                                aTargetBlank(tp.gel('comments'));
-                            },
-                            'readOnly': (topic.isRemoved() || topic.isClosed())
-                            // ,'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
-                        },
-                        'instanceCallback': function(b){
-                        }
-                    });
-                });
-            }/**/
+             // Инициализировать менеджер комментариев
+             Brick.use('comment', 'comment', function(err, ns){
+             ns.API.buildCommentTree({
+             'container': tp.gel('comments'),
+             'dbContentId': topic.detail.contentid,
+             'config': {
+             'onLoadComments': function(){
+             aTargetBlank(tp.gel('topicbody'));
+             aTargetBlank(tp.gel('comments'));
+             },
+             'readOnly':
+             // ,'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
+             },
+             'instanceCallback': function(b){
+             }
+             });
+             });
+             }/**/
 
             // Автор
             var user = topic.get('user');
-console.log(topic.toJSON(true));
+
             tp.setHTML({
                 author: tp.replace('user', {
                     uid: user.get('id'),
@@ -118,8 +127,8 @@ console.log(topic.toJSON(true));
                 dlt: Brick.dateExt.convert(topic.get('dateline'), 4),
                 topicbody: topic.get('body')
                 /*
-                'status': LNG['status'][topic.status],
-                /**/
+                 'status': LNG['status'][topic.status],
+                 /**/
             });
 
 
@@ -136,31 +145,31 @@ console.log(topic.toJSON(true));
             }
 
             /*
-            // показать прикрепленные файлы
-            var fs = topic.detail.files;
-            if (fs.length > 0){
-                elShow('files');
+             // показать прикрепленные файлы
+             var fs = topic.detail.files;
+             if (fs.length > 0){
+             elShow('files');
 
-                var alst = [], lst = "";
-                for (var i = 0; i < fs.length; i++){
-                    var f = fs[i];
-                    var lnk = new Brick.mod.filemanager.Linker({
-                        'id': f['id'],
-                        'name': f['nm']
-                    });
-                    alst[alst.length] = tp.replace('frow', {
-                        'fid': f['id'],
-                        'nm': f['nm'],
-                        'src': lnk.getSrc()
-                    });
-                }
-                lst = alst.join('');
-                tp.gel('ftable').innerHTML = lst;
-                console.log(tp.gel('ftable'));
-            } else {
-                elHide('files');
-            }
-            /**/
+             var alst = [], lst = "";
+             for (var i = 0; i < fs.length; i++){
+             var f = fs[i];
+             var lnk = new Brick.mod.filemanager.Linker({
+             'id': f['id'],
+             'name': f['nm']
+             });
+             alst[alst.length] = tp.replace('frow', {
+             'fid': f['id'],
+             'nm': f['nm'],
+             'src': lnk.getSrc()
+             });
+             }
+             lst = alst.join('');
+             tp.gel('ftable').innerHTML = lst;
+             console.log(tp.gel('ftable'));
+             } else {
+             elHide('files');
+             }
+             /**/
         },
         onClick: function(e){
             switch (e.dataClick) {

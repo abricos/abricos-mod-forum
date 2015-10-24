@@ -18,26 +18,26 @@ if ($updateManager->isInstall()){
     /*
         $db->query_write("
             CREATE TABLE IF NOT EXISTS ".$pfx."frm_topic (
-                topicid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
+                topicid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
                 language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-                pubkey varchar(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
-                isprivate tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
-                userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
-                forumid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
-                title varchar(250) NOT NULL DEFAULT '' COMMENT 'Название',
-                contentid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор контента сообщения',
+                pubkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
+                isprivate TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
+                userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+                forumid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
+                title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Название',
+                contentid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор контента сообщения',
 
-                status int(2) unsigned NOT NULL DEFAULT 0 COMMENT 'Текущий статус записи',
-                statuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь текущего статуса',
-                statdate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время текущего статуса',
+                status INT(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Текущий статус записи',
+                statuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь текущего статуса',
+                statdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время текущего статуса',
 
-                cmtcount int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
-                cmtuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
-                cmtdate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
+                cmtcount INT(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
+                cmtuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
+                cmtdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
 
-                dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время создания',
-                upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
-                deldate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
+                dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время создания',
+                upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
+                deldate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
 
                 PRIMARY KEY (topicid),
                 KEY (language, deldate)
@@ -46,10 +46,10 @@ if ($updateManager->isInstall()){
         // Прикрепленные файлы к сообщению
         $db->query_write("
             CREATE TABLE IF NOT EXISTS ".$pfx."frm_file (
-              fileid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
-              topicid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
-              userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
-              filehash varchar(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
+              fileid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор',
+              topicid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
+              userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
+              filehash VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
               PRIMARY KEY (fileid),
               UNIQUE KEY file (topicid,filehash)
             )".$charset);
@@ -73,8 +73,8 @@ if ($updateManager->isUpdate('0.1.5') && !$updateManager->isInstall()){
 
     $db->query_write("
 		ALTER TABLE ".$pfx."frm_message
-		ADD forumid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
-		ADD deldate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
+		ADD forumid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
+		ADD deldate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
 		ADD KEY (language, deldate)
 	");
 }
@@ -86,12 +86,12 @@ if ($updateManager->isUpdate('0.1.6') && !$updateManager->isInstall()){
 
     $db->query_write("
 		ALTER TABLE ".$pfx."frm_topic
-		CHANGE messageid topicid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения'
+		CHANGE messageid topicid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор сообщения'
 	");
 
     $db->query_write("
 		ALTER TABLE ".$pfx."frm_file
-		CHANGE messageid topicid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения'
+		CHANGE messageid topicid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения'
 	");
 }
 
@@ -99,37 +99,58 @@ if ($updateManager->isUpdate('0.1.8')){
 
     $db->query_write("
         CREATE TABLE IF NOT EXISTS ".$pfx."forum_topic (
-            topicid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
-            userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+            topicid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
 
-            title varchar(250) NOT NULL DEFAULT '' COMMENT 'Название',
+            userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+
+            statusid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+
+            isprivate TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
+            title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Название',
             body text NOT NULL COMMENT 'Запись топика',
 
-            status int(2) unsigned NOT NULL DEFAULT 0 COMMENT 'Текущий статус записи',
-            statuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь текущего статуса',
-            statdate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время текущего статуса',
+            pubkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
 
-            isprivate tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
-            pubkey varchar(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
+			cmtcount INT(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
+			cmtuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
+			cmtdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
 
-            dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время создания',
-            upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
-            deldate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
+			viewcount INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
+            dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+            upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
 
             language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 
             PRIMARY KEY (topicid),
-            KEY (language, deldate)
+            KEY isprivate (isprivate),
+            KEY upddate (upddate),
+            KEY language (language)
         )".$charset
     );
 
-    // Прикрепленные файлы к сообщению
     $db->query_write("
-        CREATE TABLE IF NOT EXISTS ".$pfx."forum_file (
-            fileid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
-            topicid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
-            userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
-            filehash varchar(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
+        CREATE TABLE IF NOT EXISTS ".$pfx."forum_topicstatus (
+            statusid INT(10) UNSIGNED NOT NULL auto_increment COMMENT '',
+
+            topicid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
+            status ENUM('opened', 'closed', 'removed') NOT NULL COMMENT '',
+            userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
+            dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
+            PRIMARY KEY (statusid),
+            KEY topicid (topicid)
+        )".$charset
+    );
+
+    $db->query_write("
+        CREATE TABLE IF NOT EXISTS ".$pfx."forum_topicfile (
+            fileid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор',
+            topicid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
+            userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
+            filehash VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
             PRIMARY KEY (fileid),
             UNIQUE KEY file (topicid, filehash)
         )".$charset
@@ -141,26 +162,26 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."frm_topic (
-			topicid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
+			topicid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-			pubkey varchar(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
-			isprivate tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
-			userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
-			forumid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
-			title varchar(250) NOT NULL DEFAULT '' COMMENT 'Название',
-			contentid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор контента сообщения',
+			pubkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
+			isprivate TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
+			userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+			forumid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор форума',
+			title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Название',
+			contentid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор контента сообщения',
 
-			status int(2) unsigned NOT NULL DEFAULT 0 COMMENT 'Текущий статус записи',
-			statuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь текущего статуса',
-			statdate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время текущего статуса',
+			status INT(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Текущий статус записи',
+			statuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь текущего статуса',
+			statdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время текущего статуса',
 
-			cmtcount int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
-			cmtuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
-			cmtdate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
+			cmtcount INT(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
+			cmtuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
+			cmtdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
 
-			dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время создания',
-			upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
-			deldate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
+			dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время создания',
+			upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
+			deldate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время удаления',
 
 			PRIMARY KEY (topicid),
 			KEY (language, deldate)
@@ -169,32 +190,61 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
     // Прикрепленные файлы к сообщению
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."frm_file (
-		  fileid int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
-		  topicid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
-		  userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
-		  filehash varchar(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
+		  fileid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор',
+		  topicid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщения',
+		  userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя',
+		  filehash VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Идентификатор файла таблицы fm_file',
 		  PRIMARY KEY (fileid),
 		  UNIQUE KEY file (topicid,filehash)
 		)".$charset);
     /**/
 
     $db->query_write("
-		INSERT INTO ".$pfx."forum_file
+		INSERT INTO ".$pfx."forum_topicfile
 		(fileid, topicid, userid, filehash)
 		SELECT fileid, topicid, userid, filehash
 		FROM ".$pfx."frm_file
 	");
 
+
     $db->query_write("
-		INSERT INTO ".$pfx."forum_topic (
-		    topicid, userid, isprivate, title, body,
-		    status, statuserid, statdate, pubkey,
-		    language, dateline, upddate, deldate
+		INSERT INTO ".$pfx."forum_topicstatus (
+		    topicid, status, userid, dateline
 		)
 		SELECT
-		    t.topicid, t.userid, t.isprivate, t.title, c.body,
-		    t.status, t.statuserid, t.statdate, t.pubkey,
-		    t.language, t.dateline, t.upddate, t.deldate
+		    t.topicid, 'opened', t.userid, t.dateline
+		FROM ".$pfx."frm_topic t
+	");
+
+    $db->query_write("
+		INSERT INTO ".$pfx."forum_topicstatus (
+		    topicid, status, userid, dateline
+		)
+		SELECT
+		    t.topicid, IF(t.status=1, 'closed', 'removed'), t.userid, t.upddate
+		FROM ".$pfx."frm_topic t
+		WHERE t.status>0
+	");
+
+    $db->query_write("
+		INSERT INTO ".$pfx."forum_topic (
+		    topicid, userid, statusid,
+		    isprivate, title, body,
+		    pubkey,
+		    cmtcount, cmtuserid, cmtdate,
+		    language, dateline, upddate
+		)
+		SELECT
+		    t.topicid, t.userid,
+		    (
+		        SELECT MAX(s.statusid)
+                FROM ".$pfx."forum_topicstatus s
+                WHERE s.topicid=t.topicid
+            ) as statusid,
+		    t.isprivate, t.title, c.body,
+		    t.pubkey,
+		    t.cmtcount, t.cmtuserid, t.cmtdate,
+		    t.language, t.dateline, t.upddate
 		FROM ".$pfx."frm_topic t
 		INNER JOIN ".$pfx."content c ON c.contentid=t.contentid
 	");

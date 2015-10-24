@@ -22,7 +22,7 @@
       "type": "string",
       "json": "bd"
     },
-    "stat": {
+    "status": {
       "type": "int",
       "json": "st"
     },

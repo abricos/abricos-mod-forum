@@ -1,17 +1,34 @@
-.aw-forum .topiclist {
+.aw-forum .topicList {
 
-  th.tcmtcount {
+  tr.topicRow {
+    .author {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #777;
+      a {
+        color: #777;
+      }
+    }
+  }
+
+  th {
+    white-space: nowrap;
+  }
+
+  th.tcmtcount
+  th.tviewcount {
     text-align: center;
   }
 
-  td.tcmtcount {
+  td.tcmtcount,
+  td.tviewcount {
     vertical-align: middle;
     text-align: center;
   }
 
   td.tlastcmt {
+    vertical-align: middle;
     white-space: nowrap;
-    padding: 0.1em 0.3em 0.1em 0.3em;
     font-size: 12px;
   }
 

@@ -11,19 +11,13 @@ Component.entryPoint = function(NS){
 
     var LNG = this.language;
 
-    NS.TopicStatus = {
-        'OPENED': 0,    // открыта
-        'CLOSED': 1,    // закрыта
-        'REMOVED': 2    // удалена
-    };
-
     NS.Topic = Y.Base.create('topic', SYS.AppModel, [], {
         structureName: 'Topic',
         isRemoved: function(){
-            return this.get('status') === NS.TopicStatus.REMOVED;
+            return this.get('status').get('status') === NS.TopicStatus.REMOVED;
         },
         isClosed: function(){
-            return this.get('status') === NS.TopicStatus.CLOSED;
+            return this.get('status').get('status') === NS.TopicStatus.CLOSED;
         },
         getTitle: function(){
             var title = this.get('title');
@@ -33,9 +27,15 @@ Component.entryPoint = function(NS){
             var ret = [],
                 uid = this.get('userid'),
                 cUid,
-                cStat = this.get('commentStatistic');
+                cStat = this.get('commentStatistic'),
+                status = this.get('status');
 
             ret[ret.length] = uid;
+
+            cUid = status.get('userid');
+            if (cUid !== uid){
+                ret[ret.length] = cUid;
+            }
 
             if (cStat){
                 cUid = cStat.get('lastUserid');
@@ -67,15 +67,21 @@ Component.entryPoint = function(NS){
         },
         fillUsers: function(userList){
             var cStat = this.get('commentStatistic'),
+                status = this.get('status'),
                 user = userList.getById(this.get('userid'));
 
             if (user){
                 this.set('user', user);
             }
+            user = userList.getById(status.get('userid'));
+            if (user){
+                status.set('user', user);
+            }
+
             if (cStat){
                 user = userList.getById(cStat.get('lastUserid'));
                 if (user){
-                    this.set('lastUser', user);
+                    cStat.set('lastUser', user);
                 }
             }
         }
@@ -106,6 +112,21 @@ Component.entryPoint = function(NS){
         ATTRS: {
             page: {value: 1}
         }
+    });
+
+    NS.TopicStatus = Y.Base.create('topicStatus', SYS.AppModel, [], {
+        structureName: 'TopicStatus'
+    }, {
+        OPENED: 'opened',
+        CLOSED: 'closed',
+        REMOVED: 'removed',
+        ATTRS: {
+            user: {}
+        }
+    });
+
+    NS.TopicStatusList = Y.Base.create('topicStatusList', SYS.AppModelList, [], {
+        appItem: NS.TopicStatus
     });
 
     NS.File = Y.Base.create('file', SYS.AppModel, [], {

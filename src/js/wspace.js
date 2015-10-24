@@ -24,7 +24,7 @@ Component.entryPoint = function(NS){
             },
             defaultPage: {
                 value: {
-                    component: 'topiclist',
+                    component: 'topicList',
                     widget: 'TopicListWidget'
                 }
             }

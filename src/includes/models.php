@@ -10,26 +10,30 @@
 /**
  * Class ForumTopic
  *
- * @property bool $isprivate
- * @property int $userid
+ * @property int $statusid
  *
- * @property int $status
- * @property int $statuserid
- * @property int $statdate
+ * @property int $userid
+ * @property int $dateline
+ * @property bool $isprivate
  *
  * @property string $title
  * @property string $body
- * @property ForumFileList $files
+ * @property string $pubkey
+ *
+ * @property int $viewcount
+ * @property int $upddate
+ *
+ * @property ForumTopicStatus $status
  * @property CommentStatistic $commentStatistic
- * @property int $dateline
+ * @property ForumFileList $files
  *
  * @property ForumApp $app
  */
 class ForumTopic extends AbricosModel {
 
-    const ST_OPENED = 0;
-    const ST_CLOSED = 1;
-    const ST_REMOVED = 2;
+    const OPENED = 'opened';
+    const CLOSED = 'closed';
+    const REMOVED = 'removed';
 
     protected $_structModule = 'forum';
     protected $_structName = 'Topic';
@@ -43,11 +47,12 @@ class ForumTopic extends AbricosModel {
     }
 
     public function IsClosed(){
-        return $this->status == ForumTopic::ST_CLOSED;
+
+        return $this->status->status === ForumTopic::CLOSED;
     }
 
     public function IsRemoved(){
-        return $this->status == ForumTopic::ST_REMOVED;
+        return $this->status->status === ForumTopic::REMOVED;
     }
 
     public function IsCommentWrite(){
@@ -102,6 +107,28 @@ class ForumTopicList extends AbricosModelList {
         return $ret;
     }
 }
+
+/**
+ * Class ForumTopicStatus
+ *
+ * @property int $topicid
+ * @property string $status
+ * @property int $userid
+ * @property int $dateline
+ */
+class ForumTopicStatus extends AbricosModel {
+    protected $_structModule = 'forum';
+    protected $_structName = 'TopicStatus';
+}
+
+/**
+ * Class ForumTopicStatusList
+ * @method ForumTopicStatus Get($statusid)
+ * @method ForumTopicStatus GetByIndex($index)
+ */
+class ForumTopicStatusList extends AbricosModelList {
+}
+
 
 /**
  * Class ForumFile

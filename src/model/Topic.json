@@ -6,13 +6,21 @@
       "type": "int",
       "dbField": "topicid"
     },
-    "isprivate": {
-      "type": "bool",
-      "json": "prv"
+    "statusid": {
+      "type": "int",
+      "json": "stid"
     },
     "userid": {
       "type": "int",
       "json": "uid"
+    },
+    "dateline": {
+      "type": "date",
+      "json": "dl"
+    },
+    "isprivate": {
+      "type": "bool",
+      "json": "prv"
     },
     "title": {
       "type": "string",
@@ -22,29 +30,25 @@
       "type": "string",
       "json": "bd"
     },
-    "status": {
+    "pubkey": {
+      "type": "string",
+      "json": "pk"
+    },
+    "viewcount": {
       "type": "int",
-      "json": "st"
-    },
-    "statuserid": {
-      "type": "int",
-      "json": "stuid"
-    },
-    "statdate": {
-      "type": "date",
-      "json": "stdt"
-    },
-    "commentStatistic": {
-      "type": "model:comment:Statistic",
-      "json": "cmtstat"
-    },
-    "dateline": {
-      "type": "date",
-      "json": "dl"
+      "json": "vcnt"
     },
     "upddate": {
       "type": "date",
       "json": "upd"
+    },
+    "status": {
+      "type": "model:TopicStatus",
+      "json": "st"
+    },
+    "commentStatistic": {
+      "type": "model:comment:Statistic",
+      "json": "cmtstat"
     },
     "files": {
       "type": "modelList:FileList"

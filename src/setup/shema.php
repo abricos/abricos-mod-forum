@@ -100,10 +100,10 @@ if ($updateManager->isUpdate('0.1.8')){
     $db->query_write("
         CREATE TABLE IF NOT EXISTS ".$pfx."forum_topic (
             topicid INT(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор сообщения',
+            statusid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
 
             userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
-
-            statusid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор автора',
+            dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 
             isprivate TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Приватная запись',
             title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Название',
@@ -111,13 +111,8 @@ if ($updateManager->isUpdate('0.1.8')){
 
             pubkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Уникальный публичный ключ',
 
-			cmtcount INT(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Кол-во комменатрий',
-			cmtuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользователь последнего комментария',
-			cmtdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время последнего комментария',
-
 			viewcount INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 
-            dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
             upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
 
             language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
@@ -231,7 +226,6 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		    topicid, userid, statusid,
 		    isprivate, title, body,
 		    pubkey,
-		    cmtcount, cmtuserid, cmtdate,
 		    language, dateline, upddate
 		)
 		SELECT
@@ -243,7 +237,6 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
             ) as statusid,
 		    t.isprivate, t.title, c.body,
 		    t.pubkey,
-		    t.cmtcount, t.cmtuserid, t.cmtdate,
 		    t.language, t.dateline, t.upddate
 		FROM ".$pfx."frm_topic t
 		INNER JOIN ".$pfx."content c ON c.contentid=t.contentid

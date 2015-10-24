@@ -18,11 +18,11 @@ class ForumQuery {
         $sql = "
 			INSERT INTO ".$db->prefix."forum_topic (
 				userid, title, pubkey, body, isprivate, status, dateline, upddate, language) VALUES (
-				".bkint(Abricos::$user->id).",
+				".intval(Abricos::$user->id).",
 				'".bkstr($d->title)."',
 				'".bkstr($pubkey)."',
 				'".bkstr($d->body)."',
-				".bkint($d->isprivate).",
+				".intval($d->isprivate).",
 				".Forum::ST_OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
@@ -41,7 +41,7 @@ class ForumQuery {
 				title='".bkstr($d->title)."',
 				body='".bkstr($d->body)."',
 				upddate=".TIMENOW."
-			WHERE topicid=".bkint($d->id)."
+			WHERE topicid=".intval($d->id)."
 			LIMIT 1
 		";
         $db->query_write($sql);
@@ -52,14 +52,15 @@ class ForumQuery {
         $sql = "
 			SELECT t.*
 			FROM ".$db->prefix."forum_topic t
+			INNER JOIN ".$db->prefix."forum_topicstatus s ON t.statusid=s.statusid
 			WHERE language='".bkstr(Abricos::$LNG)."'
 			    AND topicid=".intval($topicid)."
 		";
         if (!$app->manager->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
-				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".bkint(Abricos::$user->id)."))
-				AND t.status != ".ForumTopic::ST_REMOVED."
+				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".intval(Abricos::$user->id)."))
+				AND s.status<>'".ForumTopic::REMOVED."'
 			";
         }
 
@@ -75,23 +76,46 @@ class ForumQuery {
         $from = $limit * (max($page, 1) - 1);
 
         $sql = "
-			SELECT t.*
+			SELECT
+			  t.*,
+			  '' as body
 			FROM ".$db->prefix."forum_topic t
+			INNER JOIN ".$db->prefix."forum_topicstatus s ON t.statusid=s.statusid
 			WHERE t.language='".bkstr(Abricos::$LNG)."'
 		";
         if (!$app->manager->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
             $sql .= "
-				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".bkint(Abricos::$user->id)."))
-				AND t.status != ".ForumTopic::ST_REMOVED."
+				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".intval(Abricos::$user->id)."))
+				AND s.status<>'".ForumTopic::REMOVED."'
 			";
         }
 
         $sql .= "
 			ORDER BY t.upddate DESC
-			LIMIT ".$from.",".bkint($limit)."
+			LIMIT ".$from.",".intval($limit)."
 		";
 
+        return $db->query_read($sql);
+    }
+
+    public static function TopicStatusListByIds(ForumApp $app, $statusids){
+        $db = $app->db;
+        $aw = array();
+        $count = count($statusids);
+        if ($count === 0){
+            return null;
+        }
+
+        for ($i = 0; $i < $count; $i++){
+            $aw[] = "s.statusid=".intval($statusids[$i]);
+        }
+
+        $sql = "
+			SELECT s.*
+			FROM ".$db->prefix."forum_topicstatus s
+			WHERE ".implode(" OR ", $aw)."
+		";
         return $db->query_read($sql);
     }
 
@@ -125,7 +149,7 @@ class ForumQuery {
         }
         $aWh = array();
         foreach ($tids as $tid){
-            array_push($aWh, "bf.topicid=".bkint($tid));
+            array_push($aWh, "bf.topicid=".intval($tid));
         }
 
         $sql = "
@@ -149,9 +173,9 @@ class ForumQuery {
         $sql = "
 			INSERT INTO ".$db->prefix."forum_topicfile (topicid, filehash, userid) VALUES
 			(
-				".bkint($topicid).",
+				".intval($topicid).",
 				'".bkstr($filehash)."',
-				".bkint($userid)."
+				".intval($userid)."
 			)
 		";
         $db->query_write($sql);
@@ -161,7 +185,7 @@ class ForumQuery {
         $db = $app->db;
         $sql = "
 			DELETE FROM ".$db->prefix."forum_topicfile
-			WHERE topicid=".bkint($topicid)." AND filehash='".bkstr($filehash)."' 
+			WHERE topicid=".intval($topicid)." AND filehash='".bkstr($filehash)."' 
 		";
         $db->query_write($sql);
     }
@@ -171,10 +195,10 @@ class ForumQuery {
         $sql = "
 			UPDATE ".$db->prefix."forum_topic
 			SET
-				status=".bkint($status).",
-				statuserid=".bkint($userid).",
+				status=".intval($status).",
+				statuserid=".intval($userid).",
 				statdate=".TIMENOW."
-			WHERE topicid=".bkint($topicid)."
+			WHERE topicid=".intval($topicid)."
 		";
         $db->query_write($sql);
     }

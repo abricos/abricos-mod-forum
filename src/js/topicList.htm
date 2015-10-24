@@ -1,9 +1,9 @@
 <!--{widget}-->
-<div class="topiclist">
+<div class="topicList">
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            Сообщения
+            Список тем форума
         </div>
 
         <div class="panel-body">
@@ -19,14 +19,17 @@
 <table id="{i#id}" class="table table-hover">
     <thead>
     <tr>
-        <th class="tname">
-            Тема
+        <th class="ttitle">
+            Темы
         </th>
         <th class="tcmtcount">
-            Ответов
+            Ответы
+        </th>
+        <th class="tviewcount">
+            Просмотры
         </th>
         <th class="tlastcmt">
-            Последний ответ
+            Последнее сообщение
         </th>
     </tr>
     </thead>
@@ -34,12 +37,19 @@
 </table>
 
 <!--{row}-->
-<tr class="topicrow {v#removed} {v#closed}">
-    <td class="tname">
+<tr class="topicRow {v#removed} {v#closed}">
+    <td class="ttitle">
         <a href="#" data-url="topic.view({v#id})">{v#title}</a>
+
+        <div class="author">
+            {v#user} » {v#dateline}
+        </div>
     </td>
     <td class="tcmtcount">
         {v#cmt}
+    </td>
+    <td class="tviewcount">
+        {v#viewcount}
     </td>
     <td class="tlastcmt">
         <div class="cmtuser">{v#cmtuser}</div>
@@ -48,6 +58,4 @@
 </tr>
 
 <!--{user}-->
-<div class="user vi">
-    <a href="#" data-url="uprofile:profile.view({v#userid})">{v#username}</a>
-</div>
+<a href="#" data-url="uprofile:profile.view({v#userid})">{v#username}</a>

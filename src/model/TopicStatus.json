@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "statusid"
+    },
+    "topicid": {
+      "type": "int",
+      "json": "tid"
+    },
+    "status": {
+      "type": "string",
+      "json": "s"
+    },
+    "userid": {
+      "type": "int",
+      "json": "uid"
+    },
+    "dateline": {
+      "type": "date",
+      "json": "dl"
+    }
+  }
+}

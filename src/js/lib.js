@@ -38,6 +38,8 @@ Component.entryPoint = function(NS){
         ATTRS: {
             Topic: {value: NS.Topic},
             TopicList: {value: NS.TopicList},
+            TopicStatus: {value: NS.TopicStatus},
+            TopicStatusList: {value: NS.TopicStatusList},
             File: {value: NS.File},
             FileList: {value: NS.FileList},
             Config: {value: NS.Config}
@@ -89,16 +91,16 @@ Component.entryPoint = function(NS){
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
             topic: {
                 list: function(){
-                    return this.getURL('ws') + 'topiclist/TopicListWidget/';
+                    return this.getURL('ws') + 'topicList/TopicListWidget/';
                 },
                 create: function(){
-                    return this.getURL('ws') + 'topiceditor/TopicEditorWidget/';
+                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/';
                 },
                 edit: function(id){
-                    return this.getURL('ws') + 'topiceditor/TopicEditorWidget/' + id + '/';
+                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/' + id + '/';
                 },
                 view: function(id){
-                    return this.getURL('ws') + 'topicview/TopicViewWidget/' + id + '/';
+                    return this.getURL('ws') + 'topicView/TopicViewWidget/' + id + '/';
                 }
             }
         }

@@ -21,13 +21,15 @@ class ForumApp extends AbricosApplication {
         return array(
             'Topic' => 'ForumTopic',
             'TopicList' => 'ForumTopicList',
+            'TopicStatus' => 'ForumTopicStatus',
+            'TopicStatusList' => 'ForumTopicStatusList',
             'File' => 'ForumFile',
             'FileList' => 'ForumFileList',
         );
     }
 
     protected function GetStructures(){
-        return 'Topic,TopicList,File,FileList';
+        return 'Topic,TopicStatus,File';
     }
 
     private $_commentApp = null;
@@ -235,6 +237,15 @@ class ForumApp extends AbricosApplication {
         $rows = ForumQuery::TopicList($this, $page, $limit);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($this->InstanceClass('Topic', $d));
+        }
+
+        $statusids = $list->ToArray('statusid');
+        $rows = ForumQuery::TopicStatusListByIds($this, $statusids);
+        while (($d = $this->db->fetch_array($rows))){
+            /** @var ForumTopicStatus $status */
+            $status = $this->InstanceClass('TopicStatus', $d);
+            $topic = $list->Get($status->topicid);
+            $topic->status = $status;
         }
 
         $topicids = $list->Ids();

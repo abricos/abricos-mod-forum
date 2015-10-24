@@ -1,7 +1,6 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'uprofile', files: ['users.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
@@ -39,12 +38,18 @@ Component.entryPoint = function(NS){
 
             topicList.each(function(topic){
                 var user = topic.get('user'),
-                    stat = topic.get('commentStatistic'),
-                    cmtCount = stat.get('count'),
+                    cmtStatistic = topic.get('commentStatistic'),
+                    cmtCount = cmtStatistic.get('count'),
                     d = {
                         id: topic.get('id'),
                         title: topic.getTitle(),
                         cmt: cmtCount,
+                        viewcount: topic.get('viewcount'),
+                        dateline: Brick.dateExt.convert(topic.get('dateline')),
+                        user: tp.replace('user', {
+                            userid: user.get('id'),
+                            username: user.get('viewName')
+                        }),
                         cmtuser: tp.replace('user', {
                             userid: user.get('id'),
                             username: user.get('viewName')
@@ -54,10 +59,13 @@ Component.entryPoint = function(NS){
                         removed: topic.isRemoved() ? 'removed' : ''
                     };
 
-                if (topic.cmt > 0){
-                    user = appInstance.users.get(topic.cmtUserId);
-                    d['cmtuser'] = tp.replace('user', {'uid': user.id, 'unm': user.getUserName()});
-                    d['cmtdate'] = Brick.dateExt.convert(topic.cmtDate);
+                user = cmtStatistic.get('lastUser');
+                if (user){
+                    d['cmtuser'] = tp.replace('user', {
+                        userid: user.get('id'),
+                        username: user.get('viewName')
+                    });
+                    d['cmtdate'] = Brick.dateExt.convert(cmtStatistic.get('lastDate'));
                 }
 
                 lst += tp.replace('row', d);

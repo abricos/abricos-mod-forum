@@ -79,26 +79,38 @@ class ForumApp extends AbricosApplication {
             return 403;
         }
 
-        $d->id = intval($d->id);
-        $d->isprivate = 0;
-
-        $utmf = Abricos::TextParser(true);
-        $utm = Abricos::TextParser();
-
-        $d->title = $utmf->Parser($d->title);
-        $d->body = $utm->Parser($d->body);
+        $topic = $this->InstanceClass('Topic', $d);
 
         $sendNewNotify = false;
 
-        if ($d->id === 0){
-            $pubkey = md5(time().Abricos::$user->id);
-            $d->id = ForumQuery::TopicAppend($this, $d, $pubkey);
+        if ($topic->id > 0){
+            $curTopic = $this->Topic($topic->id);
+            if (empty($curTopic)){
+                return 404;
+            }
+        } else {
+            /** @var ForumTopic $curTopic */
+            $curTopic = $this->InstanceClass('Topic');
+            $curTopic->pubkey = md5(time().Abricos::$user->id);
 
             $sendNewNotify = true;
         }
 
+        if ($curTopic->IsWriteRole()){
+            return 403;
+        }
+
+        $curTopic->title = Abricos::TextParser(true)->Parser($topic->title);
+        $curTopic->body = Abricos::TextParser()->Parser($topic->body);
+
+        if ($topic->id === 0){
+            $topic->id = ForumQuery::TopicAppend($this, $curTopic);
+        } else {
+            ForumQuery::TopicUpdate($this, $curTopic);
+        }
+
         $this->CacheClear();
-        $topic = $this->Topic($d->id);
+        $topic = $this->Topic($topic->id);
 
         if (empty($topic)){
             return 500;

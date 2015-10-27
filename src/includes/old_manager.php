@@ -68,7 +68,6 @@ class ForumManager extends Ab_ModuleManager {
                 return null;
             }
 
-            ForumQuery::TopicUpdate($this->db, $topic, $sd, $this->userid);
         }
 
         if (empty($topic)){

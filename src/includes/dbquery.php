@@ -13,17 +13,17 @@
  */
 class ForumQuery {
 
-    public static function TopicAppend(ForumApp $app, $d, $pubkey){
+    public static function TopicAppend(ForumApp $app, ForumTopic $topic){
         $db = $app->db;
         $sql = "
 			INSERT INTO ".$db->prefix."forum_topic (
 				userid, title, pubkey, body, isprivate, status, dateline, upddate, language) VALUES (
 				".intval(Abricos::$user->id).",
-				'".bkstr($d->title)."',
-				'".bkstr($pubkey)."',
-				'".bkstr($d->body)."',
-				".intval($d->isprivate).",
-				".Forum::ST_OPENED.",
+				'".bkstr($topic->title)."',
+				'".bkstr($topic->pubkey)."',
+				'".bkstr($topic->body)."',
+				0,
+				".ForumTopic::OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'

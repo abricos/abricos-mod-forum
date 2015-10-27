@@ -1,14 +1,9 @@
 <!--{widget}-->
 <div class="panel panel-default topiceditor">
-    <div class="panel-heading">
-
+    <div class="panel-heading text-center">
         <div class="panel-title pull-left">
             <span data-isedit="hide">Создание новой темы форума</span>
             <span data-isedit="show">Редактирование темы форума</span>
-
-            <span data-wait="show">
-                <img src="/images/loading.gif"/> Загрузка...
-            </span>
         </div>
 
         <div class="pull-right btn-toolbar">
@@ -22,6 +17,10 @@
             </button>
         </div>
 
+        <span data-wait="show">
+            <img src="/images/loading.gif"/>
+        </span>
+
         <div class="clearfix"></div>
     </div>
     <div class="panel-body">
@@ -32,11 +31,13 @@
 
         <div class="form-group">
             <label>Текст сообщения</label>
+
             <div id="{i#bodyEditor}" data-rows="12"></div>
         </div>
 
         <div class="form-group" id="{i#rfiles}">
             <label>Файлы</label>
+
             <div id="{i#files}"></div>
         </div>
     </div>

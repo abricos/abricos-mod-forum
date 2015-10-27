@@ -66,16 +66,15 @@ Component.entryPoint = function(NS){
                 this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), topic.get('files'));
             } else {
                 this.filesWidget = null;
-                Y.one(tp.gel('rfiles')).hide()
+                tp.hide('rfiles');
             }
         },
-        topicSave: function(){
+        save: function(){
             var tp = this.template,
                 data = {
-                    id: this.get('topicid'),
+                    topicid: this.get('topicid'),
                     title: tp.getValue('title'),
                     body: this._bodyEditor.get('content'),
-                    isprivate: 0,
                     files: this.filesWidget ? [] : this.filesWidget.files
                 };
 
@@ -89,15 +88,8 @@ Component.entryPoint = function(NS){
                 }
             }, this);
         },
-        onClick: function(e){
-            switch (e.dataClick) {
-                case 'save':
-                    this.topicSave();
-                    return true;
-                case 'cancel':
-                    this.fire('editorCancel');
-                    return true;
-            }
+        cancel: function(){
+            this.fire('editorCancel');
         },
         _defEditorCancel: function(){
             this.go('topic.list');
@@ -107,20 +99,18 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'widget'
-            },
-            topicid: {
-                value: 0
-            },
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            topicid: {value: 0},
+            topic: {},
             isEdit: {
                 getter: function(){
                     return this.get('topicid') | 0 > 0;
                 }
             }
+        },
+        CLICKS: {
+            save: 'save', cancel: 'cancel'
         }
     });
 

@@ -1,139 +1,76 @@
 <!--{widget}-->
-<div class="topicview">
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <div class="navigate">
-                <span class="item">
-                    <a data-url="topic.list" href="#">Список тем</a>
-                </span>
-                <span class="item">
-                    <span class="arrow"> → </span><span id="{i#title}"></span>
-                </span>
-            </div>
-            <div class="pull-right" data-wait="show">
-                <img src="/images/loading.gif"/>
-            </div>
-
+<div class="panel panel-default topicView">
+    <div class="panel-heading text-center">
+        <div class="pull-left">
+            <span id="{i#title}"></span>
         </div>
 
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-sm-8">
+        <img src="/images/loading.gif" data-wait="show"/>
 
-                    <div id="{i#topicbody}" class="topicbody"></div>
-
-                    <div id="{i#files}" class="dfiles hide">
-                        <div id="{i#ftable}"></div>
-                    </div>
-                    <div class="clearfix"></div>
-
-                </div>
-                <div class="col-sm-4">
-
-                    <div class="topicinfo panel panel-info">
-
-                        <div class="panel-heading status text-center">
-                            <span id="{i#status}" class="">&nbsp;</span>
-                        </div>
-                        <div class="panel-body">
-
-                            <table class="table table-hover">
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <label>Автор</label>
-                                    </td>
-                                    <td class="text-right">
-                                        <div id="{i#author}"></div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label>Создано</label>
-                                    </td>
-                                    <td class="text-right">
-                                        <span class="date" id="{i#dl}"></span>,
-                                        <span class="time" id="{i#dlt}"></span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-
-                            <div id="{i#manbuttons}" class="text-center">
-                                <div id="{i#buttons}" class="btn-toolbar">
-
-                                    <a id="{i#bopen}" class="hide btn btn-primary"
-                                       href="#" title="{##3}">
-                                        {##3}
-                                    </a>
-
-                                    <a id="{i#bclose}" data-click="topic-close"
-                                       class="hide btn btn-close btn-default btn-sm" href="#"
-                                       title="{##4}">
-                                        {##4}
-                                    </a>
-
-                                    <a id="{i#beditor}" class="hide btn btn-edit btn-default btn-sm"
-                                       data-url="topic.edit({v#id})" href="#">
-                                        {##5}
-                                    </a>
-
-                                    <a id="{i#bremove}" data-click="topic-remove"
-                                       class="hide btn btn-remove btn-default btn-sm" href="#">
-                                        Удалить
-                                    </a>
-                                </div>
-                                <span data-wait="show">
-                                    <img src="/images/loading.gif"/> Загрузка...
-                                </span>
-                            </div>
-
-                            <div id="{i#dialogclose}" class="hide alert alert-danger">
-                                <p>{##7}</p>
-
-                                <div class="text-center btn-toolbar">
-                                    <a id="{i#bcloseyes}" data-click="topic-close-yes"
-                                       class="btn btn-yes btn-danger btn-xs" href="#">
-                                        {##10}
-                                    </a>
-                                    <a id="{i#bcloseno}" data-click="topic-close-no"
-                                       class="btn btn-no btn-default btn-xs" href="#">
-                                        {##8}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div id="{i#dialogremove}" class="hide alert alert-danger">
-                                <p>{##11}</p>
-
-                                <div class="text-center btn-toolbar">
-                                    <a id="{i#bremoveyes}" data-click="topic-remove-yes"
-                                       class="btn btn-yes btn-danger btn-xs" href="#">
-                                        {##12}
-                                    </a>
-                                    <a id="{i#bremoveno}" data-click="topic-remove-no"
-                                       class="btn btn-no btn-default btn-xs" href="#">
-                                        {##13}
-                                    </a>
-                                </div>
-                            </div>
-
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <hr/>
-
-            <div class="topicCommentList" id="{i#commentList}"></div>
+        <div class="pull-right">
+            <a data-url="topic.list" href="#"
+               class="btn btn-default btn-xs"
+               title="Вернуться к списку тем">Список тем</a>
         </div>
+        <div class="clearfix"></div>
     </div>
 
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-8">
 
+                <div id="{i#topicbody}" class="topicbody"></div>
+
+                <div id="{i#files}" class="dfiles hide">
+                    <div id="{i#ftable}"></div>
+                </div>
+                <div class="clearfix"></div>
+
+            </div>
+            <div class="col-sm-4">
+
+                <div class="topicinfo panel panel-info">
+
+                    <div class="panel-heading status text-center">
+                        <span id="{i#status}" class="">&nbsp;</span>
+
+                        <img src="/images/loading.gif" data-wait="show" class="pull-right"/>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4 text-right">
+                                <label>Автор</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <div id="{i#author}"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 text-right">
+                                <label>Создано</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <span class="date" id="{i#dl}"></span>,
+                                <span class="time" id="{i#dlt}"></span>
+                            </div>
+                        </div>
+
+                        <div id="{i#actions}" class="hide text-center">
+                            <hr/>
+                            <div id="{i#buttons}" class="btn-group"></div>
+                            <div id="{i#actionDialog}" class="hide"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+
+        <div class="topicCommentList" id="{i#commentList}"></div>
+    </div>
 </div>
 
 <!--{user}-->
@@ -143,4 +80,71 @@
 
 <!--{frow}-->
 <div class="file"><a href="{v#src}" target="_blank">{v#nm}</a>&nbsp;(<a href="{v#src}" target="_blank">{##1}</a>)
+</div>
+
+<!--{editButton}-->
+<button class="btn btn-default btn-sm" type="button" data-wait="disable"
+        data-click="topicEditor"
+        title="Редактировать топик">
+    Редактировать
+</button>
+
+<!--{openButton}-->
+<button class="btn btn-default btn-sm" type="button" data-wait="disable"
+        data-click="topicOpen"
+        title="Повторно открыть тему">
+    Открыть
+</button>
+
+<!--{closeButton}-->
+<button class="btn btn-default btn-sm" type="button" data-wait="disable"
+        data-click="topicCloseShowDialog"
+        title="Закрыть тему">
+    Закрыть
+</button>
+
+<!--{removeButton}-->
+<button class="btn btn-default btn-sm" type="button" data-wait="disable"
+        data-click="topicRemoveShowDialog"
+        title="Удалить тему">
+    Удалить
+</button>
+
+
+<!--{closeDialog}-->
+<div id="{i#dialogclose}" class="hide alert alert-danger text-center">
+    <p>Вы действительно хотите закрыть эту тему?</p>
+
+    <hr/>
+
+    <div class="btn-group">
+        <button data-click="topicClose"
+                class="btn btn-danger btn-sm" type="button"
+                data-wait="disable">
+            Подтверждаю
+        </button>
+        <button data-click="topicCloseHideDialog"
+                class="btn btn-default btn-sm" type="button"
+                data-wait="disable">
+            Отмена
+        </button>
+    </div>
+</div>
+
+<!--{removeDialog}-->
+<div id="{i#dialogremove}" class="hide alert alert-danger text-center ">
+    <p>Вы действительно хотите удалить тему со всем ее содержимым?</p>
+
+    <div class="btn-toolbar">
+        <button data-click="topicRemove"
+                class="btn btn-yes btn-danger btn-xs" type="button"
+                data-wait="disable">
+            Подтверждаю
+        </button>
+        <button data-click="topicRemoveHideDialog"
+                class="btn btn-no btn-default btn-xs" type="button"
+                data-wait="disable">
+            Отмена
+        </button>
+    </div>
 </div>

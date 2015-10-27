@@ -65,6 +65,7 @@ Component.entryPoint = function(NS){
             topicSave: {args: ['topic']},
             topicClose: {args: ['topicid']},
             topicRemove: {args: ['topicid']},
+            topicOpen: {args: ['topicid']},
             topicList: {
                 args: ['page'],
                 attribute: false,

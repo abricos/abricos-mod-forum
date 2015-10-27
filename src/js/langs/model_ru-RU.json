@@ -1,5 +1,10 @@
 {
   "topic": {
-    "emptyTitle": "-- Без названия --"
+    "emptyTitle": "-- Без названия --",
+    "status": {
+      "opened": "Открыто",
+      "closed": "Закрыто",
+      "removed": "Удалено"
+    }
   }
 }

@@ -53,8 +53,7 @@ class ForumQuery {
 			SELECT t.*
 			FROM ".$db->prefix."forum_topic t
 			INNER JOIN ".$db->prefix."forum_topicstatus s ON t.statusid=s.statusid
-			WHERE language='".bkstr(Abricos::$LNG)."'
-			    AND topicid=".intval($topicid)."
+			WHERE language='".bkstr(Abricos::$LNG)."' AND t.topicid=".intval($topicid)."
 		";
         if (!$app->manager->IsModerRole()){
             // приватные темы доступны только авторам и модераторам
@@ -99,6 +98,17 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
+    public static function TopicStatusList(ForumApp $app, $topicid){
+        $db = $app->db;
+        $sql = "
+			SELECT s.*
+			FROM ".$db->prefix."forum_topicstatus s
+			WHERE topicid=".intval($topicid)."
+			ORDER BY dateline DESC
+		";
+        return $db->query_read($sql);
+    }
+
     public static function TopicStatusListByIds(ForumApp $app, $statusids){
         $db = $app->db;
         $aw = array();
@@ -117,6 +127,29 @@ class ForumQuery {
 			WHERE ".implode(" OR ", $aw)."
 		";
         return $db->query_read($sql);
+    }
+
+    public static function TopicStatusUpdate(ForumApp $app, ForumTopic $topic, $status){
+        $db = $app->db;
+        $sql = "
+			INSERT INTO ".$db->prefix."forum_topicstatus
+			(topicid, status, userid, dateline) VALUES (
+			    ".intval($topic->id).",
+				'".bkstr($status)."',
+				".intval(Abricos::$user->id).",
+				".TIMENOW."
+			)
+		";
+        $db->query_write($sql);
+        $statusid = $db->insert_id();
+        $sql = "
+            UPDATE ".$db->prefix."forum_topic
+            SET statusid=".intval($statusid)."
+            WHERE topicid=".intval($topic->id)."
+            LIMIT 1
+		";
+        $db->query_write($sql);
+        return $statusid;
     }
 
     public static function ModeratorList(ForumApp $app){
@@ -186,19 +219,6 @@ class ForumQuery {
         $sql = "
 			DELETE FROM ".$db->prefix."forum_topicfile
 			WHERE topicid=".intval($topicid)." AND filehash='".bkstr($filehash)."' 
-		";
-        $db->query_write($sql);
-    }
-
-    public static function TopicSetStatus(ForumApp $app, $topicid, $status, $userid){
-        $db = $app->db;
-        $sql = "
-			UPDATE ".$db->prefix."forum_topic
-			SET
-				status=".intval($status).",
-				statuserid=".intval($userid).",
-				statdate=".TIMENOW."
-			WHERE topicid=".intval($topicid)."
 		";
         $db->query_write($sql);
     }

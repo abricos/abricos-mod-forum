@@ -9,15 +9,37 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         SYS = Brick.mod.sys;
 
-    var LNG = this.language;
+    var LNG = this.language,
+        UID = Brick.env.user.id | 0;
 
     NS.Topic = Y.Base.create('topic', SYS.AppModel, [], {
         structureName: 'Topic',
-        isRemoved: function(){
-            return this.get('status').get('status') === NS.TopicStatus.REMOVED;
+        isOpened: function(){
+            return this.get('status').get('status') === NS.TopicStatus.OPENED;
         },
         isClosed: function(){
             return this.get('status').get('status') === NS.TopicStatus.CLOSED;
+        },
+        isRemoved: function(){
+            return this.get('status').get('status') === NS.TopicStatus.REMOVED;
+        },
+        isWriteRole: function(){
+            if ((NS.roles.isModer || this.get('userid') === UID) && this.isOpened()){
+                return true;
+            }
+            return false;
+        },
+        isCloseRole: function(){
+            return this.isWriteRole();
+        },
+        isRemoveRole: function(){
+            return NS.roles.isModer || this.isWriteRole();
+        },
+        isOpenRole: function(){
+            return this.isClosed() && NS.roles.isModer;
+        },
+        isCommentWriteRole: function(){
+            return NS.roles.isWrite && this.isOpened();
         },
         getTitle: function(){
             var title = this.get('title');
@@ -87,7 +109,19 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            user: {}
+            user: {},
+            commentOwner: {
+                readOnly: true,
+                getter: function(){
+                    if (this._commentOwner){
+                        return this._commentOwner;
+                    }
+                    this._commentOwner = this.appInstance.getApp('comment').ownerCreate(
+                        'forum', 'topic', this.get('id')
+                    );
+                    return this._commentOwner;
+                }
+            }
         }
     });
 
@@ -121,7 +155,15 @@ Component.entryPoint = function(NS){
         CLOSED: 'closed',
         REMOVED: 'removed',
         ATTRS: {
-            user: {}
+            user: {},
+            title: {
+                readOnly: true,
+                getter: function(){
+                    var status = this.get('status');
+                    // console.log(this.toJSON());
+                    return LNG.get('model.topic.status.' + status);
+                }
+            }
         }
     });
 

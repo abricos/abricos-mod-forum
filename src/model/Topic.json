@@ -46,6 +46,10 @@
       "type": "model:TopicStatus",
       "json": "st"
     },
+    "statuses": {
+      "type": "modelList:TopicStatusList",
+      "json": "sts"
+    },
     "commentStatistic": {
       "type": "model:comment:Statistic",
       "json": "cmtstat"

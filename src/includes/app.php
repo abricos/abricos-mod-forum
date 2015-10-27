@@ -170,6 +170,36 @@ class ForumApp extends AbricosApplication {
         return $ret;
     }
 
+    public function TopicCloseToJSON($topicid){
+        $res = $this->TopicClose($topicid);
+        $ret = $this->ResultToJSON('TopicClose', $res);
+
+        if (!is_integer($res)){
+            $ret = $this->ImplodeJSON($this->TopicToJSON($topicid), $ret);
+        }
+        return $ret;
+    }
+
+    public function TopicClose($topicid){
+        $topic = $this->Topic($topicid);
+        if (empty($topicid)){
+            return 404;
+        }
+        if (!$this->manager->IsWriteRole() || !$topic->IsCloseRole()){
+            return 403;
+        }
+
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::CLOSED);
+
+        $ret = new stdClass();
+        $ret->topicid = $topic->id;
+        $ret->statusid = $statusid;
+
+        $this->CacheClear();
+        return $ret;
+    }
+
+
     public function TopicToJSON($topicid){
         $res = $this->Topic($topicid);
         return $this->ResultToJSON('topic', $res);
@@ -195,15 +225,24 @@ class ForumApp extends AbricosApplication {
         if (empty($d)){
             return 404;
         }
+
         /** @var ForumTopic $topic */
         $topic = $this->InstanceClass('Topic', $d);
 
+        $statusList = $topic->statuses = $this->InstanceClass('TopicStatusList');
+        $rows = ForumQuery::TopicStatusList($this, $topicid);
+        while (($d = $this->db->fetch_array($rows))){
+            $statusList->Add($this->InstanceClass('TopicStatus', $d));
+        }
+
+        $topic->status = $statusList->GetByIndex(0);
+
         $topic->commentStatistic = $this->CommentApp()->Statistic('forum', 'topic', $topicid);
 
-        $topic->files = $this->InstanceClass('FileList');
+        $fileList = $topic->files = $this->InstanceClass('FileList');
         $rows = ForumQuery::TopicFileList($this, $topicid);
         while (($d = $this->db->fetch_array($rows))){
-            $topic->files->Add($this->InstanceClass('File', $d));
+            $fileList->Add($this->InstanceClass('File', $d));
         }
 
         return $this->_cache['Topic'][$topicid] = $topic;
@@ -272,14 +311,14 @@ class ForumApp extends AbricosApplication {
     }
 
     public function Comment_IsWrite($type, $ownerid){
-        if (!$this->manager->IsViewRole()){
-            return false;
-        }
         if ($type != 'topic'){
             return false;
         }
         $topic = $this->Topic($ownerid);
-        return $topic->IsCommentWrite();
+        if (is_integer($topic)){
+            return false;
+        }
+        return $topic->IsCommentWriteRole();
     }
 
     /**

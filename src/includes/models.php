@@ -24,6 +24,7 @@
  * @property int $upddate
  *
  * @property ForumTopicStatus $status
+ * @property ForumTopicStatusList $statuses
  * @property CommentStatistic $commentStatistic
  * @property ForumFileList $files
  *
@@ -46,8 +47,11 @@ class ForumTopic extends AbricosModel {
         return $this->isprivate;
     }
 
-    public function IsClosed(){
+    public function IsOpened(){
+        return $this->status->status === ForumTopic::OPENED;
+    }
 
+    public function IsClosed(){
         return $this->status->status === ForumTopic::CLOSED;
     }
 
@@ -55,24 +59,28 @@ class ForumTopic extends AbricosModel {
         return $this->status->status === ForumTopic::REMOVED;
     }
 
-    public function IsCommentWrite(){
-        return !$this->IsClosed() && !$this->IsRemoved();
+    public function IsWriteRole(){
+        return
+            ($this->app->manager->IsModerRole() || $this->userid == Abricos::$user->id)
+            && $this->IsOpened();
     }
 
-    public function IsWrite(){
-        if ($this->IsClosed() || $this->IsRemoved()){
-            return false;
-        }
+    public function IsCloseRole(){
+        return $this->IsWriteRole();
+    }
 
-        if ($this->app->manager->IsModerRole()){
-            return true;
-        }
+    public function IsRemoveRole(){
+        return $this->IsWriteRole();
+    }
 
-        if ($this->userid == Abricos::$user->id){
-            return true;
-        }
+    public function IsOpenRole(){
+        return $this->IsClosed() && $this->app->manager->IsModerRole();
+    }
 
-        return false;
+    public function IsCommentWriteRole(){
+        return
+            $this->app->manager->IsWriteRole()
+            && !$this->IsClosed() && !$this->IsRemoved();
     }
 }
 

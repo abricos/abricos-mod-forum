@@ -60,8 +60,11 @@ class ForumTopic extends AbricosModel {
     }
 
     public function IsWriteRole(){
+        if (!$this->app->manager->IsWriteRole()){
+            return false;
+        }
         return
-            ($this->app->manager->IsModerRole() || $this->userid == Abricos::$user->id)
+            ($this->app->manager->IsModerRole() || $this->userid === Abricos::$user->id)
             && $this->IsOpened();
     }
 
@@ -70,7 +73,7 @@ class ForumTopic extends AbricosModel {
     }
 
     public function IsRemoveRole(){
-        return $this->IsWriteRole();
+        return $this->app->manager->IsModerRole() || $this->IsWriteRole();
     }
 
     public function IsOpenRole(){
@@ -78,9 +81,7 @@ class ForumTopic extends AbricosModel {
     }
 
     public function IsCommentWriteRole(){
-        return
-            $this->app->manager->IsWriteRole()
-            && !$this->IsClosed() && !$this->IsRemoved();
+        return $this->app->manager->IsWriteRole() && $this->IsOpened();
     }
 }
 

@@ -74,8 +74,11 @@ Component.entryPoint = function(NS){
 
             this.renderTopic();
         },
-        renderTopic: function(){
-            var topic = this.get('topic');
+        renderTopic: function(topic){
+            if (topic){
+                this.set('topic', topic);
+            }
+            topic = topic || this.get('topic');
             if (!topic){
                 return;
             }
@@ -100,22 +103,10 @@ Component.entryPoint = function(NS){
             });
 
             var lstButtons = "";
-
-            if (topic.isWriteRole()){
-                lstButtons += tp.replace('editButton');
-            }
-
-            if (topic.isOpenRole()){
-                lstButtons += tp.replace('openButton');
-            }
-
-            if (topic.isRemoveRole()){
-                lstButtons += tp.replace('removeButton');
-            }
-
-            if (topic.isCloseRole()){
-                lstButtons += tp.replace('closeButton');
-            }
+            lstButtons += topic.isWriteRole() ? tp.replace('editButton') : "";
+            lstButtons += topic.isOpenRole() ? tp.replace('openButton') : "";
+            lstButtons += topic.isCloseRole() ? tp.replace('closeButton') : "";
+            lstButtons += topic.isRemoveRole() ? tp.replace('removeButton') : "";
 
             tp.setHTML('buttons', lstButtons);
             if (lstButtons !== ""){
@@ -125,36 +116,52 @@ Component.entryPoint = function(NS){
             this._commentsWidget.set('readOnly', !topic.isCommentWriteRole());
         },
         topicCloseShowDialog: function(){
-            this.template.toggleView(true, 'dialogclose', 'buttons');
+            var tp = this.template;
+            tp.setHTML('dialog', tp.replace('closeDialog'));
+            tp.toggleView(true, 'dialog', 'buttons');
         },
         topicCloseHideDialog: function(){
-            this.template.toggleView(false, 'dialogclose', 'buttons');
+            this.template.toggleView(false, 'dialog', 'buttons');
+        },
+        topicRemoveShowDialog: function(){
+            var tp = this.template;
+            tp.setHTML('dialog', tp.replace('removeDialog'));
+            tp.toggleView(true, 'dialog', 'dialogremove');
+        },
+        topicRemoveHideDialog: function(){
+            this.template.toggleView(false, 'dialog', 'buttons');
         },
         topicClose: function(){
             this.set('waiting', true);
             this.get('appInstance').topicClose(this.get('topicid'), function(err, result){
                 this.topicCloseHideDialog();
                 this.set('waiting', false);
-
-                this.renderTopic();
-                this.fire('topicClosed');
+                if (!err){
+                    this.renderTopic(result.topic);
+                    this.fire('topicClosed');
+                }
             }, this);
         },
-        topicRemoveShowDialog: function(){
-            this.template.toggleView(true, 'dialogclose', 'dialogremove');
-        },
-        topicRemoveHideDialog: function(){
-            this.template.toggleView(false, 'dialogremove', 'buttons');
+        topicOpen: function(){
+            this.set('waiting', true);
+            this.get('appInstance').topicOpen(this.get('topicid'), function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.renderTopic(result.topic);
+                    this.fire('topicOpened');
+                }
+            }, this);
         },
         topicRemove: function(){
             this.set('waiting', true);
-            return;
             this.get('appInstance').topicRemove(this.get('topicid'), function(err, result){
                 this.set('waiting', false);
-                this.go('topic.list');
-                this.fire('topicRemoved');
+                if (!err){
+                    this.fire('topicRemoved');
+                    this.go('topic.list');
+                }
             }, this);
-        }
+        },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
@@ -168,6 +175,7 @@ Component.entryPoint = function(NS){
             topicRemoveShowDialog: 'topicRemoveShowDialog',
             topicRemoveHideDialog: 'topicRemoveHideDialog',
             topicRemove: 'topicRemove',
+            topicOpen: 'topicOpen'
         }
     });
 

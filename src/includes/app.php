@@ -55,6 +55,8 @@ class ForumApp extends AbricosApplication {
                 return $this->TopicSaveToJSON($d->topic);
             case 'topicClose':
                 return $this->TopicCloseToJSON($d->topicid);
+            case 'topicOpen':
+                return $this->TopicOpenToJSON($d->topicid);
             case 'topicRemove':
                 return $this->TopicRemoveToJSON($d->topicid);
         }
@@ -185,11 +187,64 @@ class ForumApp extends AbricosApplication {
         if (empty($topicid)){
             return 404;
         }
-        if (!$this->manager->IsWriteRole() || !$topic->IsCloseRole()){
+        if (!$topic->IsCloseRole()){
             return 403;
         }
 
         $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::CLOSED);
+
+        $ret = new stdClass();
+        $ret->topicid = $topic->id;
+        $ret->statusid = $statusid;
+
+        $this->CacheClear();
+        return $ret;
+    }
+
+    public function TopicOpenToJSON($topicid){
+        $res = $this->TopicOpen($topicid);
+        $ret = $this->ResultToJSON('TopicOpen', $res);
+
+        if (!is_integer($res)){
+            $ret = $this->ImplodeJSON($this->TopicToJSON($topicid), $ret);
+        }
+        return $ret;
+    }
+
+    public function TopicOpen($topicid){
+        $topic = $this->Topic($topicid);
+        if (empty($topicid)){
+            return 404;
+        }
+        if (!$this->manager->IsWriteRole() || !$topic->IsOpenRole()){
+            return 403;
+        }
+
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::OPENED);
+
+        $ret = new stdClass();
+        $ret->topicid = $topic->id;
+        $ret->statusid = $statusid;
+
+        $this->CacheClear();
+        return $ret;
+    }
+
+    public function TopicRemoveToJSON($topicid){
+        $res = $this->TopicRemove($topicid);
+        return $this->ResultToJSON('TopicRemove', $res);
+    }
+
+    public function TopicRemove($topicid){
+        $topic = $this->Topic($topicid);
+        if (empty($topicid)){
+            return 404;
+        }
+        if (!$this->manager->IsWriteRole() || !$topic->IsRemoveRole()){
+            return 403;
+        }
+
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::OPENED);
 
         $ret = new stdClass();
         $ret->topicid = $topic->id;

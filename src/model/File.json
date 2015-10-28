@@ -11,7 +11,15 @@
     },
     "filehash": {
       "type": "string",
-      "json": "fid"
+      "json": "fh"
+    },
+    "filename": {
+      "type": "string",
+      "json": "nm"
+    },
+    "filesize": {
+      "type": "int",
+      "json": "sz"
     }
   }
 }

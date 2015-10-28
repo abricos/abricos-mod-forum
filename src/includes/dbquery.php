@@ -34,15 +34,14 @@ class ForumQuery {
         return $topicid;
     }
 
-    public static function TopicUpdate(ForumApp $app, ForumTopic $topic, $d, $userid){
+    public static function TopicUpdate(ForumApp $app, ForumTopic $topic){
         $db = $app->db;
         $sql = "
 			UPDATE ".$db->prefix."forum_topic
 			SET
-				title='".bkstr($d->title)."',
-				body='".bkstr($d->body)."',
-				upddate=".TIMENOW."
-			WHERE topicid=".intval($d->id)."
+				title='".bkstr($topic->title)."',
+				body='".bkstr($topic->body)."'
+			WHERE topicid=".intval($topic->id)."
 			LIMIT 1
 		";
         $db->query_write($sql);
@@ -174,30 +173,31 @@ class ForumQuery {
      * Список файлов топика
      *
      * @param Ab_Database $db
-     * @param array|integer $tids
+     * @param array|integer $topicids
      */
-    public static function TopicFileList(ForumApp $app, $tids){
+    public static function TopicFileList(ForumApp $app, $topicids){
         $db = $app->db;
-        if (!is_array($tids)){
-            $tids = array(intval($tids));
+        if (!is_array($topicids)){
+            $topicids = array(intval($topicids));
         }
         $aWh = array();
-        foreach ($tids as $tid){
+        foreach ($topicids as $tid){
             array_push($aWh, "bf.topicid=".intval($tid));
         }
 
         $sql = "
 			SELECT 
-				bf.filehash as id,
-				bf.topicid as tid,
-				f.filename as fn,
-				f.filesize as sz,
-				f.counter as cnt,
-				f.dateline as dl
+				bf.fileid,
+				bf.topicid,
+				f.filehash,
+				f.filename,
+				f.filesize,
+				f.counter,
+				f.dateline
 			FROM ".$db->prefix."forum_topicfile bf
 			INNER JOIN ".$db->prefix."fm_file f ON bf.filehash=f.filehash
 			WHERE ".implode(" OR ", $aWh)."
-			ORDER BY tid
+			ORDER BY topicid
 		";
         return $db->query_read($sql);
     }
@@ -215,11 +215,11 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicFileRemove(ForumApp $app, $topicid, $filehash){
+    public static function TopicFilesRemove(ForumApp $app, $topicid){
         $db = $app->db;
         $sql = "
 			DELETE FROM ".$db->prefix."forum_topicfile
-			WHERE topicid=".intval($topicid)." AND filehash='".bkstr($filehash)."' 
+			WHERE topicid=".intval($topicid)."
 		";
         $db->query_write($sql);
     }

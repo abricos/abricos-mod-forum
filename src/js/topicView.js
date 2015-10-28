@@ -1,9 +1,8 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'filemanager', files: ['lib.js']},
+        {name: 'filemanager', files: ['attachment.js']},
         {name: 'comment', files: ['commentList.js']},
-        {name: 'uprofile', files: ['users.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
@@ -11,7 +10,6 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
         COMPONENT = this,
-        R = NS.roles,
         SYS = Brick.mod.sys;
 
     var aTargetBlank = function(el){
@@ -42,6 +40,7 @@ Component.entryPoint = function(NS){
         destructor: function(){
             if (this._commentsWidget){
                 this._commentsWidget.destroy();
+                this._filesWidget.destroy();
             }
         },
         onInitAppWidget: function(err, appInstance){
@@ -71,6 +70,18 @@ Component.entryPoint = function(NS){
                 commentOwner: commentOwner,
                 readOnly: !topic.isCommentWriteRole()
             });
+
+            var files = [];
+            topic.get('files').each(function(file){
+                files[files.length] = {
+                    id: file.get('filehash'),
+                    nm: file.get('filename'),
+                    sz: file.get('filesize')
+                };
+            }, this);
+
+            this._filesWidget = new Brick.mod.filemanager.AttachmentListWidget(tp.gel('files'), files);
+            tp.toggleView(files.length > 0, 'filesPanel');
 
             this.renderTopic();
         },
@@ -169,6 +180,11 @@ Component.entryPoint = function(NS){
             topicid: {value: 0}
         },
         CLICKS: {
+            topicEdit: {
+                event: function(){
+                    this.go('topic.edit', this.get('topicid'));
+                }
+            },
             topicCloseShowDialog: 'topicCloseShowDialog',
             topicCloseHideDialog: 'topicCloseHideDialog',
             topicClose: 'topicClose',

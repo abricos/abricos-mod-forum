@@ -18,14 +18,13 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-sm-8">
-
                 <div id="{i#topicbody}" class="topicbody"></div>
 
-                <div id="{i#files}" class="dfiles hide">
-                    <div id="{i#ftable}"></div>
+                <div id="{i#filesPanel}" class="hide">
+                    <hr/>
+                    <h4>Прикрепленные файлы</h4>
+                    <div id="{i#files}"></div>
                 </div>
-                <div class="clearfix"></div>
-
             </div>
             <div class="col-sm-4">
 
@@ -84,7 +83,7 @@
 
 <!--{editButton}-->
 <button class="btn btn-default btn-sm" type="button" data-wait="disable"
-        data-click="topicEditor"
+        data-click="topicEdit"
         title="Редактировать топик">
     Редактировать
 </button>

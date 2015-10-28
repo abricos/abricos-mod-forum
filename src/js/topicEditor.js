@@ -63,8 +63,16 @@ Component.entryPoint = function(NS){
             });
 
             if (Brick.mod.filemanager.roles.isWrite){
-                var files = topic.get('files');
-                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), files.toArray());
+                var files = [];
+                topic.get('files').each(function(file){
+                    files[files.length] = {
+                        id: file.get('filehash'),
+                        nm: file.get('filename'),
+                        sz: file.get('filesize')
+                    };
+                }, this);
+
+                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), files);
             } else {
                 this.filesWidget = null;
                 tp.hide('rfiles');
@@ -72,12 +80,17 @@ Component.entryPoint = function(NS){
         },
         save: function(){
             var tp = this.template,
+                files = this.filesWidget ? this.filesWidget.files : [],
                 data = {
                     topicid: this.get('topicid'),
                     title: tp.getValue('title'),
                     body: this._bodyEditor.get('content'),
-                    files: this.filesWidget ? [] : this.filesWidget.files
+                    files: []
                 };
+
+            for (var i = 0; i < files.length; i++){
+                data.files[data.files.length] = files[i].id;
+            }
 
             this.set('waiting', true);
             this.get('appInstance').topicSave(data, function(err, result){

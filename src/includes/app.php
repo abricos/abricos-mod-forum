@@ -114,42 +114,18 @@ class ForumApp extends AbricosApplication {
             ForumQuery::TopicUpdate($this, $curTopic);
         }
 
+        ForumQuery::TopicFilesRemove($this, $topic->id);
+
+        if (isset($d->files) && is_array($d->files)){
+            for ($i = 0; $i < count($d->files); $i++){
+                ForumQuery::TopicFileAppend($this, $topic->id, $d->files[$i], $topic->userid);
+            }
+        }
         $this->CacheClear();
         $topic = $this->Topic($topic->id);
 
         if (empty($topic)){
             return 500;
-        }
-
-        // обновить информацию по файлам
-        $fileList = $topic->files;
-        $arr = $d->files;
-
-        for ($i = 0; $i < $fileList->Count(); $i++){
-            $cFile = $fileList->GetByIndex($i);
-            $find = false;
-            foreach ($arr as $file){
-                if ($file->id == $cFile->id){
-                    $find = true;
-                    break;
-                }
-            }
-            if (!$find){
-                ForumQuery::TopicFileRemove($this, $topic->id, $cFile->id);
-            }
-        }
-        foreach ($arr as $file){
-            $find = false;
-            for ($i = 0; $i < $fileList->Count(); $i++){
-                $cFile = $fileList->GetByIndex($i);
-                if ($file->id == $cFile->id){
-                    $find = true;
-                    break;
-                }
-            }
-            if (!$find){
-                ForumQuery::TopicFileAppend($this, $topic->id, $file->id, $this->userid);
-            }
         }
 
         if ($sendNewNotify){

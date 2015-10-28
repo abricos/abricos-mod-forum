@@ -11,8 +11,14 @@ $brick = Brick::$builder->brick;
 $p = &$brick->param->param;
 $v = &$brick->param->var;
 
+/** @var ForumModule $module */
+$module = Abricos::GetModule('forum');
+
 /** @var ForumApp $app */
-$app = Abricos::GetModule('forum')->GetManager()->GetApp();
+$app = $module->GetManager()->GetApp();
+
+$meta_title = $module->I18n()->Translate('title')." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
+Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 
 $topicList = $app->TopicList(1);
 $topicList->FillUsers();
@@ -71,4 +77,5 @@ for ($i = 0; $i < $count; $i++){
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "rows" => $lst
 ));
+
 ?>

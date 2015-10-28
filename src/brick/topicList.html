@@ -1,0 +1,60 @@
+<!--[*]
+[script]brick/topicList.php[/script]
+[mcss=forum]forum.css[/mcss]
+
+[v=row]
+    <tr class="topicRow {v#removed} {v#closed}">
+        <td class="ttitle">
+            <a href="{v#uri}">{v#title}</a>
+
+            <div class="author">
+                {v#user} » {v#dateline}
+            </div>
+        </td>
+        <td class="tcmtcount">
+            {v#cmt}
+        </td>
+        <td class="tviewcount">
+            {v#viewcount}
+        </td>
+        <td class="tlastcmt">
+            <div class="cmtuser">{v#cmtuser}</div>
+            <div class="cmtdate">{v#cmtdate}</div>
+        </td>
+    </tr>
+[/v]
+
+[v=user]
+    <a href="{v#uri}">{v#viewname}</a>
+[/v]
+
+[*]-->
+<div class="topicList">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Список тем форума
+        </div>
+
+        <div class="panel-body">
+            <table id="{i#id}" class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="ttitle">
+                        Темы
+                    </th>
+                    <th class="tcmtcount">
+                        Ответы
+                    </th>
+                    <th class="tviewcount">
+                        Просмотры
+                    </th>
+                    <th class="tlastcmt">
+                        Последнее сообщение
+                    </th>
+                </tr>
+                </thead>
+                <tbody>{v#rows}</tbody>
+            </table>
+        </div>
+    </div>
+</div>

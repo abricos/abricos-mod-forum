@@ -45,6 +45,19 @@ class ForumApp extends AbricosApplication {
         return $this->_commentApp = $module->GetManager()->GetApp();
     }
 
+    private $_uprofileApp = null;
+
+    /**
+     * @return UProfileApp
+     */
+    public function UProfileApp(){
+        if (!is_null($this->_uprofileApp)){
+            return $this->_uprofileApp;
+        }
+        $module = Abricos::GetModule('uprofile');
+        return $this->_uprofileApp = $module->GetManager()->GetApp();
+    }
+
     public function ResponseToJSON($d){
         switch ($d->do){
             case 'topicList':
@@ -305,7 +318,9 @@ class ForumApp extends AbricosApplication {
     }
 
     /**
-     * @return TopicList
+     * @param $page
+     * @param int $limit
+     * @return ForumTopicList|int
      */
     public function TopicList($page, $limit = 30){
         $key = $page."_".$limit;
@@ -339,8 +354,7 @@ class ForumApp extends AbricosApplication {
         }
 
         $topicids = $list->Ids();
-        $commentApp = $this->CommentApp();
-        $statList = $commentApp->StatisticList('forum', 'topic', $topicids);
+        $statList = $this->CommentApp()->StatisticList('forum', 'topic', $topicids);
         $list->SetCommentStatistics($statList);
 
         return $this->_cache['TopicList'][$key] = $list;

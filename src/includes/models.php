@@ -39,6 +39,11 @@ class ForumTopic extends AbricosModel {
     protected $_structModule = 'forum';
     protected $_structName = 'Topic';
 
+    /**
+     * @var UProfileUser
+     */
+    public $user;
+
     public function URI(){
         return "/forum/topic_".$this->id."/";
     }
@@ -95,12 +100,38 @@ class ForumTopic extends AbricosModel {
             "type" => "topic",
             "ownerid" => $this->id
         ));
+    }
 
+    public function GetUserIds(){
+        $ret = array();
+        $ret[] = $this->userid;
+        $ret[] = $this->status->userid;
+        if (!empty($this->commentStatistic)){
+            $ret[] = $this->commentStatistic->lastUserid;
+        }
+        return $ret;
+    }
+
+    /**
+     * @param UProfileUserList $userList
+     */
+    public function FillUsers($userList = null){
+        if (empty($userList)){
+            $userids = $this->GetUserIds();
+            $userList = $this->app->UProfileApp()->UserListByIds($userids);
+        }
+        $this->user = $userList->Get($this->userid);
+        $this->status->user = $userList->Get($this->status->userid);
+        if (!empty($this->commentStatistic)){
+            $this->commentStatistic->lastUser = $userList->Get($this->commentStatistic->lastUserid);
+        }
     }
 }
 
 /**
  * Class ForumTopicList
+ *
+ * @property ForumApp $app
  * @method ForumTopic Get($topicid)
  * @method ForumTopic GetByIndex($index)
  */
@@ -124,6 +155,25 @@ class ForumTopicList extends AbricosModelList {
         }
     }
 
+    public function FillUsers(){
+        $count = $this->Count();
+        $userids = array();
+        for ($i = 0; $i < $count; $i++){
+            $topic = $this->GetByIndex($i);
+            $tUserids = $topic->GetUserIds();
+            for ($ii = 0; $ii < count($tUserids); $ii++){
+                $userids[] = $tUserids[$ii];
+            }
+        }
+
+        $userList = $this->app->UProfileApp()->UserListByIds($userids);
+
+        for ($i = 0; $i < $count; $i++){
+            $topic = $this->GetByIndex($i);
+            $topic->FillUsers($userList);
+        }
+    }
+
     public function ToJSON(){
         $ret = parent::ToJSON();
         $ret->page = $this->page;
@@ -142,6 +192,11 @@ class ForumTopicList extends AbricosModelList {
 class ForumTopicStatus extends AbricosModel {
     protected $_structModule = 'forum';
     protected $_structName = 'TopicStatus';
+
+    /**
+     * @var UProfileUser
+     */
+    public $user;
 }
 
 /**

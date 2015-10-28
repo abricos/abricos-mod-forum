@@ -128,7 +128,7 @@ Component.entryPoint = function(NS){
     NS.TopicList = Y.Base.create('topicList', SYS.AppModelList, [], {
         appItem: NS.Topic,
         comparator: function(topic){
-            return topic.get('upddate');
+            return topic.get('upddate') * (-1);
         },
         getUserIds: function(){
             var ret = [];

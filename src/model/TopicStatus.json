@@ -12,6 +12,8 @@
     },
     "status": {
       "type": "string",
+      "valid": "opened,closed,removed",
+      "default": "opened",
       "json": "s"
     },
     "userid": {

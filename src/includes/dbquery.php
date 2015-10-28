@@ -17,20 +17,21 @@ class ForumQuery {
         $db = $app->db;
         $sql = "
 			INSERT INTO ".$db->prefix."forum_topic (
-				userid, title, pubkey, body, isprivate, status, dateline, upddate, language) VALUES (
+				userid, title, pubkey, body, isprivate, dateline, upddate, language) VALUES (
 				".intval(Abricos::$user->id).",
 				'".bkstr($topic->title)."',
 				'".bkstr($topic->pubkey)."',
 				'".bkstr($topic->body)."',
 				0,
-				".ForumTopic::OPENED.",
 				".TIMENOW.",
 				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'
 			)
 		";
         $db->query_write($sql);
-        return $db->insert_id();
+        $topicid = $db->insert_id();
+        ForumQuery::TopicStatusUpdate($app, $topicid, ForumTopic::OPENED);
+        return $topicid;
     }
 
     public static function TopicUpdate(ForumApp $app, ForumTopic $topic, $d, $userid){
@@ -129,12 +130,12 @@ class ForumQuery {
         return $db->query_read($sql);
     }
 
-    public static function TopicStatusUpdate(ForumApp $app, ForumTopic $topic, $status){
+    public static function TopicStatusUpdate(ForumApp $app, $topicid, $status){
         $db = $app->db;
         $sql = "
 			INSERT INTO ".$db->prefix."forum_topicstatus
 			(topicid, status, userid, dateline) VALUES (
-			    ".intval($topic->id).",
+			    ".intval($topicid).",
 				'".bkstr($status)."',
 				".intval(Abricos::$user->id).",
 				".TIMENOW."
@@ -145,7 +146,7 @@ class ForumQuery {
         $sql = "
             UPDATE ".$db->prefix."forum_topic
             SET statusid=".intval($statusid)."
-            WHERE topicid=".intval($topic->id)."
+            WHERE topicid=".intval($topicid)."
             LIMIT 1
 		";
         $db->query_write($sql);

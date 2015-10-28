@@ -44,7 +44,8 @@
     },
     "status": {
       "type": "model:TopicStatus",
-      "json": "st"
+      "json": "st",
+      "notNULL": true
     },
     "statuses": {
       "type": "modelList:TopicStatusList",

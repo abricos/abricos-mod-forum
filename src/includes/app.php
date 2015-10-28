@@ -79,8 +79,8 @@ class ForumApp extends AbricosApplication {
             return 403;
         }
 
+        /** @var ForumTopic $topic */
         $topic = $this->InstanceClass('Topic', $d);
-
         $sendNewNotify = false;
 
         if ($topic->id > 0){
@@ -92,11 +92,12 @@ class ForumApp extends AbricosApplication {
             /** @var ForumTopic $curTopic */
             $curTopic = $this->InstanceClass('Topic');
             $curTopic->pubkey = md5(time().Abricos::$user->id);
+            $curTopic->userid = Abricos::$user->id;
 
             $sendNewNotify = true;
         }
 
-        if ($curTopic->IsWriteRole()){
+        if (!$curTopic->IsWriteRole()){
             return 403;
         }
 
@@ -203,7 +204,7 @@ class ForumApp extends AbricosApplication {
             return 403;
         }
 
-        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::CLOSED);
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::CLOSED);
 
         $ret = new stdClass();
         $ret->topicid = $topic->id;
@@ -232,7 +233,7 @@ class ForumApp extends AbricosApplication {
             return 403;
         }
 
-        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::OPENED);
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::OPENED);
 
         $ret = new stdClass();
         $ret->topicid = $topic->id;
@@ -256,7 +257,7 @@ class ForumApp extends AbricosApplication {
             return 403;
         }
 
-        $statusid = ForumQuery::TopicStatusUpdate($this, $topic, ForumTopic::OPENED);
+        $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::OPENED);
 
         $ret = new stdClass();
         $ret->topicid = $topic->id;

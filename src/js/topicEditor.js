@@ -63,7 +63,8 @@ Component.entryPoint = function(NS){
             });
 
             if (Brick.mod.filemanager.roles.isWrite){
-                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), topic.get('files'));
+                var files = topic.get('files');
+                this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(tp.gel('files'), files.toArray());
             } else {
                 this.filesWidget = null;
                 tp.hide('rfiles');

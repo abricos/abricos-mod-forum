@@ -271,9 +271,8 @@ class ForumApp extends AbricosApplication {
         return $ret;
     }
 
-
     public function TopicToJSON($topicid){
-        $res = $this->Topic($topicid);
+        $res = $this->Topic($topicid, true);
         return $this->ResultToJSON('topic', $res);
     }
 
@@ -281,7 +280,7 @@ class ForumApp extends AbricosApplication {
      * @param $topicid
      * @return ForumTopic
      */
-    public function Topic($topicid){
+    public function Topic($topicid, $updateViewCount = false){
         if (!$this->manager->IsViewRole()){
             return 403;
         }
@@ -315,6 +314,10 @@ class ForumApp extends AbricosApplication {
         $rows = ForumQuery::TopicFileList($this, $topicid);
         while (($d = $this->db->fetch_array($rows))){
             $fileList->Add($this->InstanceClass('File', $d));
+        }
+
+        if ($updateViewCount){
+            ForumQuery::TopicViewCountUpdate($this, $topic);
         }
 
         return $this->_cache['Topic'][$topicid] = $topic;
@@ -399,6 +402,15 @@ class ForumApp extends AbricosApplication {
      * @param CommentStatistic $statistic
      */
     public function Comment_OnStatisticUpdate($type, $ownerid, $statistic){
+        if ($type !== 'topic'){
+            return;
+        }
+        $topic = $this->Topic($ownerid);
+        if (is_integer($topic)){
+            return;
+        }
+
+        ForumQuery::TopicCommentStatisticUpdate($this, $topic, $statistic);
     }
 }
 

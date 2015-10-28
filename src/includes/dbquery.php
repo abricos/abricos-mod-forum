@@ -224,6 +224,27 @@ class ForumQuery {
         $db->query_write($sql);
     }
 
+    public static function TopicViewCountUpdate(ForumApp $app, ForumTopic $topic){
+        $db = $app->db;
+        $sql = "
+			UPDATE ".$db->prefix."forum_topic
+			SET viewcount=viewcount+1
+			WHERE topicid=".intval($topic->id)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
+    public static function TopicCommentStatisticUpdate(ForumApp $app, ForumTopic $topic, CommentStatistic $statistic){
+        $db = $app->db;
+        $sql = "
+			UPDATE ".$db->prefix."forum_topic
+			SET upddate=".TIMENOW."
+			WHERE topicid=".intval($topic->id)."
+		";
+        $db->query_write($sql);
+    }
+
 }
 
 ?>

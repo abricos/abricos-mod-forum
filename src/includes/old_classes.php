@@ -39,7 +39,7 @@ class ForumList extends AbricosList {
     }
 }
 
-class ForumTopic extends AbricosItem {
+class old_ForumTopic extends AbricosItem {
 
     public $userid;
     public $title;

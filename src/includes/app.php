@@ -71,7 +71,11 @@ class ForumApp extends AbricosApplication {
 
     public function TopicSaveToJSON($d){
         $res = $this->TopicSave($d);
-        return $this->ResultToJSON('topicSave', $res);
+        $ret = $this->ResultToJSON('topicSave', $res);
+        if (!is_integer($res)){
+            $ret = $this->ImplodeJSON($this->TopicToJSON($res->topicid), $ret);
+        }
+        return $ret;
     }
 
     public function TopicSave($d){
@@ -131,7 +135,7 @@ class ForumApp extends AbricosApplication {
                 }
             }
             if (!$find){
-                ForumQuery::TopicFileRemove($this, $d->id, $cFile->id);
+                ForumQuery::TopicFileRemove($this, $topic->id, $cFile->id);
             }
         }
         foreach ($arr as $file){
@@ -144,7 +148,7 @@ class ForumApp extends AbricosApplication {
                 }
             }
             if (!$find){
-                ForumQuery::TopicFileAppend($this, $d->id, $file->id, $this->userid);
+                ForumQuery::TopicFileAppend($this, $topic->id, $file->id, $this->userid);
             }
         }
 
@@ -305,7 +309,7 @@ class ForumApp extends AbricosApplication {
 
         $topic->status = $statusList->GetByIndex(0);
 
-        $topic->commentStatistic = $this->CommentApp()->Statistic('forum', 'topic', $topicid);
+        $topic->commentStatistic = $this->CommentApp()->Statistic($topic->GetCommentOwner());
 
         $fileList = $topic->files = $this->InstanceClass('FileList');
         $rows = ForumQuery::TopicFileList($this, $topicid);

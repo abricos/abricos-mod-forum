@@ -83,6 +83,20 @@ class ForumTopic extends AbricosModel {
     public function IsCommentWriteRole(){
         return $this->app->manager->IsWriteRole() && $this->IsOpened();
     }
+
+    private $_commentOwner;
+
+    public function GetCommentOwner(){
+        if (!empty($this->_commentOwner)){
+            return $this->_commentOwner;
+        }
+        return $this->_commentOwner = $this->app->CommentApp()->InstanceClass('Owner', array(
+            "module" => "forum",
+            "type" => "topic",
+            "ownerid" => $this->id
+        ));
+
+    }
 }
 
 /**

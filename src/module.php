@@ -22,8 +22,6 @@ class ForumModule extends Ab_Module {
      */
     public static $instance;
 
-    private $_manager = null;
-
     public function __construct(){
         ForumModule::$instance = $this;
         $this->version = "0.1.8";
@@ -32,9 +30,9 @@ class ForumModule extends Ab_Module {
         $this->permission = new ForumPermission($this);
     }
 
+    private $_manager = null;
+
     /**
-     * Получить менеджер
-     *
      * @return ForumManager
      */
     public function GetManager(){
@@ -63,14 +61,6 @@ class ForumModule extends Ab_Module {
             $a = explode("_", $d2);
 
             if ($a[0] == 'topic'){
-
-                $this->currentTopic = $this->GetManager()->Topic(intval($a[1]));
-                if (empty($this->currentTopic)){
-                    return '';
-                }
-
-                Brick::$contentId = $this->currentTopic->detail->contentid;
-
                 return 'topic';
             }
         }

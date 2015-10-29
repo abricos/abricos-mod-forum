@@ -210,10 +210,19 @@ class ForumTopicStatusList extends AbricosModelList {
 
 /**
  * Class ForumFile
+ *
+ * @property int $topicid
+ * @property string $filehash
+ * @property string $filename
+ * @property string $filesize
  */
 class ForumFile extends AbricosModel {
     protected $_structModule = 'forum';
     protected $_structName = 'File';
+
+    public function URI(){
+        return '/filemanager/i/'.$this->filehash.'/'.$this->filename;
+    }
 }
 
 /**

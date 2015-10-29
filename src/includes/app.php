@@ -267,7 +267,8 @@ class ForumApp extends AbricosApplication {
 
     /**
      * @param $topicid
-     * @return ForumTopic
+     * @param bool|false $updateViewCount
+     * @return ForumTopic|int
      */
     public function Topic($topicid, $updateViewCount = false){
         if (!$this->manager->IsViewRole()){

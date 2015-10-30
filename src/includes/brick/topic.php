@@ -56,7 +56,7 @@ if (!empty($user)){
     $replace["userAvatar"] = $user->GetAvatar45();
 }
 $files = $topic->files;
-if (!empty($files)){
+if (!empty($files) && $files->Count() > 0){
     $lst = "";
     for ($i = 0; $i < $files->Count(); $i++){
         $file = $files->GetByIndex($i);

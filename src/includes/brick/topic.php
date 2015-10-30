@@ -74,44 +74,13 @@ if (!empty($files)){
 $replace["topicbody"] = $topic->body;
 $brick->content = Brick::ReplaceVarByData($brick->content, $replace);
 
-Brick::$builder->LoadBrickS('comment', 'list', $brick, array(
+Brick::$builder->LoadBrickS('comment', 'tree', $brick, array(
     "p" => array(
         "module" => 'forum',
         "type" => 'topic',
         "ownerid" => $topic->id
     )
 ));
-
-
-return;
-
-$dl = $topic->dateline;
-$tpFiles = "";
-if ($topic->detail->fileList->Count() > 0){
-    $lstFile = "";
-    for ($i = 0; $i < $topic->detail->fileList->Count(); $i++){
-        $file = $topic->detail->fileList->GetByIndex($i);
-        $lstFile .= Brick::ReplaceVarByData($v['file'], array(
-            'url' => $file->URL(),
-            'nm' => $file->name
-        ));
-    }
-    $tpFiles = Brick::ReplaceVarByData($v['files'], array(
-        'rows' => $lstFile
-    ));
-}
-
-$replace = array(
-    "status" => $v["st_".$topic->status],
-    "uid" => $user->id,
-    "unm" => $user->GetUserName(),
-    "userurl" => $user->URL(),
-    "files" => $tpFiles,
-    "dl" => date("d", $dl)." ".rusMonth($dl)." ".date("Y", $dl),
-    "dlt" => date("H:i", $dl),
-    "tl" => $topic->title,
-    "body" => $topic->detail->body
-);
 
 
 ?>

@@ -2,7 +2,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'filemanager', files: ['attachment.js']},
-        {name: 'comment', files: ['commentList.js']},
+        {name: 'comment', files: ['tree.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
@@ -65,8 +65,8 @@ Component.entryPoint = function(NS){
 
             var commentOwner = topic.get('commentOwner');
 
-            this._commentsWidget = new Brick.mod.comment.CommentListWidget({
-                srcNode: tp.one('commentList'),
+            this._commentsWidget = new Brick.mod.comment.CommentTreeWidget({
+                srcNode: tp.one('commentTree'),
                 commentOwner: commentOwner,
                 readOnly: !topic.isCommentWriteRole()
             });

@@ -8,9 +8,11 @@
  */
 
 $commentModule = Abricos::GetModule('comment');
-if (!$commentModule){
+if (empty($commentModule)){
     return;
 }
+
+Abricos::GetModule('notify');
 
 /**
  * Class ForumModule

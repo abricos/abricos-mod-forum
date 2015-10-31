@@ -58,10 +58,25 @@ class ForumApp extends AbricosApplication {
         return $this->_uprofileApp = $module->GetManager()->GetApp();
     }
 
+    private $_notifyApp = null;
+
+    /**
+     * @return NotifyApp
+     */
+    public function NotifyApp(){
+        if (!is_null($this->_notifyApp)){
+            return $this->_notifyApp;
+        }
+        $module = Abricos::GetModule('notify');
+        return $this->_notifyApp = $module->GetManager()->GetApp();
+    }
+
     public function ResponseToJSON($d){
         switch ($d->do){
             case 'topicList':
                 return $this->TopicListToJSON($d->page);
+            case 'topicListByIds':
+                return $this->TopicListByIdsToJSON($d->topicids);
             case 'topic':
                 return $this->TopicToJSON($d->topicid);
             case 'topicSave':
@@ -93,7 +108,7 @@ class ForumApp extends AbricosApplication {
 
     public function TopicSave($d){
         if (!$this->manager->IsWriteRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         /** @var ForumTopic $topic */
@@ -115,7 +130,7 @@ class ForumApp extends AbricosApplication {
         }
 
         if (!$curTopic->IsWriteRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         $curTopic->title = Abricos::TextParser(true)->Parser($topic->title);
@@ -194,7 +209,7 @@ class ForumApp extends AbricosApplication {
             return 404;
         }
         if (!$topic->IsCloseRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::CLOSED);
@@ -223,7 +238,7 @@ class ForumApp extends AbricosApplication {
             return 404;
         }
         if (!$this->manager->IsWriteRole() || !$topic->IsOpenRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::OPENED);
@@ -247,7 +262,7 @@ class ForumApp extends AbricosApplication {
             return 404;
         }
         if (!$this->manager->IsWriteRole() || !$topic->IsRemoveRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         $statusid = ForumQuery::TopicStatusUpdate($this, $topic->id, ForumTopic::OPENED);
@@ -272,7 +287,7 @@ class ForumApp extends AbricosApplication {
      */
     public function Topic($topicid, $updateViewCount = false){
         if (!$this->manager->IsViewRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
 
         if (!isset($this->_cache['Topic'])){
@@ -313,6 +328,33 @@ class ForumApp extends AbricosApplication {
         return $this->_cache['Topic'][$topicid] = $topic;
     }
 
+    /**
+     * @param $rows
+     * @return ForumTopicList
+     */
+    private function TopicListFill($rows){
+        /** @var ForumTopicList $list */
+        $list = $this->InstanceClass('TopicList');
+
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($this->InstanceClass('Topic', $d));
+        }
+
+        $statusids = $list->ToArray('statusid');
+        $rows = ForumQuery::TopicStatusListByIds($this, $statusids);
+        while (($d = $this->db->fetch_array($rows))){
+            /** @var ForumTopicStatus $status */
+            $status = $this->InstanceClass('TopicStatus', $d);
+            $topic = $list->Get($status->topicid);
+            $topic->status = $status;
+        }
+
+        $topicids = $list->Ids();
+        $statList = $this->CommentApp()->StatisticList('forum', 'topic', $topicids);
+        $list->SetCommentStatistics($statList);
+        return $list;
+    }
+
     public function TopicListToJSON($page){
         $res = $this->TopicList($page);
         return $this->ResultToJSON('topicList', $res);
@@ -333,32 +375,46 @@ class ForumApp extends AbricosApplication {
         }
 
         if (!$this->manager->IsViewRole()){
-            return 403;
+            return AbricosResponse::ERR_FORBIDDEN;
         }
-
-        /** @var ForumTopicList $list */
-        $list = $this->InstanceClass('TopicList');
-        $list->page = $page;
 
         $rows = ForumQuery::TopicList($this, $page, $limit);
-        while (($d = $this->db->fetch_array($rows))){
-            $list->Add($this->InstanceClass('Topic', $d));
-        }
-
-        $statusids = $list->ToArray('statusid');
-        $rows = ForumQuery::TopicStatusListByIds($this, $statusids);
-        while (($d = $this->db->fetch_array($rows))){
-            /** @var ForumTopicStatus $status */
-            $status = $this->InstanceClass('TopicStatus', $d);
-            $topic = $list->Get($status->topicid);
-            $topic->status = $status;
-        }
-
-        $topicids = $list->Ids();
-        $statList = $this->CommentApp()->StatisticList('forum', 'topic', $topicids);
-        $list->SetCommentStatistics($statList);
+        $list = $this->TopicListFill($rows);
+        $list->page = $page;
 
         return $this->_cache['TopicList'][$key] = $list;
+    }
+
+    public function TopicListByIdsToJSON($topicids){
+        $res = $this->TopicListByIds($topicids);
+        return $this->ResultToJSON('topicList', $res);
+    }
+
+    public function TopicListByIds($topicids){
+        if (!$this->manager->IsViewRole($topicids)){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        if (!is_array($topicids)){
+            return AbricosResponse::ERR_BAD_REQUEST;
+        }
+
+        $rows = ForumQuery::TopicListByIds($this, $topicids);
+        $list = $this->TopicListFill($rows);
+
+        return $list;
+    }
+
+
+    /**
+     * @return NotifySubscribe|int
+     */
+    public function SubscribeForumInfo(){
+        if (!$this->manager->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+        $subscribe = $this->NotifyApp()->SubscribeInfo(array('module' => 'forum'));
+        return $subscribe;
     }
 
     public function Comment_IsList($type, $ownerid){

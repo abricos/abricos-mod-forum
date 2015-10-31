@@ -102,6 +102,19 @@ class ForumTopic extends AbricosModel {
         ));
     }
 
+    private $_notifyOwner;
+
+    public function GetNotifyOwner(){
+        if (!empty($this->_notifyOwner)){
+            return $this->_notifyOwner;
+        }
+        return $this->_notifyOwner = $this->app->NotifyApp()->InstanceClass('Owner', array(
+            "module" => "forum",
+            "type" => "topic",
+            "ownerid" => $this->id
+        ));
+    }
+
     public function GetUserIds(){
         $ret = array();
         $ret[] = $this->userid;

@@ -28,11 +28,41 @@
     <a href="{v#uri}">{v#viewname}</a>
 [/v]
 
+[v=subscribe]
+    <a href="/bos/#app=forum/wspace/ws/subscribe/SubscribeWidget/"
+       class="btn btn-default btn-xs"
+       title="Подписаться на рассылку новых тем форума">
+        Подписаться
+    </a>
+[/v]
+
+[v=unsubscribe]
+    <a href="/bos/#app=forum/wspace/ws/subscribe/SubscribeWidget/"
+       class="btn btn-default btn-xs"
+       title="Подписаться на рассылку новых тем форума">
+        Подписаться
+    </a>
+[/v]
+
+
 [*]-->
 <div class="topicList">
     <div class="panel panel-default">
         <div class="panel-heading">
-            Список тем форума
+
+            <div class="row">
+                <div class="col-sm-7">
+                    <h3 class="panel-title">Темы форума</h3>
+                </div>
+                <div class="col-sm-5 text-right">
+                    <a href="/bos/#app=forum/wspace/ws/topicEditor/TopicEditorWidget/"
+                       class="btn btn-default btn-xs"
+                       title="Создать новую тему на форуме">
+                        Новая тема
+                    </a>
+                    {v#subscribe}
+                </div>
+            </div>
         </div>
 
         <div class="panel-body">

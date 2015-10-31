@@ -265,5 +265,21 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."frm_forum");
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."frm_topic");
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."frm_file");
+
+    $db->query_write("
+		INSERT INTO ".$pfx."notify_subscribe (
+		    ownerModule, ownerType, ownerid, userid, emailStatus, bosStatus, dateline
+		)
+		SELECT
+		    'forum' as ownerModule,
+		    'topic' as ownerType,
+		    topicid,
+		    userid,
+		    1,
+		    1,
+		    dateline
+		FROM ".$pfx."forum_topic
+	");
+
 }
 ?>

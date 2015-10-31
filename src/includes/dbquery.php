@@ -68,6 +68,46 @@ class ForumQuery {
         return $db->query_first($sql);
     }
 
+    public static function TopicListByIds(ForumApp $app, $topicids){
+        $count = count($topicids);
+        if ($count === 0){
+            return;
+        }
+        $db = $app->db;
+        $wheres = array();
+        for ($i = 0; $i < $count; $i++){
+            $wheres[] = "t.topicid=".intval($topicids[$i]);
+        }
+
+        $sql = "
+			SELECT
+			  t.*,
+			  '' as body
+			FROM ".$db->prefix."forum_topic t
+			INNER JOIN ".$db->prefix."forum_topicstatus s ON t.statusid=s.statusid
+			WHERE t.language='".bkstr(Abricos::$LNG)."'
+		";
+        if (!$app->manager->IsModerRole()){
+            // приватные темы доступны только авторам и модераторам
+            $sql .= "
+				AND (t.isprivate=0 OR (t.isprivate=1 AND t.userid=".intval(Abricos::$user->id)."))
+				AND s.status<>'".ForumTopic::REMOVED."'
+			";
+        }
+
+        $sql .= "
+            AND (".implode(" OR ", $wheres).")
+        ";
+
+        $sql .= "
+			ORDER BY t.upddate DESC
+			LIMIT 300
+		";
+
+        return $db->query_read($sql);
+    }
+
+
     public static function TopicList(ForumApp $app, $page = 1, $limit = 20){
         $db = $app->db;
         $page = intval($page);

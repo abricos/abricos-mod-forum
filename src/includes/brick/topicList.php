@@ -74,7 +74,15 @@ for ($i = 0; $i < $count; $i++){
     $lst .= Brick::ReplaceVarByData($v['row'], $replace);
 }
 
+$subscribeInfo = $app->SubscribeForumInfo();
+if ($subscribeInfo === AbricosResponse::ERR_NOT_FOUND){
+    $subscribe = $v['subscribe'];
+} else {
+    $subscribe = '';
+}
+
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
+    "subscribe" => $v['subscribe'],
     "rows" => $lst
 ));
 

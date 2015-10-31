@@ -33,7 +33,8 @@ Component.entryPoint = function(NS){
     }, [], {
         APPS: {
             uprofile: {},
-            comment: {}
+            comment: {},
+            notify: {}
         },
         ATTRS: {
             Topic: {value: NS.Topic},
@@ -82,6 +83,9 @@ Component.entryPoint = function(NS){
                         }, context);
                     };
                 }
+            },
+            topicListByIds: {
+                args: ['topicids'],
             },
             config: {
                 attribute: true,

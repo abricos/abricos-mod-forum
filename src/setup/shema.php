@@ -267,18 +267,33 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."frm_file");
 
     $db->query_write("
-		INSERT INTO ".$pfx."notify_subscribe (
-		    ownerModule, ownerType, ownerid, userid, emailStatus, bosStatus, dateline
+		INSERT INTO ".$pfx."notify_owner (
+		    ownerModule, ownerType, ownerMethod, ownerItemId, status, dateline
 		)
 		SELECT
 		    'forum' as ownerModule,
 		    'topic' as ownerType,
+		    'comment' as ownerMethod,
 		    topicid,
-		    userid,
-		    1,
-		    1,
+		    'on' as status,
 		    dateline
 		FROM ".$pfx."forum_topic
+	");
+
+    $db->query_write("
+		INSERT INTO ".$pfx."notify_subscribe (
+		    ownerid, userid, status, emailStatus, dateline
+		)
+		SELECT
+		    o.ownerid,
+		    t.userid,
+		    'on' as status,
+		    'on' as emailStatus,
+		    t.dateline
+		FROM ".$pfx."forum_topic t
+		INNER JOIN ".$pfx."notify_owner o
+		    ON o.ownerModule='forum' AND o.ownerType='topic' AND o.ownerMethod='comment'
+		    AND o.ownerItemId=t.topicid
 	");
 
 }

@@ -1,6 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
+        {name: 'notify', files: ['button.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
@@ -9,6 +10,8 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         COMPONENT = this,
         SYS = Brick.mod.sys;
+
+    var NOTIFY = Brick.mod.notify;
 
     NS.SubscribeWidget = Y.Base.create('subscribeWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -32,7 +35,7 @@ Component.entryPoint = function(NS){
             subscribeList.each(function(subscribe){
                 if (subscribe.get('module') === 'forum'){
                     if (subscribe.get('type') === '' && subscribe.get('ownerid') === 0){
-                        this.set('subscribeForum', subscribe);
+                        this.set('globalSubscribe', subscribe);
                     } else {
                         topicids[topicids.length] = subscribe.get('ownerid');
                     }
@@ -48,12 +51,26 @@ Component.entryPoint = function(NS){
                 return;
             }
             this.set('topicList', result.topicList);
+
+            var tp = this.template,
+                globalSubscribe = this.get('globalSubscribe');
+
+            this.globalButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
+                srcNode: tp.one('globalButtons'),
+                subscribe: globalSubscribe
+            });
+
+            this.newTopicButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
+                srcNode: tp.one('newTopicButtons'),
+                subscribe: this.get('newTopicSubscribe'),
+                changeDisable: !globalSubscribe
+            });
         },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
-            subscribeForum: {},
+            globalSubscribe: {},
             subscribeList: {},
             topicList: {}
         },

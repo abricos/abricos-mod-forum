@@ -107,6 +107,11 @@ Component.entryPoint = function(NS){
                 view: function(id){
                     return this.getURL('ws') + 'topicView/TopicViewWidget/' + id + '/';
                 }
+            },
+            subscribe: {
+                config: function(){
+                    return this.getURL('ws') + 'subscribe/SubscribeWidget/';
+                }
             }
         }
     });

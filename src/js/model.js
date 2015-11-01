@@ -183,4 +183,34 @@ Component.entryPoint = function(NS){
         structureName: 'Config'
     });
 
+    NS.SUBSCRIBE = {
+        module: function(){
+            return {
+                owner: {module: 'forum'},
+                subscribe: {status: 'on'}
+            };
+        },
+        topicNew: function(){
+            return {
+                owner: {
+                    module: 'forum',
+                    type: 'topic',
+                    method: 'new'
+                },
+                subscribe: {status: 'off'}
+            };
+        },
+        topicComment: function(topicid){
+            return {
+                owner: {
+                    module: 'forum',
+                    type: 'topic',
+                    method: 'comment',
+                    itemid: topicid | 0
+                },
+                subscribe: {status: 'off'}
+            };
+        }
+    };
+
 };

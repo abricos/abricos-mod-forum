@@ -18,7 +18,7 @@ Component.entryPoint = function(NS){
             this.set('waiting', true);
 
             var notifyApp = this.get('appInstance').getApp('notify');
-            notifyApp.subscribeList(this._onLoadSubscribeList, this);
+            notifyApp.subscribeList('forum', this._onLoadSubscribeList, this);
         },
         destructor: function(){
         },
@@ -33,14 +33,13 @@ Component.entryPoint = function(NS){
             var topicids = [];
 
             subscribeList.each(function(subscribe){
-                if (subscribe.get('module') === 'forum'){
-                    if (subscribe.get('type') === '' && subscribe.get('ownerid') === 0){
-                        this.set('globalSubscribe', subscribe);
-                    } else {
-                        topicids[topicids.length] = subscribe.get('ownerid');
-                    }
-                }
+                var owner = subscribe.get('owner');
+                if (owner && owner.get('module') === 'forum'
+                    && owner.get('type') === 'topic'
+                    && owner.get('method') === 'comment'){
 
+                    topicids[topicids.length] = owner.get('itemid');
+                }
             }, this);
 
             this.get('appInstance').topicListByIds(topicids, this._onLoadTopicList, this);
@@ -53,17 +52,23 @@ Component.entryPoint = function(NS){
             this.set('topicList', result.topicList);
 
             var tp = this.template,
-                globalSubscribe = this.get('globalSubscribe');
+                appInstance = this.get('appInstance'),
+                subscribeList = this.get('subscribeList'),
+                ownerBaseList = appInstance.getApp('notify').get('ownerBaseList'),
+                ownerForum = ownerBaseList.findOwner({module: 'forum'}),
+                ownerTopicNew = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'new'}),
+                ownerTopicComment = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'comment'});
+
+            var globalSubscribe = this.get('globalSubscribe');
 
             this.globalButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
                 srcNode: tp.one('globalButtons'),
-                subscribe: globalSubscribe
+                subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.module())
             });
 
             this.newTopicButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
                 srcNode: tp.one('newTopicButtons'),
-                subscribe: this.get('newTopicSubscribe'),
-                changeDisable: !globalSubscribe
+                subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.topicNew())
             });
         },
     }, {

@@ -5,18 +5,26 @@
         <div class="navbar-header">
             <a href="#" data-url="topic.list" class="navbar-brand">Форум</a>
         </div>
-        <div class="collapse navbar-collapse pull-right">
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href="#" data-url="topic.create">Создать тему</a>
-                </li>
-            </ul>
-        </div>
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="#" data-url="topic.list">Темы</a>
+            </li>
+            <li>
+                <a href="#" data-url="subscribe.config">Настройки</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav pull-right">
+            <li>
+                <a href="#" data-url="topic.create">Создать тему</a>
+            </li>
+        </ul>
     </nav>
 
     <div data-wait="show" class="text-center">
         <img src="/images/loading.gif"/>
+
         <p>Идет загрузка данных</p>
+
         <p>Пожалуйста, подождите...</p>
     </div>
 

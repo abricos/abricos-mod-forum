@@ -150,6 +150,35 @@ if ($updateManager->isUpdate('0.1.8')){
             UNIQUE KEY file (topicid, filehash)
         )".$charset
     );
+
+    /** @var NotifyManager $notifyManager */
+    $notifyManager = Abricos::GetModule('notify')->GetManager();
+    $notifyManager->RolesDisable();
+    $notifyApp = $notifyManager->GetApp();
+
+    $ownerForumId = $notifyApp->OwnerSave(array(
+        'module' => 'forum',
+        'status' => NotifyOwner::STATUS_ON,
+        'isBase' => true
+    ));
+
+    $notifyApp->OwnerSave(array(
+        'parentid' => $ownerForumId,
+        'module' => 'forum',
+        'type' => 'topic',
+        'method' => 'new',
+        'status' => NotifyOwner::STATUS_ON,
+        'isBase' => true
+    ));
+
+    $ownerTopicCommentId = $notifyApp->OwnerSave(array(
+        'parentid' => $ownerForumId,
+        'module' => 'forum',
+        'type' => 'topic',
+        'method' => 'comment',
+        'status' => NotifyOwner::STATUS_ON,
+        'isBase' => true
+    ));
 }
 
 if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
@@ -268,15 +297,15 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 
     $db->query_write("
 		INSERT INTO ".$pfx."notify_owner (
-		    ownerModule, ownerType, ownerMethod, ownerItemId, status, dateline
+		    parentid, ownerModule, ownerType, ownerMethod, ownerItemId, ownerStatus
 		)
 		SELECT
+		    ".intval($ownerTopicCommentId)." as parentid,
 		    'forum' as ownerModule,
 		    'topic' as ownerType,
 		    'comment' as ownerMethod,
 		    topicid,
-		    'on' as status,
-		    dateline
+		    'on' as ownerStatus
 		FROM ".$pfx."forum_topic
 	");
 

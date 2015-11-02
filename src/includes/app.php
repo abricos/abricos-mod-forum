@@ -459,6 +459,24 @@ class ForumApp extends AbricosApplication {
 
         ForumQuery::TopicCommentStatisticUpdate($this, $topic, $statistic);
     }
+
+    /**
+     * @param NotifyOwner $owner
+     * @param NotifySubscribe $subscribe
+     */
+    public function Notify_IsSubscribeUpdate($owner, $subscribe){
+        if (!$this->manager->IsViewRole()){
+            return false;
+        }
+        if (
+            ($owner->type === '' && $owner->method === '' && $owner->itemid === 0) ||
+            ($owner->type === 'topic' && $owner->method === 'comment' && $owner->itemid === 0) ||
+            ($owner->type === 'topic' && $owner->method === 'new' && $owner->itemid === 0)
+        ){
+            return true;
+        }
+        return false;
+    }
 }
 
 ?>

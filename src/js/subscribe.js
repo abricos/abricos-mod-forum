@@ -15,71 +15,36 @@ Component.entryPoint = function(NS){
 
     NS.SubscribeWidget = Y.Base.create('subscribeWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            this.set('waiting', true);
-
-            var notifyApp = this.get('appInstance').getApp('notify');
-            notifyApp.subscribeList('forum', this._onLoadSubscribeList, this);
-        },
-        destructor: function(){
-        },
-        _onLoadSubscribeList: function(err, result){
-            if (err){
-                this.set('waiting', false);
-                return;
-            }
-            var subscribeList = result.subscribeList;
-
-            this.set('subscribeList', subscribeList);
-            var topicids = [];
-
-            subscribeList.each(function(subscribe){
-                var owner = subscribe.get('owner');
-                if (owner && owner.get('module') === 'forum'
-                    && owner.get('type') === 'topic'
-                    && owner.get('method') === 'comment'){
-
-                    topicids[topicids.length] = owner.get('itemid');
-                }
-            }, this);
-
-            this.get('appInstance').topicListByIds(topicids, this._onLoadTopicList, this);
-        },
-        _onLoadTopicList: function(err, result){
-            this.set('waiting', false);
-            if (err){
-                return;
-            }
-            this.set('topicList', result.topicList);
-
             var tp = this.template,
-                appInstance = this.get('appInstance'),
-                subscribeList = this.get('subscribeList');
-            /*
-             ownerBaseList = appInstance.getApp('notify').get('ownerBaseList'),
-             ownerForum = ownerBaseList.findOwner({module: 'forum'}),
-             ownerTopicNew = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'new'}),
-             ownerTopicComment = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'comment'});
-             /**/
+                notifyApp = appInstance.getApp('notify'),
+                subscribeList = notifyApp.get('subscribeBaseList');
 
-            var globalSubscribe = this.get('globalSubscribe');
-
-            this.globalButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
-                srcNode: tp.one('globalButtons'),
+            this.moduleSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+                srcNode: tp.one('moduleSubscribe'),
                 subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.module())
             });
 
-            this.newTopicButtonsWidget = new NOTIFY.SubscribeRowButtonWidget({
-                srcNode: tp.one('newTopicButtons'),
+            this.topicNewSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+                srcNode: tp.one('topicNewSubscribe'),
                 subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.topicNew())
             });
+
+            this.topicCommentSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+                srcNode: tp.one('topicCommentSubscribe'),
+                subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.topicComment())
+            });
+        },
+        destructor: function(){
+            if (this.moduleSubscribeWidget){
+                this.moduleSubscribeWidget.destroy();
+                this.topicNewSubscribeWidget.destroy();
+                this.topicCommentSubscribeWidget.destroy();
+            }
         },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'widget'},
-            globalSubscribe: {},
-            subscribeList: {},
-            topicList: {}
+            templateBlockName: {value: 'widget'}
         },
         CLICKS: {}
     });

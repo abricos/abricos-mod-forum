@@ -177,7 +177,8 @@ if ($updateManager->isUpdate('0.1.8')){
         'type' => 'topic',
         'method' => 'comment',
         'status' => NotifyOwner::STATUS_ON,
-        'isBase' => true
+        'isBase' => true,
+        'isContainer' => true
     ));
 }
 

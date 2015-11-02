@@ -200,7 +200,17 @@ Component.entryPoint = function(NS){
                 subscribe: {status: 'off'}
             };
         },
-        topicComment: function(topicid){
+        topicComment: function(){
+            return {
+                owner: {
+                    module: 'forum',
+                    type: 'topic',
+                    method: 'comment'
+                },
+                subscribe: {status: 'on'}
+            };
+        },
+        topicCommentItem: function(topicid){
             return {
                 owner: {
                     module: 'forum',

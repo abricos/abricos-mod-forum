@@ -53,11 +53,13 @@ Component.entryPoint = function(NS){
 
             var tp = this.template,
                 appInstance = this.get('appInstance'),
-                subscribeList = this.get('subscribeList'),
-                ownerBaseList = appInstance.getApp('notify').get('ownerBaseList'),
-                ownerForum = ownerBaseList.findOwner({module: 'forum'}),
-                ownerTopicNew = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'new'}),
-                ownerTopicComment = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'comment'});
+                subscribeList = this.get('subscribeList');
+            /*
+             ownerBaseList = appInstance.getApp('notify').get('ownerBaseList'),
+             ownerForum = ownerBaseList.findOwner({module: 'forum'}),
+             ownerTopicNew = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'new'}),
+             ownerTopicComment = ownerBaseList.findOwner({module: 'forum', type: 'topic', method: 'comment'});
+             /**/
 
             var globalSubscribe = this.get('globalSubscribe');
 

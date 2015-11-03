@@ -184,43 +184,10 @@ Component.entryPoint = function(NS){
     });
 
     NS.SUBSCRIBE = {
-        module: function(){
-            return {
-                owner: {module: 'forum'},
-                subscribe: {status: 'on'}
-            };
-        },
-        topicNew: function(){
-            return {
-                owner: {
-                    module: 'forum',
-                    type: 'topic',
-                    method: 'new'
-                },
-                subscribe: {status: 'off'}
-            };
-        },
-        topicComment: function(){
-            return {
-                owner: {
-                    module: 'forum',
-                    type: 'topic',
-                    method: 'comment'
-                },
-                subscribe: {status: 'on'}
-            };
-        },
-        topicCommentItem: function(topicid){
-            return {
-                owner: {
-                    module: 'forum',
-                    type: 'topic',
-                    method: 'comment',
-                    itemid: topicid | 0
-                },
-                subscribe: {status: 'off'}
-            };
-        }
+        MODULE: 'forum',
+        TOPIC_NEW: 'forum:topic:new',
+        TOPIC_COMMENT: 'forum:topic:comment',
+        TOPIC_COMMENT_ITEM: 'forum:topic:comment:{v#itemid}'
     };
 
 };

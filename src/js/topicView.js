@@ -70,7 +70,8 @@ Component.entryPoint = function(NS){
             tp.toggleView(files.length > 0, 'filesPanel');
 
             this._subscribeWidget = new NS.TopicCommentSubscribeButtonWidget({
-                srcNode: tp.one('subscribe')
+                srcNode: tp.one('subscribe'),
+                ownerItemId: topic.get('id')
             });
 
             this.renderTopic();

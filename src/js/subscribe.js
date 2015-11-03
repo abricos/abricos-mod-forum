@@ -56,17 +56,13 @@ Component.entryPoint = function(NS){
     NS.TopicNewSubscribeButtonWidget = Y.Base.create('topicNewSubscribeButtonWidget', SYS.AppWidget, [
         NOTIFY.SwitcherStatusExt
     ], {
-        onInitAppWidget: function(err, appInstance){
-            this.renderSwitcher();
-        },
+
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'topicNewButton'},
-            subscribeDefine: {
-                getter: function(){
-                    return NS.SUBSCRIBE.topicNew();
-                }
+            ownerDefine: {
+                value: NS.SUBSCRIBE.TOPIC_NEW
             }
         }
     });
@@ -74,19 +70,12 @@ Component.entryPoint = function(NS){
     NS.TopicCommentSubscribeButtonWidget = Y.Base.create('topicCommentSubscribeButtonWidget', SYS.AppWidget, [
         NOTIFY.SwitcherStatusExt
     ], {
-        onInitAppWidget: function(err, appInstance){
-            this.renderSwitcher();
-        },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'topicNewButton'},
-            topicid: {},
-            subscribeDefine: {
-                getter: function(){
-                    var topicid = this.get('topicid');
-                    return NS.SUBSCRIBE.topicCommentItem(topicid);
-                }
+            ownerDefine: {
+                value: NS.SUBSCRIBE.TOPIC_COMMENT_ITEM
             }
         }
     });

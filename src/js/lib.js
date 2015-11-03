@@ -52,6 +52,7 @@ Component.entryPoint = function(NS){
                 type: 'model:Topic',
                 onResponse: function(topic){
                     this.getApp('notify').registerOwner(topic.get('notifyOwner'));
+                    this.getApp('notify').registerSubscribe(topic.get('subscribe'));
 
                     var userIds = topic.getUserIds();
                     if (userIds.length === 0){

@@ -110,7 +110,7 @@ Component.entryPoint = function(NS){
             },
             subscribe: {
                 config: function(){
-                    return this.getURL('ws') + 'subscribe/SubscribeWidget/';
+                    return this.getURL('ws') + 'subscribe/SubscribeConfigWidget/';
                 }
             }
         }

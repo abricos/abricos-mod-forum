@@ -405,18 +405,6 @@ class ForumApp extends AbricosApplication {
         return $list;
     }
 
-
-    /**
-     * @return NotifySubscribe|int
-     */
-    public function SubscribeForumInfo(){
-        if (!$this->manager->IsViewRole()){
-            return AbricosResponse::ERR_FORBIDDEN;
-        }
-        $subscribe = $this->NotifyApp()->SubscribeInfo(array('module' => 'forum'));
-        return $subscribe;
-    }
-
     public function Comment_IsList($type, $ownerid){
         if (!$this->manager->IsViewRole()){
             return false;

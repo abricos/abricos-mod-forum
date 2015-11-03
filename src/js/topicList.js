@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['subscribe.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -14,18 +14,21 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
-            var appInstance = this.get('appInstance'),
-                page = 1;
-
-            appInstance.topicList(page, function(err, result){
-                if (!err){
-                    this.set('topicList', result.topicList);
-                }
-                this.renderTopicList();
-            }, this);
+            var page = 1;
+            appInstance.topicList(page, this.onLoadTopicList, this);
+        },
+        onLoadTopicList: function(err, result){
+            this.set('waiting', false);
+            if (!err){
+                this.set('topicList', result.topicList);
+            }
+            var tp = this.template;
+            this.subscribeWidget = new NS.TopicNewSubscribeButtonWidget({
+                srcNode: tp.one('subscribe')
+            });
+            this.renderTopicList();
         },
         renderTopicList: function(){
-            this.set('waiting', false);
             var topicList = this.get('topicList');
             if (!topicList){
                 return;

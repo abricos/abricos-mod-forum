@@ -13,32 +13,33 @@ Component.entryPoint = function(NS){
 
     var NOTIFY = Brick.mod.notify;
 
-    NS.SubscribeWidget = Y.Base.create('subscribeWidget', SYS.AppWidget, [], {
+
+    NS.SubscribeConfigWidget = Y.Base.create('subscribeWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
             var tp = this.template,
                 notifyApp = appInstance.getApp('notify'),
                 subscribeList = notifyApp.get('subscribeBaseList');
 
-            this.moduleSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+            this.moduleSubscribeConfigWidget = new NOTIFY.SubscribeRowButtonWidget({
                 srcNode: tp.one('moduleSubscribe'),
                 subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.module())
             });
 
-            this.topicNewSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+            this.topicNewSubscribeConfigWidget = new NOTIFY.SubscribeRowButtonWidget({
                 srcNode: tp.one('topicNewSubscribe'),
                 subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.topicNew())
             });
 
-            this.topicCommentSubscribeWidget = new NOTIFY.SubscribeRowButtonWidget({
+            this.topicCommentSubscribeConfigWidget = new NOTIFY.SubscribeRowButtonWidget({
                 srcNode: tp.one('topicCommentSubscribe'),
                 subscribe: subscribeList.getSubscribe(NS.SUBSCRIBE.topicComment())
             });
         },
         destructor: function(){
-            if (this.moduleSubscribeWidget){
-                this.moduleSubscribeWidget.destroy();
-                this.topicNewSubscribeWidget.destroy();
-                this.topicCommentSubscribeWidget.destroy();
+            if (this.moduleSubscribeConfigWidget){
+                this.moduleSubscribeConfigWidget.destroy();
+                this.topicNewSubscribeConfigWidget.destroy();
+                this.topicCommentSubscribeConfigWidget.destroy();
             }
         },
     }, {
@@ -46,11 +47,31 @@ Component.entryPoint = function(NS){
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'}
         },
-        CLICKS: {}
+        CLICKS: {},
+        parseURLParam: function(){
+            return {};
+        }
     });
 
-    NS.SubscribeWidget.parseURLParam = function(args){
-        return {};
-    };
+    NS.TopicNewSubscribeButtonWidget = Y.Base.create('topicNewSubscribeButtonWidget', SYS.AppWidget, [
+        NOTIFY.SwitcherStatusExt
+    ], {
+        onInitAppWidget: function(err, appInstance){
+            this.renderSwitcher();
+        },
+        destructor: function(){
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'topicNewButton'},
+            subscribeDefine: {
+                getter: function(){
+                    return NS.SUBSCRIBE.topicNew();
+                }
+            }
+        }
+    });
+
 
 };

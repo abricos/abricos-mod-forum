@@ -28,22 +28,6 @@
     <a href="{v#uri}">{v#viewname}</a>
 [/v]
 
-[v=subscribe]
-    <a href="/bos/#app=forum/wspace/ws/subscribe/SubscribeWidget/"
-       class="btn btn-default btn-xs"
-       title="Подписаться на рассылку новых тем форума">
-        Подписаться
-    </a>
-[/v]
-
-[v=unsubscribe]
-    <a href="/bos/#app=forum/wspace/ws/subscribe/SubscribeWidget/"
-       class="btn btn-default btn-xs"
-       title="Подписаться на рассылку новых тем форума">
-        Подписаться
-    </a>
-[/v]
-
 
 [*]-->
 <div class="topicList">
@@ -60,7 +44,12 @@
                        title="Создать новую тему на форуме">
                         Новая тема
                     </a>
-                    {v#subscribe}
+                    &nbsp;
+                    <div class="pull-right">
+                        <div id="{v#brickid}-subscribe">
+                            <img src="/images/loading.gif">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,3 +77,13 @@
         </div>
     </div>
 </div>
+<script>
+    Brick.use('forum', 'subscribe', function(err, NS){
+        if (err){
+            return;
+        }
+        new NS.TopicNewSubscribeButtonWidget({
+            srcNode: '#{v#brickid}-subscribe'
+        });
+    });
+</script>

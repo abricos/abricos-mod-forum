@@ -192,13 +192,12 @@ Component.entryPoint = function(NS){
             topicRemoveHideDialog: 'topicRemoveHideDialog',
             topicRemove: 'topicRemove',
             topicOpen: 'topicOpen'
+        },
+        parseURLParam: function(args){
+            return {
+                topicid: args[0] | 0
+            };
         }
     });
-
-    NS.TopicViewWidget.parseURLParam = function(args){
-        return {
-            topicid: args[0] | 0
-        };
-    };
 
 };

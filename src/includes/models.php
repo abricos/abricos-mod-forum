@@ -258,4 +258,11 @@ class ForumConfig extends AbricosModel {
     protected $_structName = 'Config';
 }
 
+class ForumSubscribe {
+    const MODULE = 'forum';
+    const TOPIC_NEW = 'forum:topic:new';
+    const TOPIC_COMMENT = 'forum:topic:comment';
+    const TOPIC_COMMENT_ITEM = 'forum:topic:comment:{v#itemid}';
+}
+
 ?>

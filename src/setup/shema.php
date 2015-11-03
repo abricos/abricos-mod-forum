@@ -158,14 +158,14 @@ if ($updateManager->isUpdate('0.1.8')){
     $notifyManager->RolesDisable();
     $notifyApp = $notifyManager->GetApp();
 
-    $ownerForumId = $notifyApp->OwnerSave(array(
+    $ownerForum = $notifyApp->OwnerSave(array(
         'module' => 'forum',
         'status' => NotifyOwner::STATUS_ON,
         'isBase' => true
     ));
 
     $notifyApp->OwnerSave(array(
-        'parentid' => $ownerForumId,
+        'parentid' => $ownerForum->id,
         'module' => 'forum',
         'type' => 'topic',
         'method' => 'new',
@@ -174,7 +174,7 @@ if ($updateManager->isUpdate('0.1.8')){
     ));
 
     $ownerTopicCommentId = $notifyApp->OwnerSave(array(
-        'parentid' => $ownerForumId,
+        'parentid' => $ownerForum->id,
         'module' => 'forum',
         'type' => 'topic',
         'method' => 'comment',

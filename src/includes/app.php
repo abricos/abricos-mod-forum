@@ -138,6 +138,13 @@ class ForumApp extends AbricosApplication {
 
         if ($topic->id === 0){
             $topic->id = ForumQuery::TopicAppend($this, $curTopic);
+
+            $owner = $this->NotifyApp()->SubscribeItemAppend(
+                ForumSubscribe::TOPIC_COMMENT,
+                ForumSubscribe::TOPIC_COMMENT_ITEM,
+                $topic->id
+            );
+            ForumQuery::TopicSetNotifyOwnerId($this, $topic, $owner->id);
         } else {
             ForumQuery::TopicUpdate($this, $curTopic);
         }

@@ -28,6 +28,10 @@
  * @property CommentStatistic $commentStatistic
  * @property ForumFileList $files
  *
+ * @property NotifySubscribe $subscribe
+ * @property int $notifyOwnerId
+ * @property NotifyOwner $notifyOwner
+ *
  * @property ForumApp $app
  */
 class ForumTopic extends AbricosModel {

@@ -55,6 +55,18 @@
       "type": "model:comment:Statistic",
       "json": "cmtstat"
     },
+    "subscribe": {
+      "type": "model:notify:Subscribe",
+      "json": "sbs"
+    },
+    "notifyOwnerId": {
+      "type": "int",
+      "json": "nownid"
+    },
+    "notifyOwner": {
+      "type": "model:notify:Owner",
+      "json": "nown"
+    },
     "files": {
       "type": "modelList:FileList"
     }

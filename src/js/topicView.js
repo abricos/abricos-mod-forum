@@ -3,7 +3,7 @@ Component.requires = {
     mod: [
         {name: 'filemanager', files: ['attachment.js']},
         {name: 'comment', files: ['tree.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['subscribe.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -11,21 +11,6 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         COMPONENT = this,
         SYS = Brick.mod.sys;
-
-    var aTargetBlank = function(el){
-        if (el.tagName == 'A'){
-            el.target = "_blank";
-        } else if (el.tagName == 'IMG'){
-            el.style.maxWidth = "100%";
-            el.style.height = "auto";
-        }
-        var chs = el.childNodes;
-        for (var i = 0; i < chs.length; i++){
-            if (chs[i]){
-                aTargetBlank(chs[i]);
-            }
-        }
-    };
 
     NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
         initializer: function(){
@@ -41,6 +26,7 @@ Component.entryPoint = function(NS){
             if (this._commentsWidget){
                 this._commentsWidget.destroy();
                 this._filesWidget.destroy();
+                this._subscribeWidget.destroy();
             }
         },
         onInitAppWidget: function(err, appInstance){
@@ -82,6 +68,10 @@ Component.entryPoint = function(NS){
 
             this._filesWidget = new Brick.mod.filemanager.AttachmentListWidget(tp.gel('files'), files);
             tp.toggleView(files.length > 0, 'filesPanel');
+
+            this._subscribeWidget = new NS.TopicCommentSubscribeButtonWidget({
+                srcNode: tp.one('subscribe')
+            });
 
             this.renderTopic();
         },

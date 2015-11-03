@@ -2,15 +2,13 @@
 <div class="panel panel-default topicView">
     <div class="panel-heading text-center">
         <div class="pull-left">
-            <span id="{i#title}"></span>
+            <span id="{i#title}" class="panel-title"></span>
         </div>
 
         <img src="/images/loading.gif" data-wait="show"/>
 
         <div class="pull-right">
-            <a data-url="topic.list" href="#"
-               class="btn btn-default btn-xs"
-               title="Вернуться к списку тем">Список тем</a>
+            <div id="{i#subscribe}"></div>
         </div>
         <div class="clearfix"></div>
     </div>
@@ -23,6 +21,7 @@
                 <div id="{i#filesPanel}" class="hide">
                     <hr/>
                     <h4>Прикрепленные файлы</h4>
+
                     <div id="{i#files}"></div>
                 </div>
             </div>

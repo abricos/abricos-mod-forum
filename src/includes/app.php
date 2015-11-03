@@ -321,6 +321,14 @@ class ForumApp extends AbricosApplication {
             $fileList->Add($this->InstanceClass('File', $d));
         }
 
+        $notifyApp = $this->NotifyApp();
+
+        $topic->notifyOwner = $notifyApp->OwnerById($topic->notifyOwnerId);
+
+        if (Abricos::$user->id > 0){
+            $topic->subscribe = $notifyApp->Subscribe($topic->notifyOwner);
+        }
+
         if ($updateViewCount){
             ForumQuery::TopicViewCountUpdate($this, $topic);
         }
@@ -463,6 +471,10 @@ class ForumApp extends AbricosApplication {
         ){
             return true;
         }
+        if ($owner->type === 'topic' && $owner->method === 'comment' && $owner->itemid > 0){
+            return true;
+        }
+
         return false;
     }
 }

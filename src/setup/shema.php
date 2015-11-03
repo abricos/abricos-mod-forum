@@ -113,6 +113,8 @@ if ($updateManager->isUpdate('0.1.8')){
 
 			viewcount INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 
+            notifyOwnerId INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
             upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата/время обновления',
 
             language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
@@ -324,6 +326,13 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		INNER JOIN ".$pfx."notify_owner o
 		    ON o.ownerModule='forum' AND o.ownerType='topic' AND o.ownerMethod='comment'
 		    AND o.ownerItemId=t.topicid
+	");
+
+    $db->query_write("
+        UPDATE ".$pfx."forum_topic t
+        INNER JOIN ".$pfx."notify_owner o ON o.ownerModule='forum' AND o.ownerType='topic'
+            AND o.ownerMethod='comment' AND o.ownerItemId=t.topicid
+        SET notifyOwnerId=o.ownerid
 	");
 
 }

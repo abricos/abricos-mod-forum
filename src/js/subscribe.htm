@@ -1,23 +1,25 @@
 <!--{topicNewButton}-->
-<button id="{i#buttonOn}" data-click="on" type="button"
-        class="btn btn-default btn-xs hide"
-        title="Уведомлять о новых темах на форуме">
-    Уведомлять
-</button>
-<button id="{i#buttonOff}" data-click="off" type="button"
-        class="btn btn-default btn-xs hide"
-        title="Отписаться от уведомлений новых тем на форуме">
-    Отписаться
-</button>
+<div class="topicNewButton">
+    <button id="{i#buttonOn}" data-click="on" type="button"
+            class="btn btn-default btn-xs statusOff"
+            title="Уведомлять о новых темах на форуме">
+        Уведомлять
+    </button>
+    <button id="{i#buttonOff}" data-click="off" type="button"
+            class="btn btn-default btn-xs statusOn"
+            title="Отписаться от уведомлений новых тем на форуме">
+        Отписаться
+    </button>
+</div>
 
 <!--{topicCommentButton}-->
 <button id="{i#buttonOn}" data-click="on" type="button"
-        class="btn btn-default btn-xs hide"
+        class="btn btn-default btn-xs statusOn"
         title="Уведомлять о новых сообщениях в этой теме">
     Уведомлять
 </button>
 <button id="{i#buttonOff}" data-click="off" type="button"
-        class="btn btn-default btn-xs hide"
+        class="btn btn-default btn-xs statusOff"
         title="Отписаться от уведомлений новых сообщений в этой теме">
     Отписаться
 </button>

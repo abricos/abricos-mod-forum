@@ -161,6 +161,8 @@ if ($updateManager->isUpdate('0.1.8')){
     $ownerForum = $notifyApp->OwnerSave(array(
         'module' => 'forum',
         'status' => NotifyOwner::STATUS_ON,
+        'defaultStatus' => NotifySubscribe::STATUS_ON,
+        'defaultEmailStatus' => NotifySubscribe::EML_STATUS_PARENT,
         'isBase' => true
     ));
 
@@ -170,15 +172,19 @@ if ($updateManager->isUpdate('0.1.8')){
         'type' => 'topic',
         'method' => 'new',
         'status' => NotifyOwner::STATUS_ON,
+        'defaultStatus' => NotifySubscribe::STATUS_OFF,
+        'defaultEmailStatus' => NotifySubscribe::EML_STATUS_PARENT,
         'isBase' => true
     ));
 
-    $ownerTopicCommentId = $notifyApp->OwnerSave(array(
+    $ownerTopicComment = $notifyApp->OwnerSave(array(
         'parentid' => $ownerForum->id,
         'module' => 'forum',
         'type' => 'topic',
         'method' => 'comment',
         'status' => NotifyOwner::STATUS_ON,
+        'defaultStatus' => NotifySubscribe::STATUS_OFF,
+        'defaultEmailStatus' => NotifySubscribe::EML_STATUS_FIRST,
         'isBase' => true,
         'isContainer' => true
     ));
@@ -303,7 +309,7 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		    parentid, ownerModule, ownerType, ownerMethod, ownerItemId, ownerStatus
 		)
 		SELECT
-		    ".intval($ownerTopicCommentId)." as parentid,
+		    ".intval($ownerTopicComment->id)." as parentid,
 		    'forum' as ownerModule,
 		    'topic' as ownerType,
 		    'comment' as ownerMethod,

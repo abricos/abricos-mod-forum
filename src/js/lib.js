@@ -118,5 +118,4 @@ Component.entryPoint = function(NS){
             }
         }
     });
-
 };

@@ -18,17 +18,17 @@ Component.entryPoint = function(NS){
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('moduleSubscribe'),
-                ownerDefine: {value: NS.SUBSCRIBE.MODULE}
+                ownerDefine: NS.SUBSCRIBE.MODULE
             });
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('topicNewSubscribe'),
-                ownerDefine: {value: NS.SUBSCRIBE.TOPIC_NEW}
+                ownerDefine: NS.SUBSCRIBE.TOPIC_NEW
             });
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('topicCommentSubscribe'),
-                ownerDefine: {value: NS.SUBSCRIBE.TOPIC_COMMENT}
+                ownerDefine: NS.SUBSCRIBE.TOPIC_COMMENT
             });
         },
         destructor: function(){

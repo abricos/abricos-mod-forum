@@ -183,7 +183,7 @@ if ($updateManager->isUpdate('0.1.8')){
         'type' => 'topic',
         'method' => 'comment',
         'status' => NotifyOwner::STATUS_ON,
-        'defaultStatus' => NotifySubscribe::STATUS_OFF,
+        'defaultStatus' => NotifySubscribe::STATUS_ON,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_FIRST,
         'isBase' => true,
         'isContainer' => true

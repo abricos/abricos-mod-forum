@@ -164,8 +164,10 @@ class ForumApp extends AbricosApplication {
         }
 
         if ($sendNewNotify){
-            // Отправить уведомление всем модераторам
 
+            $this->NotifyApp()->NotifyAppend(ForumSubscribe::TOPIC_NEW, $topic->id);
+
+            /*
             $brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
             $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
             $plnk = "http://".$host.$topic->URI();
@@ -193,6 +195,7 @@ class ForumApp extends AbricosApplication {
                 ));
                 Abricos::Notify()->SendMail($email, $subject, $body);
             }
+            /**/
         }
 
         $ret = new stdClass();

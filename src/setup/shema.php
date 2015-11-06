@@ -158,35 +158,46 @@ if ($updateManager->isUpdate('0.1.8')){
     $notifyManager->RolesDisable();
     $notifyApp = $notifyManager->GetApp();
 
-    $ownerForum = $notifyApp->OwnerSave(array(
+    // Module Owner
+    $ownerForumId = $notifyApp->OwnerBaseAppend(array(
+        'recordType' => NotifyOwner::TYPE_MODULE,
         'module' => 'forum',
         'status' => NotifyOwner::STATUS_ON,
         'defaultStatus' => NotifySubscribe::STATUS_ON,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_PARENT,
-        'isBase' => true
     ));
 
-    $notifyApp->OwnerSave(array(
-        'parentid' => $ownerForum->id,
+    // Topic Container Owner
+    $ownerForumTopicId = $notifyApp->OwnerBaseAppend(array(
+        'recordType' => NotifyOwner::TYPE_CONTAINER,
+        'parentid' => $ownerForumId,
+        'module' => 'forum',
+        'type' => 'topic',
+        'status' => NotifyOwner::STATUS_ON
+    ));
+
+    // Topic New Method Owner
+    $notifyApp->OwnerBaseAppend(array(
+        'parentid' => $ownerForumTopicId,
+        'recordType' => NotifyOwner::TYPE_METHOD,
         'module' => 'forum',
         'type' => 'topic',
         'method' => 'new',
         'status' => NotifyOwner::STATUS_ON,
         'defaultStatus' => NotifySubscribe::STATUS_OFF,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_PARENT,
-        'isBase' => true
     ));
 
-    $ownerTopicComment = $notifyApp->OwnerSave(array(
-        'parentid' => $ownerForum->id,
+    // Topic Comment Method Owner
+    $ownerTopicCommentId = $notifyApp->OwnerBaseAppend(array(
+        'parentid' => $ownerForumTopicId,
+        'recordType' => NotifyOwner::TYPE_METHOD,
         'module' => 'forum',
         'type' => 'topic',
         'method' => 'comment',
         'status' => NotifyOwner::STATUS_ON,
         'defaultStatus' => NotifySubscribe::STATUS_ON,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_FIRST,
-        'isBase' => true,
-        'isContainer' => true
     ));
 }
 
@@ -309,7 +320,7 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		    parentid, ownerModule, ownerType, ownerMethod, ownerItemId, ownerStatus
 		)
 		SELECT
-		    ".intval($ownerTopicComment->id)." as parentid,
+		    ".intval($ownerTopicCommentId)." as parentid,
 		    'forum' as ownerModule,
 		    'topic' as ownerType,
 		    'comment' as ownerMethod,

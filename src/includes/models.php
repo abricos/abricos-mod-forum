@@ -28,9 +28,9 @@
  * @property CommentStatistic $commentStatistic
  * @property ForumFileList $files
  *
- * @property NotifySubscribe $subscribe
  * @property int $notifyOwnerId
  * @property NotifyOwner $notifyOwner
+ * @property NotifySubscribe $subscribeComment
  *
  * @property ForumApp $app
  */
@@ -106,6 +106,7 @@ class ForumTopic extends AbricosModel {
         ));
     }
 
+    /*
     private $_notifyOwner;
 
     public function GetNotifyOwner(){
@@ -118,6 +119,7 @@ class ForumTopic extends AbricosModel {
             "ownerid" => $this->id
         ));
     }
+    /**/
 
     public function GetUserIds(){
         $ret = array();

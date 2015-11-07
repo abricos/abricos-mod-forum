@@ -326,12 +326,12 @@ class ForumApp extends AbricosApplication {
             $fileList->Add($this->InstanceClass('File', $d));
         }
 
-        $notifyApp = $this->NotifyApp();
 
-        $topic->notifyOwner = $notifyApp->OwnerById($topic->notifyOwnerId);
+        // $topic->notifyOwner = $notifyApp->OwnerById($topic->notifyOwnerId);
 
         if (Abricos::$user->id > 0){
-            // $topic->subscribe = $notifyApp->Subscribe($topic->notifyOwner);
+            $notifyApp = $this->NotifyApp();
+            $topic->subscribeComment = $notifyApp->SubscribeByKey(ForumSubscribe::TOPIC_COMMENT, $topic->id);
         }
 
         if ($updateViewCount){
@@ -463,24 +463,13 @@ class ForumApp extends AbricosApplication {
 
     /**
      * @param NotifyOwner $owner
-     * @param NotifySubscribe $subscribe
+     * @return bool
      */
-    public function Notify_IsSubscribeUpdate($owner, $subscribe){
+    public function Notify_IsSubscribeAppend($owner){
         if (!$this->manager->IsViewRole()){
             return false;
         }
-        if (
-            ($owner->type === '' && $owner->method === '' && $owner->itemid === 0) ||
-            ($owner->type === 'topic' && $owner->method === 'comment' && $owner->itemid === 0) ||
-            ($owner->type === 'topic' && $owner->method === 'new' && $owner->itemid === 0)
-        ){
-            return true;
-        }
-        if ($owner->type === 'topic' && $owner->method === 'comment' && $owner->itemid > 0){
-            return true;
-        }
-
-        return false;
+        return true;
     }
 }
 

@@ -139,12 +139,8 @@ class ForumApp extends AbricosApplication {
         if ($topic->id === 0){
             $topic->id = ForumQuery::TopicAppend($this, $curTopic);
 
-            $owner = $this->NotifyApp()->SubscribeItemAppend(
-                ForumSubscribe::TOPIC_COMMENT,
-                ForumSubscribe::TOPIC_COMMENT_ITEM,
-                $topic->id
-            );
-            ForumQuery::TopicSetNotifyOwnerId($this, $topic, $owner->id);
+            $ownerItem = $this->NotifyApp()->NotifyAppend(ForumSubscribe::TOPIC_NEW, $topic->id);
+            ForumQuery::TopicSetNotifyOwnerId($this, $topic->id, $ownerItem->id);
         } else {
             ForumQuery::TopicUpdate($this, $curTopic);
         }
@@ -165,7 +161,6 @@ class ForumApp extends AbricosApplication {
 
         if ($sendNewNotify){
 
-            $this->NotifyApp()->NotifyAppend(ForumSubscribe::TOPIC_NEW, $topic->id);
 
             /*
             $brick = Brick::$builder->LoadBrickS('forum', 'templates', null, null);
@@ -336,7 +331,7 @@ class ForumApp extends AbricosApplication {
         $topic->notifyOwner = $notifyApp->OwnerById($topic->notifyOwnerId);
 
         if (Abricos::$user->id > 0){
-            $topic->subscribe = $notifyApp->Subscribe($topic->notifyOwner);
+            // $topic->subscribe = $notifyApp->Subscribe($topic->notifyOwner);
         }
 
         if ($updateViewCount){

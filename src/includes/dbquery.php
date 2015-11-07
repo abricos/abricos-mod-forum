@@ -34,12 +34,12 @@ class ForumQuery {
         return $topicid;
     }
 
-    public static function TopicSetNotifyOwnerId(ForumApp $app, ForumTopic $topic, $ownerid){
+    public static function TopicSetNotifyOwnerId(ForumApp $app, $topicid, $ownerid){
         $db = $app->db;
         $sql = "
 			UPDATE ".$db->prefix."forum_topic
 			SET notifyOwnerId=".intval($ownerid)."
-			WHERE topicid=".intval($topic->id)."
+			WHERE topicid=".intval($topicid)."
 			LIMIT 1
 		";
         $db->query_write($sql);

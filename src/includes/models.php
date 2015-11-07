@@ -259,11 +259,8 @@ class ForumConfig extends AbricosModel {
 }
 
 class ForumSubscribe {
-    const MODULE = 'forum';
-    const TOPIC = 'forum:topic';
     const TOPIC_NEW = 'forum:topic:new';
     const TOPIC_COMMENT = 'forum:topic:comment';
-    const TOPIC_COMMENT_ITEM = 'forum:topic:comment:{v#itemid}';
 }
 
 ?>

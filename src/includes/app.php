@@ -139,7 +139,11 @@ class ForumApp extends AbricosApplication {
         if ($topic->id === 0){
             $topic->id = ForumQuery::TopicAppend($this, $curTopic);
 
-            $ownerItem = $this->NotifyApp()->NotifyAppend(ForumSubscribe::TOPIC_NEW, $topic->id);
+            $notifyApp = $this->NotifyApp();
+
+            $ownerItem = $notifyApp->OwnerItemAppend(ForumSubscribe::TOPIC, $topic->id);
+            $notifyApp->NotifyAppendByKey(ForumSubscribe::TOPIC_NEW, $topic->id);
+
             ForumQuery::TopicSetNotifyOwnerId($this, $topic->id, $ownerItem->id);
         } else {
             ForumQuery::TopicUpdate($this, $curTopic);
@@ -326,12 +330,13 @@ class ForumApp extends AbricosApplication {
             $fileList->Add($this->InstanceClass('File', $d));
         }
 
-
         // $topic->notifyOwner = $notifyApp->OwnerById($topic->notifyOwnerId);
 
         if (Abricos::$user->id > 0){
             $notifyApp = $this->NotifyApp();
             $topic->subscribeComment = $notifyApp->SubscribeByKey(ForumSubscribe::TOPIC_COMMENT, $topic->id);
+
+            $notifyApp->EventRead(ForumSubscribe::TOPIC, $topic->id);
         }
 
         if ($updateViewCount){

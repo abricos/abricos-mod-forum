@@ -189,6 +189,18 @@ if ($updateManager->isUpdate('0.1.8')){
         'eventTimeout' => 60 * 10
     ));
 
+    // Topic Change Method Owner
+    $ownerTopicChangeId = $notifyApp->OwnerBaseAppend(array(
+        'parentid' => $ownerForumTopicId,
+        'recordType' => NotifyOwner::TYPE_METHOD,
+        'module' => 'forum',
+        'type' => 'topic',
+        'method' => 'change',
+        'status' => NotifyOwner::STATUS_ON,
+        'defaultStatus' => NotifySubscribe::STATUS_ON,
+        'defaultEmailStatus' => NotifySubscribe::EML_STATUS_ALWAYS,
+    ));
+
     // Topic Comment Method Owner
     $ownerTopicCommentId = $notifyApp->OwnerBaseAppend(array(
         'parentid' => $ownerForumTopicId,
@@ -200,6 +212,7 @@ if ($updateManager->isUpdate('0.1.8')){
         'defaultStatus' => NotifySubscribe::STATUS_ON,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_FIRST,
     ));
+
 }
 
 if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){

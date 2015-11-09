@@ -261,7 +261,24 @@ class ForumConfig extends AbricosModel {
 }
 
 class ForumSubscribe {
+    /**
+     * Container Key
+     */
+    const TOPIC = 'forum:topic';
+
+    /**
+     * Topic New Event Key
+     */
     const TOPIC_NEW = 'forum:topic:new';
+
+    /**
+     * Topic Change Event Key
+     */
+    const TOPIC_CHANGE = 'forum:topic:change';
+
+    /**
+     * Topic New Comment Event Key
+     */
     const TOPIC_COMMENT = 'forum:topic:comment';
 }
 

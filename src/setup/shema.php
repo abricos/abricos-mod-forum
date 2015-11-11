@@ -156,10 +156,10 @@ if ($updateManager->isUpdate('0.1.8')){
     /** @var NotifyManager $notifyManager */
     $notifyManager = Abricos::GetModule('notify')->GetManager();
     $notifyManager->RolesDisable();
-    $notifyApp = $notifyManager->GetApp();
+    $notifyOwnerApp = $notifyManager->GetApp()->Owner();
 
     // Module Owner
-    $ownerForumId = $notifyApp->OwnerBaseAppend(array(
+    $ownerForumId = $notifyOwnerApp->BaseAppend(array(
         'recordType' => NotifyOwner::TYPE_MODULE,
         'module' => 'forum',
         'status' => NotifyOwner::STATUS_ON,
@@ -168,7 +168,7 @@ if ($updateManager->isUpdate('0.1.8')){
     ));
 
     // Topic Container Owner
-    $ownerForumTopicId = $notifyApp->OwnerBaseAppend(array(
+    $ownerForumTopicId = $notifyOwnerApp->BaseAppend(array(
         'recordType' => NotifyOwner::TYPE_CONTAINER,
         'parentid' => $ownerForumId,
         'module' => 'forum',
@@ -177,7 +177,7 @@ if ($updateManager->isUpdate('0.1.8')){
     ));
 
     // Topic New Method Owner
-    $notifyApp->OwnerBaseAppend(array(
+    $notifyOwnerApp->BaseAppend(array(
         'parentid' => $ownerForumTopicId,
         'recordType' => NotifyOwner::TYPE_METHOD,
         'module' => 'forum',
@@ -190,7 +190,7 @@ if ($updateManager->isUpdate('0.1.8')){
     ));
 
     // Topic Change Method Owner
-    $ownerTopicChangeId = $notifyApp->OwnerBaseAppend(array(
+    $ownerTopicChangeId = $notifyOwnerApp->BaseAppend(array(
         'parentid' => $ownerForumTopicId,
         'recordType' => NotifyOwner::TYPE_METHOD,
         'module' => 'forum',
@@ -202,7 +202,7 @@ if ($updateManager->isUpdate('0.1.8')){
     ));
 
     // Topic Comment Method Owner
-    $ownerTopicCommentId = $notifyApp->OwnerBaseAppend(array(
+    $ownerTopicCommentId = $notifyOwnerApp->BaseAppend(array(
         'parentid' => $ownerForumTopicId,
         'recordType' => NotifyOwner::TYPE_METHOD,
         'module' => 'forum',

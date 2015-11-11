@@ -186,6 +186,7 @@ if ($updateManager->isUpdate('0.1.8')){
         'status' => NotifyOwner::STATUS_ON,
         'defaultStatus' => NotifySubscribe::STATUS_OFF,
         'defaultEmailStatus' => NotifySubscribe::EML_STATUS_PARENT,
+        'isChildSubscribe' => true,
         'eventTimeout' => 60 * 10
     ));
 

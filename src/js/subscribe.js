@@ -33,9 +33,9 @@ Component.entryPoint = function(NS){
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'topicNewButton'},
+            templateBlockName: {value: 'topicCommentButton'},
             ownerDefine: {
-                value: NS.SUBSCRIBE.TOPIC_COMMENT_ITEM
+                value: NS.SUBSCRIBE.TOPIC_COMMENT
             }
         }
     });

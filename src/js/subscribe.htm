@@ -1,5 +1,5 @@
 <!--{topicNewButton}-->
-<div class="topicNewButton">
+<div class="aw-notify topicNewSubscribeButton">
     <button id="{i#buttonOn}" data-click="on" type="button"
             class="btn btn-default btn-xs statusOff"
             title="Уведомлять о новых темах на форуме">
@@ -13,13 +13,15 @@
 </div>
 
 <!--{topicCommentButton}-->
-<button id="{i#buttonOn}" data-click="on" type="button"
-        class="btn btn-default btn-xs statusOn"
-        title="Уведомлять о новых сообщениях в этой теме">
-    Уведомлять
-</button>
-<button id="{i#buttonOff}" data-click="off" type="button"
-        class="btn btn-default btn-xs statusOff"
-        title="Отписаться от уведомлений новых сообщений в этой теме">
-    Отписаться
-</button>
+<div class="aw-notify topicCommentSubscribeButton">
+    <button id="{i#buttonOn}" data-click="on" type="button"
+            class="btn btn-default btn-xs statusOff"
+            title="Уведомлять о новых сообщениях в этой теме">
+        Уведомлять
+    </button>
+    <button id="{i#buttonOff}" data-click="off" type="button"
+            class="btn btn-default btn-xs statusOn"
+            title="Отписаться от уведомлений новых сообщений в этой теме">
+        Отписаться
+    </button>
+</div>

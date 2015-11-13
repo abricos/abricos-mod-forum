@@ -186,8 +186,7 @@ Component.entryPoint = function(NS){
     NS.SUBSCRIBE = {
         MODULE: 'forum',
         TOPIC_NEW: 'forum:topic:new',
-        TOPIC_COMMENT: 'forum:topic:comment',
-        TOPIC_COMMENT_ITEM: 'forum:topic:comment:{v#itemid}'
+        TOPIC_COMMENT: 'forum:topic:comment'
     };
 
 };

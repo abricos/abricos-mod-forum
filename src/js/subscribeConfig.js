@@ -10,7 +10,8 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var NOTIFY = Brick.mod.notify;
+    var NOTIFY = Brick.mod.notify,
+        SB = NS.SUBSCRIBE;
 
     NS.SubscribeConfigWidget = Y.Base.create('subscribeConfigWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -18,17 +19,17 @@ Component.entryPoint = function(NS){
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('moduleSubscribe'),
-                ownerDefine: NS.SUBSCRIBE.MODULE
+                ownerDefine: SB.MODULE
             });
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('topicNewSubscribe'),
-                ownerDefine: NS.SUBSCRIBE.TOPIC_NEW
+                ownerDefine: SB.TOPIC_NEW
             });
 
             this.moduleButton = new NOTIFY.SubscribeConfigButtonWidget({
                 srcNode: tp.one('topicCommentSubscribe'),
-                ownerDefine: NS.SUBSCRIBE.TOPIC_COMMENT
+                ownerDefine: SB.TOPIC_COMMENT
             });
         },
         destructor: function(){

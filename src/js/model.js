@@ -160,7 +160,6 @@ Component.entryPoint = function(NS){
                 readOnly: true,
                 getter: function(){
                     var status = this.get('status');
-                    // console.log(this.toJSON());
                     return LNG.get('model.topic.status.' + status);
                 }
             }
@@ -185,8 +184,14 @@ Component.entryPoint = function(NS){
 
     NS.SUBSCRIBE = {
         MODULE: 'forum',
+
+        TOPIC: 'forum:topic',
         TOPIC_NEW: 'forum:topic:new',
-        TOPIC_COMMENT: 'forum:topic:comment'
+        TOPIC_COMMENT: 'forum:topic:comment',
+        TOPIC_CHANGE: 'forum:topic:change',
+
+        TOPIC_ITEM: 'forum:topic::{v#item}',
+        TOPIC_COMMENT_ITEM: 'forum:topic:comment:{v#itemid}'
     };
 
 };

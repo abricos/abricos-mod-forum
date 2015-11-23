@@ -71,8 +71,8 @@ Component.entryPoint = function(NS){
 
             this._subscribeWidget = new NS.TopicCommentSubscribeButtonWidget({
                 srcNode: tp.one('subscribe'),
-                ownerItemId: topic.get('id'),
-                subscribe: topic.get('subscribeComment')
+                ownerKey: NS.SUBSCRIBE.TOPIC_COMMENT_ITEM,
+                ownerItemId: topic.get('id')
             });
 
             this.renderTopic();

@@ -332,14 +332,11 @@ class ForumApp extends AbricosApplication {
             $fileList->Add($this->InstanceClass('File', $d));
         }
 
-
         if (Abricos::$user->id > 0){
             $notifyApp = $this->NotifyApp();
 
-            $topic->notifyOwner = $notifyApp->Owner()->ById($topic->notifyOwnerId);
-            $topic->subscribeComment = $notifyApp->Subscribe()->ItemMethodByKey(ForumSubscribe::TOPIC_COMMENT, $topic->id);
-
-            // $notifyApp->EventRead(ForumSubscribe::TOPIC, $topic->id);
+            $topic->notifyOwnerList = $notifyApp->Owner()->ItemWithMethodListByKey(ForumSubscribe::TOPIC, $topicid);
+            $topic->notifySubscribeList = $notifyApp->Subscribe()->ItemWithMethodListByKey(ForumSubscribe::TOPIC, $topic->id);
         }
 
         if ($updateViewCount){

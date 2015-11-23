@@ -59,13 +59,13 @@
       "type": "int",
       "json": "nownid"
     },
-    "notifyOwner": {
-      "type": "model:notify:Owner",
-      "json": "nown"
+    "notifyOwnerList": {
+      "type": "modelList:notify:OwnerList",
+      "json": "nowns"
     },
-    "subscribeComment": {
-      "type": "model:notify:Subscribe",
-      "json": "sbs"
+    "notifySubscribeList": {
+      "type": "modelList:notify:SubscribeList",
+      "json": "nsbs"
     },
     "files": {
       "type": "modelList:FileList"

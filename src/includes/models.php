@@ -29,8 +29,8 @@
  * @property ForumFileList $files
  *
  * @property int $notifyOwnerId
- * @property NotifyOwner $notifyOwner
- * @property NotifySubscribe $subscribeComment
+ * @property NotifyOwnerList $notifyOwnerList
+ * @property NotifySubscribeList $notifySubscribeList
  *
  * @property ForumApp $app
  */

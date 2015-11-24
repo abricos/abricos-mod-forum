@@ -145,7 +145,7 @@ class ForumApp extends AbricosApplication {
 
             ForumQuery::TopicSetNotifyOwnerId($this, $topic->id, $ownerItem->id);
 
-            // $notifyApp->NotifyAppendByKey(ForumSubscribe::TOPIC_NEW, $topic->id);
+            $notifyApp->EventAppend(ForumSubscribe::TOPIC_NEW, $topic->id);
 
         } else {
             ForumQuery::TopicUpdate($this, $curTopic);
@@ -337,6 +337,8 @@ class ForumApp extends AbricosApplication {
 
             $topic->notifyOwnerList = $notifyApp->Owner()->ItemWithMethodListByKey(ForumSubscribe::TOPIC, $topicid);
             $topic->notifySubscribeList = $notifyApp->Subscribe()->ItemWithMethodListByKey(ForumSubscribe::TOPIC, $topic->id);
+
+            $notifyApp->ActivityUpdate(ForumSubscribe::TOPIC, $topicid);
         }
 
         if ($updateViewCount){

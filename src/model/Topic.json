@@ -67,6 +67,14 @@
       "type": "modelList:notify:SubscribeList",
       "json": "nsbs"
     },
+    "isNew": {
+      "type": "bool",
+      "json": "new"
+    },
+    "isCommentNew": {
+      "type": "bool",
+      "json": "cmt"
+    },
     "files": {
       "type": "modelList:FileList"
     }

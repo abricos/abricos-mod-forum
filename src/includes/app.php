@@ -372,6 +372,10 @@ class ForumApp extends AbricosApplication {
         $topicids = $list->Ids();
         $statList = $this->CommentApp()->StatisticList('forum', 'topic', $topicids);
         $list->SetCommentStatistics($statList);
+
+        $noticeList = $this->NotifyApp()->NoticeListByOwnerItemIds(ForumSubscribe::TOPIC, $topicids);
+        $list->SetNotices($noticeList);
+
         return $list;
     }
 

@@ -32,6 +32,9 @@
  * @property NotifyOwnerList $notifyOwnerList
  * @property NotifySubscribeList $notifySubscribeList
  *
+ * @property bool $isNew
+ * @property bool $isCommentNew
+ *
  * @property ForumApp $app
  */
 class ForumTopic extends AbricosModel {
@@ -106,21 +109,6 @@ class ForumTopic extends AbricosModel {
         ));
     }
 
-    /*
-    private $_notifyOwner;
-
-    public function GetNotifyOwner(){
-        if (!empty($this->_notifyOwner)){
-            return $this->_notifyOwner;
-        }
-        return $this->_notifyOwner = $this->app->NotifyApp()->InstanceClass('Owner', array(
-            "module" => "forum",
-            "type" => "topic",
-            "ownerid" => $this->id
-        ));
-    }
-    /**/
-
     public function GetUserIds(){
         $ret = array();
         $ret[] = $this->userid;
@@ -164,7 +152,8 @@ class ForumTopicList extends AbricosModelList {
      * @param CommentStatisticList $list
      */
     public function SetCommentStatistics($list){
-        for ($i = 0; $i < $list->Count(); $i++){
+        $cnt = $list->Count();
+        for ($i = 0; $i < $cnt; $i++){
             $stat = $list->GetByIndex($i);
             $topic = $this->Get($stat->id);
             if (empty($topic)){
@@ -172,6 +161,30 @@ class ForumTopicList extends AbricosModelList {
             }
             $topic->commentStatistic = $stat;
         }
+    }
+
+    /**
+     * @param NotifyNoticeList $list
+     */
+    public function SetNotices($list){
+        $cnt = $list->Count();
+        for ($i = 0; $i < $cnt; $i++){
+            $notice = $list->GetByIndex($i);
+            $topic = $this->Get($notice->itemid);
+            if (empty($topic)){
+                continue; // what is it? %)
+            }
+            switch ($notice->method){
+                case ForumSubscribe::MD_NEW:
+                    $topic->isNew = true;
+                    break;
+
+                case ForumSubscribe::MD_COMMENT:
+                    $topic->isCommentNew = true;
+                    break;
+            }
+        }
+
     }
 
     public function FillUsers(){
@@ -261,6 +274,10 @@ class ForumConfig extends AbricosModel {
 }
 
 class ForumSubscribe {
+    const MD_NEW = 'new';
+    const MD_CHANGE = 'change';
+    const MD_COMMENT = 'comment';
+
     /**
      * Container Key
      */

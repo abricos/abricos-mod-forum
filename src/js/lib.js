@@ -54,6 +54,7 @@ Component.entryPoint = function(NS){
                     var notifyApp = this.getApp('notify');
                     notifyApp.registerOwnerList(topic.get('notifyOwnerList'));
                     notifyApp.registerSubscribeList(topic.get('notifySubscribeList'));
+                    notifyApp.summaryUpdate();
 
                     var userIds = topic.getUserIds();
                     if (userIds.length === 0){

@@ -17,8 +17,6 @@
         <div class="panel-body">
             <div id="{i#table}"></div>
         </div>
-
-
     </div>
 </div>
 
@@ -46,7 +44,10 @@
 <!--{row}-->
 <tr class="topicRow {v#removed} {v#closed}">
     <td class="ttitle">
-        <a href="#" data-url="topic.view({v#id})">{v#title}</a>
+        <a href="#" data-url="topic.view({v#id})">
+            {v#title}
+            {v#isNew}
+        </a>
 
         <div class="author">
             {v#user} » {v#dateline}
@@ -66,3 +67,6 @@
 
 <!--{user}-->
 <a href="#" data-url="uprofile:profile.view({v#userid})">{v#username}</a>
+
+<!--{new}-->
+<span class="newTopicFlag">new</span>

@@ -40,7 +40,8 @@ Component.entryPoint = function(NS){
                 lst = "";
 
             topicList.each(function(topic){
-                var user = topic.get('user'),
+                var isNew = topic.get('isNew') || topic.get('isCommentNew'),
+                    user = topic.get('user'),
                     cmtStatistic = topic.get('commentStatistic'),
                     cmtCount = cmtStatistic.get('count'),
                     d = {
@@ -59,7 +60,8 @@ Component.entryPoint = function(NS){
                         }),
                         cmtdate: Brick.dateExt.convert(topic.get('upddate')),
                         closed: topic.isClosed() ? 'closed' : '',
-                        removed: topic.isRemoved() ? 'removed' : ''
+                        removed: topic.isRemoved() ? 'removed' : '',
+                        isNew: isNew ? tp.replace('new') : ''
                     };
 
                 user = cmtStatistic.get('lastUser');
@@ -84,7 +86,7 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'widget,table,row,user'
+                value: 'widget,table,row,user,new'
             },
             topicList: {},
             userList: {}

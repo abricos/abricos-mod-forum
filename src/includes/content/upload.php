@@ -41,5 +41,3 @@ if ($error == 0){
         "fname" => $uploadFile->fileName
     ));
 }
-
-?>

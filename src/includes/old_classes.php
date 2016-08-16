@@ -363,5 +363,3 @@ class ForumUserList extends AbricosList {
         return parent::GetByIndex($i);
     }
 }
-
-?>

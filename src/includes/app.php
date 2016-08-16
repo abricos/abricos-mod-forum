@@ -483,5 +483,3 @@ class ForumApp extends AbricosApplication {
         return true;
     }
 }
-
-?>

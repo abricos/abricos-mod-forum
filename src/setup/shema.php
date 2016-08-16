@@ -368,4 +368,3 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 	");
 
 }
-?>

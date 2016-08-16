@@ -123,7 +123,7 @@ class ForumGroup {
 
 class ForumPermission extends Ab_UserPermission {
 
-    public function ForumPermission(ForumModule $module){
+    public function __construct(ForumModule $module){
         $defRoles = array(
             new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::GUEST),
             new Ab_UserRole(ForumAction::VIEW, Ab_UserGroup::REGISTERED),
@@ -151,5 +151,3 @@ class ForumPermission extends Ab_UserPermission {
 }
 
 Abricos::ModuleRegister(new ForumModule());
-
-?>

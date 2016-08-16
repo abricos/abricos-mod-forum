@@ -298,5 +298,3 @@ class ForumSubscribe {
      */
     const TOPIC_COMMENT = 'forum:topic:comment';
 }
-
-?>

@@ -70,5 +70,3 @@ class ForumManager extends Ab_ModuleManager {
     }
 
 }
-
-?>

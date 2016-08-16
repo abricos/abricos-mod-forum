@@ -81,6 +81,3 @@ Brick::$builder->LoadBrickS('comment', 'tree', $brick, array(
         "ownerid" => $topic->id
     )
 ));
-
-
-?>

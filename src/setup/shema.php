@@ -352,7 +352,7 @@ if ($updateManager->isUpdate('0.1.8') && !$updateManager->isInstall()){
 		    o.ownerid,
 		    t.userid,
 		    'on' as status,
-		    'on' as emailStatus,
+		    'first' as emailStatus,
 		    t.dateline
 		FROM ".$pfx."forum_topic t
 		INNER JOIN ".$pfx."notify_owner o
